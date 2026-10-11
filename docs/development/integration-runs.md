@@ -2104,6 +2104,45 @@
   smoothness/capture, API 29 native UI and all live provider accounts remain
   unverified. This substantial mobile redesign still requires merge review.
 
+## 2026-10-11 — Android waiting overlay locale and spacing
+
+- **Revision/build:** `8baff81e860669051ae2c53a4d55643fe45741c6`, signed Debug
+  `app.yuxino.mimi.android.dev`; installed app/test APK hashes match the final
+  files and compiled source fingerprints. Production installation unchanged.
+- **Reported sample / failure boundary:** compact waiting copy was English while
+  settings selected Simplified Chinese, and the card was too short. On API 35,
+  a native foreign-locale context reproduces the old helper returning the wrong
+  language. A second negative run against the installed intermediate build
+  catches the provider label retaining its startup language after a picker switch.
+  Both failures are detected by the new native regressions; the user's exact
+  historical activity/configuration sequence was not instrumented.
+- **Repair:** resolve app-selected/System locales for service UI on every API;
+  refresh the existing provider label/accessibility description; center status-only
+  compact cards with a 56dp minimum and 16dp vertical padding. Captions and
+  immersive mode retain compact padding and saved placement.
+- **Native acceptance:** Android 15/API 35 ARM64, 4 CPU/4 GiB; six final runs passed:
+  Chinese normal, System, 320dp/two-times-font portrait, wide/two-times-font,
+  all eight languages plus System in narrow/dark mode, and narrow native
+  help/error/recovery interactions. Actual views cover expansion/collapse,
+  returning from all primary sections, selected service-language labels,
+  text bounds, caption/immersive restoration and pointer/touch help.
+  Every run restores the original private preferences byte-for-byte and display
+  parameters; no provider, microphone, MediaProjection or recording starts.
+- **Automated acceptance:** `./scripts/check.sh` passed (core 82, runtime 710,
+  desktop 571, frontend 132 files/2072 tests; existing ignored tests unchanged).
+  Android Debug and Release each passed 184 JVM tests, actual JNI, lint and
+  four-ABI native APK/alignment/license checks.
+- **Interrupted run / recovery:** final native acceptance initially had no result
+  when the emulator host hung and its crash reporter raised SIGSEGV. ADB cleanup
+  was interrupted. Excluded that attempt, restarted the same AVD without wiping
+  data or loading snapshots, recovered the private backup, verified final APKs
+  and renderer, then reran all six cases serially after the build. The final
+  renderer reports ANGLE/SwiftShader. This does not establish the hang's cause.
+- **Evidence / limits:** private `android-overlay-locale-height-20261011` bundle
+  contains user samples, negative/native/build logs, screenshots and receipts.
+  API 29, physical-device performance and real provider/audio capture were not
+  rerun for this native UI change; prior live runs retain their original revisions.
+
 ### 2026-10-11 desktop configuration and field copying
 
 - Branch `feat/desktop-settings-actions` starts at `d7b2fe5f` (Android PR #250
@@ -2174,3 +2213,53 @@
 - The user authorized merging after regression. Prior native/UI-only acceptance
   and its Windows/Linux, full tray/overlay and live-provider limits still apply.
   Final-source local checks and CI are verified separately before merge.
+
+### 2026-10-11 Android adjustable captions and direct appearance acceptance
+
+- Tested behavioral source `4b6e1e103579e2117a1a61a2daa5308525611784`,
+  including the current main integration, with a signed Debug development app
+  and matching native instrumentation on the official Android 15 / API 35
+  ARM64 emulator. The installed APK digest matched the tested signed package;
+  the existing development certificate and private configuration were retained.
+- Normal captions now use one adjustable panel with no expand/collapse action.
+  Native touches verified width/height sliders, two-dimensional corner resizing,
+  top-handle movement, atomic saved bounds, fixed-height history scrolling and
+  repeated immersion/restore into the same panel. Left/center/right alignment
+  passed for source, translation, history, waiting text, main preview and
+  immersive captions; display modes preserved paired subtitle state.
+- The quick editor controls the actual outside caption window without its own
+  preview. Waiting font/color, width, height, background and opacity updated
+  immediately. Caption/editor separation and restoration of saved placement
+  passed. A narrow large-font run first exposed Material's transparent centered
+  dialog insets: height 20% and 70% both yielded 130 pixels above the editor.
+  Removing those insets and rerunning the same case yielded 218 and 389 pixels.
+- Ten final native cases passed: explicit Chinese/System/narrow waiting;
+  normal, narrow and wide direct controls; all eight interface languages plus
+  System in narrow dark and wide light layouts; narrow help/error/recovery;
+  and long-caption/history scrolling with immersion restoration. Normal size
+  was 720 x 1600; narrow was 560 x 1240 at 280 dpi and font scale 2; wide was
+  1400 x 700 with font scale 2. Checks covered own-page hiding, settings return,
+  existing-window locale refresh, single/independent provider badges, 48dp
+  actions and the bounded reading viewport. Native screenshot sheets were
+  reviewed across caption, settings, service editor, help and overlay surfaces.
+- Android 15 nonfocusable overlay screen/accessibility coordinates sometimes
+  retained the old origin after resizing. Gesture checks now derive the frame
+  from the actual window attributes and safe insets, verify its boundary with
+  screenshot pixels, and then inject touches. This prevented false overlap
+  assertions and missed corner gestures; production positioning was unchanged.
+- Final `./scripts/check.sh` passed: shared core 82, runtime 710 (one ignored),
+  JNI Rust adapter 5, desktop Rust 574 (one ignored), frontend 133 files /
+  2,093 tests, architecture guards and strict fmt/clippy/typecheck/lint/build.
+  Final Android Debug/Release suites each passed 184 JVM tests, including actual
+  shared JNI/provider fixtures. Debug application/instrumentation assembly,
+  both lint variants and both four-ABI native APK alignment/license checks passed.
+- Fixtures started no audio capture or provider connections. Original private
+  preferences were restored byte-for-byte after every case; display/font
+  overrides were restored and no MediaProjection remained active. Logs,
+  synthetic screenshots and source/package digest receipts stay outside Git.
+  Only the latest Dev launcher is retained; removal of the obsolete production
+  launcher preserved its data. Physical Android devices, API 29, emulator/audio
+  performance and live provider acceptance were not rerun for this UI revision.
+  At the extreme narrow/font-scale-2 blank setup, labels wrap and long content
+  uses its scroll viewport; this run does not claim simultaneous visibility of
+  every subtitle line. Exact-head CI and merge are recorded separately.
