@@ -111,6 +111,7 @@ class MimiService : Service() {
     private var draggingOverlay = false
     private var resizeWidthPercent: Int? = null
     private var resizeHeightPercent: Int? = null
+    private var overlayGeometryGeneration = 0
     private val ownUiUpdate = Runnable { renderBus() }
     private var previewMode = false
     private var sessionSourceLanguage = "auto"
@@ -129,10 +130,17 @@ class MimiService : Service() {
     private var stopObservingAppearance: (() -> Unit)? = null
     private var appearanceDialog: AlertDialog? = null
     private val appearanceUpdate = Runnable { applyAppearance() }
+    private val captionUpdatePending = AtomicBoolean(false)
+    private val captionUpdate = Runnable {
+        captionUpdatePending.set(false)
+        renderBus()
+    }
 
     private val busListener = object : SubtitleBus.Listener {
         override fun onSubtitleChanged() {
-            mainHandler.post { renderBus() }
+            // The shared reducer already preserves final events. Paint the
+            // latest bounded snapshot once instead of queuing redundant frames.
+            if (captionUpdatePending.compareAndSet(false, true)) mainHandler.post(captionUpdate)
         }
     }
 
@@ -428,6 +436,7 @@ class MimiService : Service() {
         health = null
         captureObservation = null
         mainHandler.removeCallbacksAndMessages(null)
+        captionUpdatePending.set(false)
         capturing?.set(false)
         capturing = null
         // Stop blocking reads before waiting for the worker to finish.
@@ -507,6 +516,12 @@ class MimiService : Service() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        // A gesture measured in the previous screen's axes cannot be committed
+        // after rotation. Reapply saved bounds and clamp only the visible frame.
+        draggingOverlay = false
+        resizeWidthPercent = null
+        resizeHeightPercent = null
+        overlayGeometryGeneration++
         mainHandler.post {
             refreshInterfaceLanguage()
             applyAppearance()
@@ -602,11 +617,15 @@ class MimiService : Service() {
             var touchY = 0f
             var touchX = 0f
             var dragged = false
+            var gestureGeneration = -1
             control.setOnTouchListener { _, event ->
                 if (appearanceDialog?.isShowing == true) return@setOnTouchListener true
                 if (immersiveSession) return@setOnTouchListener false
+                if (event.actionMasked != MotionEvent.ACTION_DOWN && gestureGeneration != overlayGeometryGeneration)
+                    return@setOnTouchListener true
                 when (event.actionMasked) {
                     MotionEvent.ACTION_DOWN -> {
+                        gestureGeneration = overlayGeometryGeneration
                         initialY = params.y; initialX = params.x
                         touchY = event.rawY; touchX = event.rawX
                         dragged = false; draggingOverlay = false
@@ -648,10 +667,14 @@ class MimiService : Service() {
         var resizeStartY = 0f
         var resizeStartOffsetX = 0
         var resizeStartOffsetY = 0
+        var resizeGestureGeneration = -1
         panel.findViewWithTag<View>("overlay-resize").setOnTouchListener { control, event ->
             if (appearanceDialog?.isShowing == true) return@setOnTouchListener true
+            if (event.actionMasked != MotionEvent.ACTION_DOWN && resizeGestureGeneration != overlayGeometryGeneration)
+                return@setOnTouchListener true
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    resizeGestureGeneration = overlayGeometryGeneration
                     resizeStartWidth = root.width; resizeStartHeight = root.height
                     resizeStartX = event.rawX; resizeStartY = event.rawY
                     resizeStartOffsetX = params.x; resizeStartOffsetY = params.y
@@ -774,6 +797,7 @@ class MimiService : Service() {
     private fun exitControlY(): Int = OverlayPlacement.exitY(
         overlayParams?.y ?: 0, compactView?.height ?: 0, overlayAvailableSize().second,
         immersiveExitView?.height?.takeIf { it > 0 } ?: dp(48), dp(6),
+        editorOffset(),
     )
 
     private fun setImmersiveMode(enabled: Boolean) {
@@ -815,6 +839,11 @@ class MimiService : Service() {
         transcriptScrollView = panel.transcriptScroll
         panel.findViewWithTag<View>("overlay-actions").addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateOverlayGeometry() }
         panel.status.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateOverlayGeometry() }
+        listOf(panel.source, panel.translation, panel.timestamp).forEach { row ->
+            row.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                mainHandler.post { if (expandedView === panel) updateOverlayGeometry() }
+            }
+        }
         return panel
     }
 
@@ -903,6 +932,14 @@ class MimiService : Service() {
             isClickable = !editing; isFocusable = !editing
             importantForAccessibility = if (editing) View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
                 else View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+        }
+        immersiveExitParams?.let { params ->
+            val flags = if (editing) params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                else params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+            if (flags != params.flags) {
+                params.flags = flags
+                immersiveExitView?.let { windowManager?.updateViewLayout(it, params) }
+            }
         }
     }
 
@@ -1049,9 +1086,9 @@ class MimiService : Service() {
         val chrome = (panel?.paddingTop ?: dp(10)) + (panel?.paddingBottom ?: dp(10)) + dp(8) +
                 (panel?.findViewWithTag<View>("overlay-toolbar")?.height?.takeIf { it > 0 } ?: dp(48)) +
                 (panel?.findViewWithTag<View>("overlay-actions")?.height?.takeIf { it > 0 } ?: dp(48))
-        val lineHeight = expandedTranslationView?.paint?.fontSpacing?.toInt() ?: dp(24)
+        val reading = (panel as? app.yuxino.mimi.android.CaptionPanelView)?.minimumReadingHeight() ?: dp(64)
         return app.yuxino.mimi.android.captionPanelHeight(availableHeight,
-            resizeHeightPercent ?: SettingsStore.overlayHeightPercent(this), chrome, lineHeight, resources.displayMetrics.density)
+            resizeHeightPercent ?: SettingsStore.overlayHeightPercent(this), chrome, reading)
     }
 
     private fun hideOverlay() {
@@ -1091,7 +1128,7 @@ class MimiService : Service() {
             captureObservation?.state, isRunning, isStopping)
         val statusLine = content.status
         (compactView as? app.yuxino.mimi.android.CompactCaptionView)?.let {
-            content.applyRows(it.source, it.translation, it.status, mode)
+            it.showContent(content, mode)
             it.source.setTextColor(if (mode == CaptionDisplayMode.ORIGINAL) SettingsStore.translationColor(this) else 0xFFE7E7E7.toInt())
         }
         (expandedView as? app.yuxino.mimi.android.CaptionPanelView)?.let {

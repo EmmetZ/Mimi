@@ -189,7 +189,10 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
         waitFor {
             val panelFrame = nativeFrame(root())
             val editorFrame = nativeFrame(editor())
-            panelFrame != null && editorFrame != null && panelFrame.bottom <= editorFrame.top
+            val restore = WindowInspector.getGlobalWindowViews().firstOrNull { it.tag == "exit-immersive" }
+            val restoreFrame = restore?.let(::nativeFrame)
+            panelFrame != null && editorFrame != null && panelFrame.bottom <= editorFrame.top &&
+                (restore == null || restoreFrame != null && restoreFrame.bottom <= editorFrame.top)
         }
         onUi { check(editor().findViewById<View>(R.id.subtitle_preview) == null) { "Quick settings duplicated the preview" } }
     }
@@ -314,6 +317,8 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
         val color = SettingsStore.translationColorIndex(context)
         val opacity = SettingsStore.overlayOpacity(context)
         val background = SettingsStore.overlayBgAlpha(context)
+        val dividers = SettingsStore.subtitleDividers(context)
+        val timestamps = SettingsStore.subtitleTimestamps(context)
         val x = SettingsStore.overlayXOffset(context, true)
         val y = SettingsStore.expandedYOffset(context)
         val prefs = context.getSharedPreferences("first_run", 0)
@@ -331,6 +336,7 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
                 SettingsStore.setOverlayBgAlpha(context, 37)
                 SettingsStore.setOverlayOpacity(context, 60)
                 SettingsStore.setDisplayMode(context, CaptionDisplayMode.BILINGUAL)
+                SettingsStore.setSubtitleDividers(context, false); SettingsStore.setSubtitleTimestamps(context, false)
                 check(prefs.edit().putBoolean("seen", true).putBoolean("immersive_seen", true).commit())
             }
             home = test.startActivitySync(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
@@ -405,6 +411,11 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
             waitFor { SettingsStore.overlayWidthPercent(context) == 55 && root().width < initialWidth }
             setSlider(R.id.overlay_width, 92)
             waitFor { root().width == initialWidth }
+            // Large system fonts can give both height endpoints the same
+            // bilingual minimum. Use a readable smaller font to exercise
+            // actual resizing, then restore the large-font reading case.
+            setSlider(R.id.font_size, 12)
+            waitFor { SettingsStore.fontSize(context) == 12 }
             setSlider(R.id.overlay_height, 20)
             waitFor { SettingsStore.overlayHeightPercent(context) == 20 }
             val shortHeight = panel.height
@@ -413,9 +424,23 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
             onUi {
                 test.sendStatus(0, Bundle().apply { putString("stream", "HEIGHT_GEOMETRY short=$shortHeight tall=${panel.height}\n") })
             }
-            waitFor { panel.height > shortHeight }
+            waitFor {
+                val wm = panel.context.getSystemService(android.view.WindowManager::class.java)
+                val available = if (android.os.Build.VERSION.SDK_INT >= 30) {
+                    val metrics = wm.currentWindowMetrics
+                    val insets = metrics.windowInsets.getInsetsIgnoringVisibility(
+                        android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
+                    metrics.bounds.height() - insets.top - insets.bottom
+                } else panel.resources.displayMetrics.heightPixels
+                val minimum = panel.chromeHeight() + panel.minimumReadingHeight()
+                val expectedShort = maxOf(minimum, available * 20 / 100).coerceAtMost(available)
+                val expectedTall = maxOf(minimum, available * 70 / 100).coerceAtMost(available)
+                shortHeight == expectedShort && panel.height == expectedTall
+            }
             assertCompleteInertPreview()
             setSlider(R.id.overlay_height, 30)
+            setSlider(R.id.font_size, 17)
+            waitFor { SettingsStore.fontSize(context) == 17 }
             for (choice in CaptionAlignment.entries) {
                 val spinner = editor().findViewById<android.widget.Spinner>(R.id.caption_alignment)
                 bringIntoView(spinner)
@@ -427,11 +452,29 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
             waitFor { SettingsStore.translationColorIndex(context) == 3 && status.currentTextColor == SettingsStore.translationColor(context) }
             assertEditorAndCaptionSeparated()
             capture("quick-settings-live-green")
+            context.startService(Intent(context, MimiService::class.java).setAction(MimiService.ACTION_UI_PREVIEW_HISTORY))
+            waitFor { panel.history.text.isNotBlank() }
+            val dividerToggle = editor().findViewById<android.widget.CompoundButton>(R.id.subtitle_dividers)
+            val timeToggle = editor().findViewById<android.widget.CompoundButton>(R.id.subtitle_timestamps)
+            check(!dividerToggle.isChecked && !timeToggle.isChecked && !panel.findViewWithTag<View>("history-divider").isShown)
+            bringIntoView(dividerToggle); tapVisible(dividerToggle)
+            waitFor { SettingsStore.subtitleDividers(context) && panel.findViewWithTag<View>("history-divider").isShown }
+            onUi { SubtitleBus.onFinalPair("Synthetic confirmed caption.", "合成已确认字幕。", "en") }
+            bringIntoView(timeToggle); tapVisible(timeToggle)
+            waitFor { SettingsStore.subtitleTimestamps(context) && panel.timestamp.isShown }
+            check(panel.timestamp.text.toString().matches(Regex("[0-9]{2}:[0-9]{2}:[0-9]{2}")))
+            assertCompleteInertPreview()
+            capture("quick-settings-reading-options")
+            bringIntoView(timeToggle); tapVisible(timeToggle)
+            waitFor { !SettingsStore.subtitleTimestamps(context) && !panel.timestamp.isShown }
+            bringIntoView(dividerToggle); tapVisible(dividerToggle)
+            waitFor { !SettingsStore.subtitleDividers(context) && !panel.findViewWithTag<View>("history-divider").isShown }
             val immersionSwitch = editor().findViewById<View>(R.id.immersive_subtitles)
             bringIntoView(immersionSwitch); tapVisible(immersionSwitch)
             waitFor { WindowInspector.getGlobalWindowViews().any { it.tag == "exit-immersive" } }
             val restore = WindowInspector.getGlobalWindowViews().first { it.tag == "exit-immersive" }
-            waitFor { !restore.isClickable && !restore.isFocusable }
+            waitFor { !restore.isClickable && !restore.isFocusable &&
+                (restore.layoutParams as android.view.WindowManager.LayoutParams).flags and android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE != 0 }
             tapVisible(restore)
             onUi { restore.performClick() }
             check(SettingsStore.immersiveSubtitles(context)) { "Quick preview restore action changed immersion" }
@@ -469,7 +512,22 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
             val beforeWidth = root().width; val beforeHeight = root().height
             move(root().findViewWithTag("overlay-resize"), 24, 32)
             onUi { test.sendStatus(0, Bundle().apply { putString("stream", "SIZE_GEOMETRY before=${beforeWidth}x$beforeHeight after=${root().width}x${root().height} saved=${SettingsStore.overlayWidthPercent(context)}/${SettingsStore.overlayHeightPercent(context)}\n") }) }
-            waitFor { root().width > beforeWidth && root().height > beforeHeight }
+            waitFor { root().width > beforeWidth && root().height >= beforeHeight }
+            onUi {
+                if (root().height == beforeHeight) {
+                    val availableHeight = if (android.os.Build.VERSION.SDK_INT >= 30) {
+                        val metrics = context.getSystemService(android.view.WindowManager::class.java).currentWindowMetrics
+                        val insets = metrics.windowInsets.getInsetsIgnoringVisibility(
+                            android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.displayCutout())
+                        metrics.bounds.height() - insets.top - insets.bottom
+                    } else android.graphics.Rect().also(root()::getWindowVisibleDisplayFrame).height()
+                    // An already larger bilingual minimum cannot grow toward a
+                    // lower 70% preference. Otherwise both dimensions must move.
+                    check(beforeHeight >= availableHeight * 70 / 100 && SettingsStore.overlayHeightPercent(context) == 70) {
+                        "Resize failed to increase height despite available space"
+                    }
+                }
+            }
             check(SettingsStore.overlayWidthPercent(context) > 55 && SettingsStore.overlayHeightPercent(context) > 30)
             val beforeY = SettingsStore.expandedYOffset(context)
             // Large-font landscape frames can already be at the top clamp.
@@ -487,15 +545,62 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
                 check(captionPair == (SubtitleBus.displaySource to SubtitleBus.displayTranslation))
             }
             onUi { SettingsStore.setDisplayMode(context, CaptionDisplayMode.BILINGUAL) }
+            onUi { SettingsStore.setSubtitleDividers(context, true) }
+            SystemClock.sleep(350); idle() // Finish the preceding display-mode layouts.
             val fixedHeight = root().height
+            val currentPair = SubtitleBus.displaySource to SubtitleBus.displayTranslation
             context.startService(Intent(context, MimiService::class.java).setAction(MimiService.ACTION_UI_PREVIEW_HISTORY))
             waitFor { SubtitleBus.historySnapshot().isNotEmpty() && root().findViewWithTag<View>("history-divider").isShown }
-            check(root().height == fixedHeight) { "History changed the user's window height" }
+            // The seed also replaces English with Japanese current text. Hold
+            // the current glyphs constant to isolate retention from font metrics.
+            onUi {
+                SubtitleBus.onSourceDraft(currentPair.first, "en")
+                SubtitleBus.onTranslationDraft(currentPair.second)
+            }
+            waitFor { panel.source.text.toString() == currentPair.first && panel.translation.text.toString() == currentPair.second && root().height == fixedHeight }
+            check(root().height == fixedHeight) { "History changed the user's window height: $fixedHeight -> ${root().height}" }
             capture("panel-history-fixed-height")
+            onUi {
+                SubtitleBus.onSourceDraft("Synthetic long caption for native reading gestures. ".repeat(12), "en")
+                SubtitleBus.onTranslationDraft("合成长句用于验证双语分配和全文回看。".repeat(12))
+            }
+            waitFor { panel.source.lineCount > panel.source.maxLines && panel.translation.lineCount > panel.translation.maxLines }
+            move(panel.transcriptScroll, 0, 32)
+            waitFor { !panel.followingLive && panel.source.maxLines == Int.MAX_VALUE && panel.translation.maxLines == Int.MAX_VALUE }
+            // Main-loop idle does not mean ScrollView's inertial fling has ended.
+            // Compare updates only after the reader's deliberate gesture settles.
+            var stable = 0
+            var lastPosition = panel.transcriptScroll.scrollY
+            repeat(30) {
+                if (stable < 3) {
+                    SystemClock.sleep(100); idle()
+                    val position = panel.transcriptScroll.scrollY
+                    stable = if (position == lastPosition) stable + 1 else 0
+                    lastPosition = position
+                }
+            }
+            check(stable >= 3) { "Reading gesture did not finish its native fling" }
+            val readingPosition = panel.transcriptScroll.scrollY
+            onUi { SubtitleBus.onTranslationDraft("合成长句更新时应保留主动回看的位置。".repeat(14)) }
+            idle()
+            check(panel.transcriptScroll.scrollY == readingPosition) { "A subtitle update stole the history reader's position: $readingPosition -> ${panel.transcriptScroll.scrollY}" }
+            capture("panel-full-text-reading")
+            onUi { panel.transcriptScroll.fullScroll(View.FOCUS_DOWN) }
+            // fullScroll uses Android's smooth animation; a new gesture would
+            // otherwise cancel it before the reader reaches the live edge.
+            waitFor { panel.transcriptScroll.scrollY >= panel.transcriptScroll.getChildAt(0).height - panel.transcriptScroll.height }
+            move(panel.transcriptScroll, 0, -24)
+            waitFor { panel.followingLive && panel.source.maxLines != Int.MAX_VALUE && panel.translation.maxLines != Int.MAX_VALUE }
+            capture("panel-return-to-bilingual-live")
             val savedX = SettingsStore.overlayXOffset(context, true); val savedY = SettingsStore.expandedYOffset(context)
             repeat(2) {
                 tapVisible(root().findViewWithTag("enter-immersive"))
                 waitFor { WindowInspector.getGlobalWindowViews().any { it.tag == "exit-immersive" } }
+                onUi {
+                    val restore = WindowInspector.getGlobalWindowViews().first { it.tag == "exit-immersive" }
+                    check(restore.isClickable && (restore.layoutParams as android.view.WindowManager.LayoutParams).flags and
+                        android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE == 0) { "Restore action remained touch-through after editing" }
+                }
                 for (choice in CaptionAlignment.entries) {
                     onUi { SettingsStore.setCaptionAlignment(context, choice) }
                     waitFor { (root().findViewWithTag<View>("compact-subtitle") as android.view.ViewGroup).getChildAt(2).let {
@@ -509,6 +614,26 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
             capture("panel-after-immersive")
             onUi { running(false); host!!.finish(); host = null }
             waitFor { home.hasWindowFocus() }
+            // This fixture explicitly shows an overlay over Mimi's own UI.
+            // Stop that fixture before testing ordinary primary-page touches.
+            context.stopService(Intent(context, MimiService::class.java))
+            waitFor { WindowInspector.getGlobalWindowViews().none { it.tag == "mimi-overlay" } }
+            onUi {
+                home.findViewById<android.widget.RadioGroup>(R.id.settings_tabs).check(R.id.tab_caption)
+                // The history fixture enabled dividers above. Establish the
+                // intended starting state before exercising both tap directions.
+                SettingsStore.setSubtitleDividers(context, false)
+                SettingsStore.setSubtitleTimestamps(context, false)
+            }
+            for ((id, read) in listOf(R.id.subtitle_dividers to { SettingsStore.subtitleDividers(context) },
+                R.id.subtitle_timestamps to { SettingsStore.subtitleTimestamps(context) })) {
+                val control = home.findViewById<android.widget.CompoundButton>(id)
+                waitFor { !read() && !control.isChecked }
+                bringIntoView(control); tapVisible(control)
+                waitFor { read() && control.isChecked }
+                tapVisible(control); waitFor { !read() && !control.isChecked }
+            }
+            capture("primary-reading-options")
             providerMarkChecks(home)
             context.stopService(Intent(context, MimiService::class.java))
             waitFor { WindowInspector.getGlobalWindowViews().none { it.tag == "mimi-overlay" } }
@@ -535,6 +660,7 @@ internal class OverlayInteractionChecks(private val test: Instrumentation) {
                 SettingsStore.setFontSize(context, font); SettingsStore.setImmersiveSubtitles(context, immersive)
                 SettingsStore.setTranslationColorIndex(context, color)
                 SettingsStore.setOverlayBgAlpha(context, background); SettingsStore.setOverlayOpacity(context, opacity)
+                SettingsStore.setSubtitleDividers(context, dividers); SettingsStore.setSubtitleTimestamps(context, timestamps)
                 val restore = prefs.edit()
                 if (hadSeen) restore.putBoolean("seen", seen) else restore.remove("seen")
                 if (hadImmersiveSeen) restore.putBoolean("immersive_seen", immersiveSeen) else restore.remove("immersive_seen")

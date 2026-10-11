@@ -29,6 +29,11 @@ These project rules apply to implementation and review.
 - Verify wrapping, narrow windows, long labels, empty content and light/dark
   themes. Interactive controls, including help and toast dismissal, keep pointer
   cursors; preserve disabled, text-input, slider and resize cursors.
+- Live subtitle geometry needs a stable reading edge as well as unclipped text.
+  In normal Android mode, bottom-align the current measured lanes, matching the
+  desktop reading edge. Growing reference text must not push an unchanged
+  translation down; preserve complete glyph lines and deliberate history reading.
+  Check changing line counts in native draws rather than only static screenshots.
 - Reserve readable label space and bound picker columns. Put ongoing device
   feedback in `SettingsRow.feedback`, below the label/control grid; never put a
   long status sentence beside a picker inside the auto-sized control column.
@@ -195,6 +200,45 @@ and actions are visible. Respect the user's height and bound its reading viewpor
 independently of history length. Large font controls and caption reading space
 must both remain visible.
 
+Android follows live captions with measured visual-line budgets for the selected
+languages. Neither original nor translation may occupy the other lane's last
+complete line. Short text gives spare height to the other language; resizing and
+font changes recompute from the native reading viewport, including visible time
+metadata. Deliberate upward scrolling opens the complete bounded text and keeps
+the reader's position through updates; returning to the bottom resumes following.
+Native checks must assert visible glyph bounds for both lanes, not just populated
+TextViews, an outer minimum height or pixel parity between two clipped renderers.
+Android TextView's maxLines measures the first lines; a following tail must
+measure the actual last lines too. Fallback fonts can have different glyph
+heights within one sentence. Size and allocate from those native layout bounds,
+and check the first and last visible glyphs after wrapping, font and size changes.
+Continuous native checks must also inspect the visible tail at draw time.
+TextView's own pre-draw scroll reconciliation must finish before tail-following;
+do not cancel a whole-window draw to correct its position. Read one atomic
+shared display snapshot and skip identical text assignments on health/status
+updates. Coalesce pending paints without dropping shared final events. Keep the
+window minimum stable across incoming scripts by measuring multilingual font
+metrics from the chosen typography, while fitting actual visible glyphs inside
+that window. The selected size is the main reading size in either single-language
+mode and for the translation in bilingual mode; the original is a quieter 90%
+reference. Avoid an extra translated-size/bold boost. Verify all three modes
+through continuous updates, height edits and real portrait/landscape round trips.
+Cancel transient drag/resize state on configuration changes and ignore remaining
+events from the old gesture, so its final up cannot save dimensions measured in
+the previous screen or open an unintended editor.
+Observe sentence transitions in real playback as well as glyph bounds. A new
+original can arrive while its translation is empty; translated reading modes
+must keep the shared retained confirmed pair and its metadata readable rather
+than flash listening. Select that whole pair, never pair its old translation
+with the new original. Read the raw shared recognition lane in original-only
+mode even when complete translated pairs are held. Use confirmation time only
+for the same final source owner, including repeated identical text. Use the
+existing shared snapshot without another retained transcript or reducer, and
+cover first speech, history disabled, clear, hidden and next-pair arrival.
+Sentence dividers and local confirmation time default off and are controlled in
+both appearance entry points. Use the shared final's time, including with history
+disabled, hide time on drafts, and avoid duplicating the current pair in history.
+
 Before/After screenshots must show stable native frames: wait for the owning
 activity to regain focus and for modal exit/entry animations before capturing.
 Inspect every saved image against its scenario; a successful file write or test
@@ -296,6 +340,24 @@ Native appearance acceptance checks the complete visible touch bounds and
 injects a real tap, then verifies both saved color and the existing caption view.
 `performClick` and correct saved values alone do not prove that a user can reach
 the control.
+
+Native ScrollView tests must distinguish main-loop idle from a completed fling
+or smooth scroll. Wait for a stable reading offset before checking that a new
+caption preserves it; wait for the actual bottom before injecting the return-to-
+live gesture. Reset options changed by an earlier history fixture before testing
+both switch directions, then verify the saved state and the visible control.
+Hold the current pair, font and style constant when isolating retained-history
+height; a seed that also changes the current language can change native fallback
+font minimums. Let preceding mode layouts settle first. In large-font landscape
+cases, the complete bilingual minimum can already exceed the 70% preferred
+height. Require visible growth where space permits, and verify the native safe
+bound and saved maximum where that minimum prevents further growth.
+
+An inert immersive restore companion must also use a native touch-through
+window while the quick editor is open. A nonclickable View can still intercept
+an underlying switch. Reserve the editor's occupied bounds when positioning
+that companion, and verify its native frame clears the editor at font scale 2;
+ordinary dismissal must restore the clickable native target.
 
 A bottom floating editor must remove Material's centered-dialog background
 insets. Transparent top/bottom margins still count toward decor bounds and can

@@ -72,6 +72,18 @@ class UiSmokeInstrumentation : Instrumentation() {
 
     override fun onStart() {
         super.onStart()
+        if (captureArguments?.getString("private_acceptance_input") == "true") {
+            PrivateAcceptanceInputChecks(this).run()
+            return
+        }
+        if (captureArguments?.getString("live_caption_reading") == "true") {
+            CaptionLiveReadingChecks(this).run(captureArguments)
+            return
+        }
+        if (captureArguments?.getString("caption_streaming") == "true") {
+            CaptionStreamingChecks(this).run(captureArguments)
+            return
+        }
         if (captureArguments?.getString("preview_parity") == "true") {
             CaptionPreviewParityChecks(this).run(captureArguments)
             return

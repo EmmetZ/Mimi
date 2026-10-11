@@ -5,8 +5,14 @@ import org.json.JSONObject
 /** Native UI facade over the exact Rust reducer used by desktop. */
 object SubtitleBus {
     data class Pair(val source: String, val translation: String)
+    data class TimedPair(val pair: Pair, val createdAt: Long?)
     data class RuntimeFeedback(val connectionStatus: String = "idle", val recoveryReason: String? = null,
         val retryScheduled: Boolean = false, val translationTimedOut: Boolean = false)
+    data class SourceReading(val text: String, val confirmed: Boolean, val createdAt: Long?)
+    data class DisplaySnapshot(val source: String, val translation: String, val hidden: Boolean,
+        val confirmed: Boolean, val createdAt: Long?, val history: List<TimedPair>,
+        val status: String, val feedback: RuntimeFeedback, val retainedConfirmed: TimedPair? = null,
+        val currentSource: SourceReading = SourceReading(source, confirmed, createdAt))
     @Volatile var runtimeFeedback = RuntimeFeedback()
         private set
     private val lock = Any()
@@ -32,6 +38,8 @@ object SubtitleBus {
     val displayTranslation: String get() = if (originalOnly) "" else
         realtimeText("translation") ?: snapshot.optJSONObject("displayPair")?.optString("translation") ?: translationDraft.ifEmpty { translationFinal }
     val displayPairFinal: Boolean get() = (atomicPreview || snapshot.optJSONObject("realtimePreview") == null) && snapshot.optBoolean("displayPairFinal")
+    val displayPairCreatedAt: Long? get() = if (displayPairFinal)
+        snapshot.optLong("displayPairCreatedAt").takeIf { it > 0 } else null
     @Volatile var statusLine = ""
     @Volatile var liveHidden = false
     @Volatile var detectedSourceLanguage: String? = null
@@ -126,7 +134,23 @@ object SubtitleBus {
         }
         notifyListeners()
     }
-    fun historySnapshot(): List<Pair> = synchronized(lock) {
+    fun historySnapshot(): List<Pair> = historySnapshotWithTime().map { it.pair }
+    /** Read one published shared state; a provider thread can publish during UI rendering. */
+    fun displaySnapshot(): DisplaySnapshot = synchronized(lock) {
+        val pair = snapshot.optJSONObject("displayPair")?.takeIf { snapshot.optBoolean("displayPairFinal") }
+        val retained = pair?.let {
+            TimedPair(Pair(it.optString("source"), if (originalOnly) "" else it.optString("translation")),
+                snapshot.optLong("displayPairCreatedAt").takeIf { time -> time > 0 })
+        }
+        val line = snapshot.optJSONObject("source")
+        val text = line?.optString("text").orEmpty()
+        val sourceConfirmed = line?.optBoolean("isFinal") == true && pair != null &&
+            text == pair.optString("source") && line.opt("utteranceId") == pair.opt("utteranceId")
+        DisplaySnapshot(displaySource, displayTranslation, liveHidden, displayPairFinal,
+            displayPairCreatedAt, historySnapshotWithTime(), statusLine, runtimeFeedback, retained,
+            SourceReading(text, sourceConfirmed, retained?.createdAt.takeIf { sourceConfirmed }))
+    }
+    fun historySnapshotWithTime(): List<TimedPair> = synchronized(lock) {
         val rows = snapshot.optJSONArray("history") ?: return@synchronized emptyList()
         val count = minOf(rows.length(), historyLimit)
         List(count) { offset ->
@@ -134,7 +158,8 @@ object SubtitleBus {
             val row = rows.getJSONObject(index)
             val source = row.getString("source")
             val translation = row.getString("translation")
-            Pair(source, if (originalOnly && source == translation) "" else translation)
+            TimedPair(Pair(source, if (originalOnly && source == translation) "" else translation),
+                row.optLong("createdAt").takeIf { it > 0 })
         }
     }
     fun onStatus(line: String) { statusLine = line; notifyListeners() }

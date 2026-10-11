@@ -27,6 +27,8 @@ object SettingsStore {
     private const val KEY_OVERLAY_BG_ALPHA = "overlay_bg_alpha"
     private const val KEY_IMMERSIVE_SUBTITLES = "immersive_subtitles"
     private const val KEY_HISTORY_LINES = "history_lines"
+    private const val KEY_SUBTITLE_DIVIDERS = "subtitle_dividers"
+    private const val KEY_SUBTITLE_TIMESTAMPS = "subtitle_timestamps"
     private const val KEY_HOTWORDS = "hotwords"
     private const val KEY_TRANSLATION_COLOR = "translation_color"
     private const val KEY_OVERLAY_X = "overlay_x"
@@ -41,6 +43,7 @@ object SettingsStore {
 
     const val PROVIDER_DASHSCOPE = "dashscope"
     const val PROVIDER_OPENAI = "openai"
+    const val DEFAULT_OVERLAY_HEIGHT = 32
 
     @Volatile private var prefs: SharedPreferences? = null
 
@@ -68,7 +71,7 @@ object SettingsStore {
         val keys = setOf(KEY_FONT_SIZE, KEY_OVERLAY_OPACITY, KEY_OVERLAY_BG_ALPHA,
             KEY_IMMERSIVE_SUBTITLES, KEY_HISTORY_LINES, KEY_TRANSLATION_COLOR, KEY_OVERLAY_Y,
             KEY_OVERLAY_X, KEY_EXPANDED_Y, KEY_EXPANDED_X, KEY_DISPLAY_MODE, KEY_OVERLAY_WIDTH,
-            KEY_OVERLAY_HEIGHT, KEY_CAPTION_ALIGNMENT)
+            KEY_OVERLAY_HEIGHT, KEY_CAPTION_ALIGNMENT, KEY_SUBTITLE_DIVIDERS, KEY_SUBTITLE_TIMESTAMPS)
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key in keys) onChange()
         }
@@ -244,6 +247,11 @@ object SettingsStore {
         app.yuxino.mimi.android.provider.SubtitleBus.setHistoryLimit(limit)
     }
 
+    fun subtitleDividers(context: Context): Boolean = get(context).getBoolean(KEY_SUBTITLE_DIVIDERS, false)
+    fun setSubtitleDividers(context: Context, value: Boolean) = writeAppearance(get(context).edit().putBoolean(KEY_SUBTITLE_DIVIDERS, value))
+    fun subtitleTimestamps(context: Context): Boolean = get(context).getBoolean(KEY_SUBTITLE_TIMESTAMPS, false)
+    fun setSubtitleTimestamps(context: Context, value: Boolean) = writeAppearance(get(context).edit().putBoolean(KEY_SUBTITLE_TIMESTAMPS, value))
+
     /**
      * Hotword pairs parsed from comma/newline-separated `source=translation` or bare
      * `term` entries; bare terms map to themselves. Only DashScope uses them.
@@ -304,7 +312,7 @@ object SettingsStore {
     fun overlayWidthPercent(context: Context): Int = get(context).getInt(KEY_OVERLAY_WIDTH, 92).coerceIn(55, 100)
     fun setOverlayWidthPercent(context: Context, value: Int) =
         writeAppearance(get(context).edit().putInt(KEY_OVERLAY_WIDTH, value.coerceIn(55, 100)))
-    fun overlayHeightPercent(context: Context): Int = get(context).getInt(KEY_OVERLAY_HEIGHT, 30).coerceIn(20, 70)
+    fun overlayHeightPercent(context: Context): Int = get(context).getInt(KEY_OVERLAY_HEIGHT, DEFAULT_OVERLAY_HEIGHT).coerceIn(20, 70)
     fun setOverlayHeightPercent(context: Context, value: Int) =
         writeAppearance(get(context).edit().putInt(KEY_OVERLAY_HEIGHT, value.coerceIn(20, 70)))
     fun setOverlayBounds(context: Context, width: Int, height: Int, x: Int, y: Int) =
