@@ -23,7 +23,6 @@ import {
   listenSettingsChanged,
   overlaySetCollapsed,
   overlaySetLocked,
-  overlayShow,
   profileCreate,
   profileDuplicate,
   profileDelete,
@@ -43,7 +42,6 @@ import {
   sessionTogglePaused,
   settingsGet,
   settingsSave,
-  trayPanelHide,
   type SettingsNavigationTarget,
 } from "./ipc";
 import { I18N, setStoredUiLanguage } from "./i18n";
@@ -181,8 +179,6 @@ interface StoreState {
   deleteProfileAPIKey: (profileId: string) => Promise<SettingsSnapshot>;
   setOverlayCollapsed: (collapsed: boolean) => Promise<void>;
   setOverlayLocked: (locked: boolean) => Promise<void>;
-  showOverlay: () => Promise<void>;
-  hideTrayPanel: () => Promise<void>;
   showSettings: (target?: SettingsNavigationTarget) => Promise<void>;
   quit: () => Promise<void>;
 }
@@ -772,14 +768,6 @@ export const useStore = create<StoreState>()((set, get) => ({
     set((state) => ({
       settings: { ...state.settings, isOverlayLocked: locked },
     }));
-  },
-
-  showOverlay: async () => {
-    if (isTauri) await overlayShow();
-  },
-
-  hideTrayPanel: async () => {
-    if (isTauri) await trayPanelHide();
   },
 
   showSettings: async (target) => {

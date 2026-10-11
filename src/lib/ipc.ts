@@ -238,10 +238,6 @@ export function overlaySetLocked(locked: boolean): Promise<void> {
   return invoke("overlay_set_locked", { locked });
 }
 
-export function overlayShow(): Promise<void> {
-  return invoke("overlay_show");
-}
-
 export function overlayMoveStart(): Promise<void> {
   return invoke("overlay_move_start");
 }
@@ -285,10 +281,6 @@ export function sessionGetState(): Promise<SessionStateEvent> {
     if (__MIMI_DEVELOPMENT_BUILD__) observeSessionWireReceived(state);
     return state;
   });
-}
-
-export function trayPanelHide(): Promise<void> {
-  return invoke("tray_panel_hide");
 }
 
 export function appQuit(): Promise<void> {
