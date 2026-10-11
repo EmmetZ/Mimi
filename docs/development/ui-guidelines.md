@@ -196,13 +196,72 @@ receive hover within their clipped visible bounds, while the scrollbar keeps
 its handling elsewhere. Account for the root window offset in dialogs. Verify
 actual system-injected mouse movement across the icon, keyboard focus, touch,
 popup dismissal and popup/anchor separation; label geometry alone misses this.
+Dismiss pending and visible help when its native window loses focus and when
+the selected section changes. Gate showing on the anchor's current window
+focus and hover/keyboard focus. A background activity's restored keyboard
+focus must not put the old explanation over a dialog. Native checks compare
+the rendered explanation with its intended anchor, not just popup bounds.
 
-Android immersive mode has a Home entry/restore action backed by the same
-preference as Settings and the floating panel. Change the existing caption
-window in place, retaining the compact dp anchor and previous expanded reading
+Android uses one primary activity with Captions, Services and More. Caption
+content, display mode and style belong to the same section; do not split them
+into duplicate primary tabs or add another preview. Keep common controls
+visible without an accordion. Keep the single preview pinned while settings
+scroll, above the controls in portrait and alongside them on wide screens. Use
+the same arrangement in the floating appearance dialog. Direct color swatches
+wrap before their touch targets shrink below 48dp. Retain section scroll positions and
+selection through recreation. Keep status and Start/Stop visible in every
+section. Use one footer row only when actual localized labels fit; stack otherwise. Native fixtures must reuse the existing singleTask MainActivity when
+navigating; `startActivitySync` waits for a new instance and hangs on reuse.
+
+Android immersive mode has a Captions entry/restore action backed by the same
+preference as the floating panel. Preview and overlay use `CaptionTypography`
+for centered, lighter text, chosen-size translation and a tight contrast shadow.
+Keep source text secondary and preserve the user's color/size preferences.
+Change the existing caption window in place, retaining the compact dp anchor
+and previous expanded reading
 state. Temporary viewport/inset clamps must not rewrite saved placement. Keep
 the restore control adjacent to captions, with a 48dp touch target and localized
 width; caption touch-through must not make restoration unreachable. Test repeated
 mode notifications, rotation, content/font reflow and returning from both compact
 and expanded states. Host geometry tests do not establish native window or touch
 acceptance.
+
+Android credential acceptance checks the actual password transformation after
+single-line setup and typing, then both eye states. An input-type bit or an empty
+field alone does not prove masking. Keep unsaved drafts local and discard them
+on editor exit. Rebinding unchanged native help must preserve its hover/focus
+state while capture health or subtitles update.
+
+Native touch fixtures first scroll controls into their visible bounds and wait
+for transient system clipboard surfaces to close. Language fixtures navigate to
+More before selecting a value. Verify actual wide compositor bounds before
+calling a run landscape acceptance; rotation settings alone are
+insufficient when the launcher requests a fixed orientation. Check the caption
+reading viewport as well as the panel's outer bounds at large fonts.
+
+Android appearance previews reserve a stable viewport at the supported maximum
+font metrics, including script fallback. Width, font and streaming text changes
+must not move the sliders during a drag. Preview one latest line per language;
+keep full captions in the reading panel. Native acceptance must reach both
+slider endpoints and compare the control's screen position before and after,
+then restore width and display mode as well as the older appearance preferences.
+
+Live native checks inspect external overlay labels only after their window is
+visible. Mimi intentionally hides the overlay over its own activities; checking
+the hidden model label before returning to the playback app is not acceptance.
+
+Android pinned-preview acceptance checks the rendered source/translation rows,
+not only the preview container. A short large-font dialog can retain a visible
+background while clipping every caption. Inspect the floating dialog separately
+from the main page, with its actual width and available height. Normalize
+`getGlobalVisibleRect` root coordinates with the root window origin before
+comparing them with `getLocationOnScreen` glyph positions. Use side-by-side
+preview/controls when a wide dialog fits and avoid a large redundant title.
+
+A dialog can cap its custom panel below a fixed child height. Bound the
+workspace to the actual measure spec; otherwise its ScrollView reports a larger
+viewport than the visible panel and cannot bring lower controls fully into view.
+Native appearance acceptance checks the complete visible touch bounds and
+injects a real tap, then verifies both saved color and the existing caption view.
+`performClick` and correct saved values alone do not prove that a user can reach
+the control.

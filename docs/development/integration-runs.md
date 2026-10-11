@@ -1942,3 +1942,164 @@
   is retained; completed temporary diagnostics, downloads and task-only build
   artifacts are cleaned after validation. The native/physical verification limits
   above remain unchanged.
+
+### 2026-10-11 — Android settings and live caption controls
+
+- PR [#250](https://github.com/yuxino/Mimi/pull/250), native Android UI and
+  capture-adapter changes only. Shared subtitle/provider Rust source is unchanged.
+  Final implementation tested below is
+  `c0e7f1dbecd21c793ab884cd2dfc241618deb6a6`, local debug app
+  `app.yuxino.mimi.android.dev` with its existing stable debug certificate.
+  Installed app and instrumentation SHA-256 matched the locally built APKs;
+  app digest is `a3bcab304f9314089fd9616bc130a5266049194127d2adcea1ae30017fa67e13`.
+  The separately installed production app stayed at 1.5.23 / 10523. These
+  development changes do not replace public release assets.
+- Android 15 / API 35 ARM64 emulator, host GPU/HVF, four CPU cores / 4 GB RAM,
+  720 × 1600 at density 280, host microphone input disabled. Native acceptance
+  passed compact/expanded dragging, width/resize persistence, all display modes,
+  original-only routing, one/two provider marks, repeated immersive restoration,
+  full current-caption scrolling, own-page hiding and appearance updates without
+  restarting capture. Normal and 320dp / system-font 2.0 fixtures covered eight
+  locales plus Follow system, both themes, Home, settings, editors, help and
+  keyboard. Final-source 1600 × 720 / system-font 2.0 native checks also passed
+  Home/settings/editors/keyboard (eight screenshots), a reading viewport of at
+  least 64dp, long-caption scrolling and immersive restoration (ten screenshots).
+  Compositor dimensions were checked before testing, and font/rotation restored.
+- The native secret-field checks typed unsaved synthetic drafts in all eight
+  service editors and exercised both eye states. They found and repaired
+  single-line setup removing password masking. Large-font field labels wrap
+  outside inputs instead of silently truncating. Drafts were discarded; original
+  non-secret preferences and synthetic provider/translator slots were restored.
+- Real MediaProjection / AudioPlaybackCapture with synthetic tones and zero PCM
+  passed ten checks: allowed sound, silence and recovery, normal stop, fresh
+  zero-only input, opted-out audio, projection revocation, restart, active-service
+  settings guard/Stop and canceled consent. Parsed result is `passed: true`,
+  with no PCM after stop and no microphone, credentials or provider network.
+  This is native capture acceptance, distinct from live-provider acceptance.
+- Actual width gestures first exposed a 69px preview-height shift that moved
+  the slider under the finger and missed a reverse drag. Previews now reserve
+  one latest line per language at supported maximum/fallback font metrics;
+  width 55/100 and size 12/24 real injected gestures verify endpoints and
+  control-position drift of at most 1px. Full captions remain in the reading
+  panel. Final repeat of six vertical scrolls and eight slider gestures reached
+  width 55 / size 12 and restored the original preferences.
+- Final debug emulator frame sample: 484 frames, median 17ms, p95 22ms, p99
+  32ms, modern jank 48 / 9.92%, legacy jank 141 / 29.13%, zero missed-vsync
+  counts and two slow-UI-thread counts. The 15,008ms host sequence includes
+  ADB and UI-inspection overhead and is not input latency. Earlier gestures
+  did not complete the same workload, so this is not a before/after speed claim
+  or physical-device smoothness acceptance.
+- Canonical `./scripts/check.sh` passed on the final implementation: shared
+  core 82, shared runtime 710 (one ignored), actual JNI, desktop Rust 571
+  (one ignored), frontend 132 files / 2,072 tests, fmt, strict Clippy,
+  typecheck/lint/build, debugger and shared-runtime architecture guards.
+  Desktop PR CI [38128260666](https://github.com/yuxino/Mimi/actions/runs/38128260666)
+  and Android PR CI [38128260670](https://github.com/yuxino/Mimi/actions/runs/38128260670)
+  passed, including macOS, Windows, Linux, Windows ARM64 and MSRV checks.
+  Android checks retain real JNI, both build variants, lint and all four ABIs.
+  Local Android Debug/Release each passed 184 JVM tests with zero failures/errors.
+- Final-source package CI
+  [38128258739](https://github.com/yuxino/Mimi/actions/runs/38128258739) passed
+  both variants, native invariants and disposable-key signing rejection checks,
+  and produced the debug app, matching instrumentation and unsigned release
+  artifacts. CI artifact certificates are not the stable local development
+  identity and those debug packages must not overwrite the configured emulator.
+- Final live run used the reported video `UF8uR6Z6KLc` in Android Firefox,
+  Alibaba Audio 3.0 recognition / Qwen-MT Lite, English → Simplified Chinese,
+  system playback only. The player was visibly paused at 0:00 with autoplay
+  disabled before starting, then played continuously through its natural
+  15:04 / 15:04 replay state. No original-video seek or pause occurred. Captions
+  continued beyond the reported 8:40 point and through closing speech/outro.
+  During playback the floating controls switched all three display modes and
+  width 92 → 55 → 92; their positions stayed fixed while source and translation
+  kept advancing. The original bilingual preference was restored.
+- Parsed final live result is `passed: true`: 960,329ms observation, 554 source
+  updates / 546 translation updates / 100 paired-final observations, one
+  overflowed compact text view with its latest native lines visible, Stop 232ms.
+  All 560 bounded content-free events were retained: connecting once, listening
+  559 times, with no recovery, retry or translation-timeout event. The maximum
+  23,899ms source-update gap includes natural applause/outro/post-video silence;
+  it is not recognition or translation latency. This count covers connection,
+  playback and natural end silence, with no next-video speech.
+- The explicitly authorized private temporary Alibaba input was read back
+  before use, consumed, and absent after completion. Saved Android configuration
+  was restored; history and microphone stayed off. Logs contain counts/status,
+  never recognized/translated text or keys. Native media milestones are private,
+  outside Git. Preserve the independent installed development identity and
+  production data; task-only downloads and redundant evidence are cleaned.
+- Physical Android performance/capture, every
+  provider account, API 29 native layout and installed-updater acceptance remain
+  unverified. Main merge requires review of this substantial mobile redesign.
+
+### 2026-10-11 — Android unified captions and same-screen styling
+
+- Final native UI implementation is `193911aad6db7845977ee3634c342d7251c95612`
+  on PR [#250](https://github.com/yuxino/Mimi/pull/250), using the independent
+  stable-signed `app.yuxino.mimi.android.dev` identity. Installed application and
+  instrumentation digests match the built APKs. Production remains 1.5.23 / 10523;
+  no public assets or updater metadata were replaced.
+- Captions, Services and More now share one native activity and persistent
+  status/Start/Stop controls. Caption styles are directly available without an
+  accordion. One preview remains visible while controls scroll, above them in
+  portrait and alongside them on wide screens, including the floating dialog.
+  Color swatches retain a selected ring and 48dp targets, wrapping when needed.
+  The floating immersion action uses a compact icon and localized text without
+  a persistent circular fill. Immersion uses the chosen-size translation,
+  secondary source, centered lighter type and a small contrast shadow; the 24dp
+  exit keeps its 48dp target. Shared provider/subtitle behavior is unchanged.
+- Final-source Android 15 / API 35 ARM64 acceptance passed seven native suites:
+  wide and 320dp floating interactions at system-font 2.0, all eight locales plus
+  Follow system in narrow dark UI, normal light UI/settings/editors/keyboard,
+  first-use immersion, real playback capture and saved recognition/translation
+  forms. Dialog tests inject actual color taps after verifying full visible
+  targets, check saved values and the existing caption's color, and verify both
+  rendered preview rows remain visible. They also retain dragging/resizing,
+  display modes, one/two provider marks, own-page hiding, history and immersion
+  restoration checks. Earlier `fa787e65` native runs separately covered narrow
+  help and actual wide main/settings/keyboard/long-caption geometry; the final
+  dialog repair does not change their main-page layout path.
+- Visual review found a large-font landscape dialog retaining only a strip of
+  preview. A smaller header/compact preview and parallel layout fixed the text;
+  a second review found a fixed child height exceeding the capped custom panel,
+  making color choices scroll beneath its visible boundary. The workspace now
+  respects the actual measure spec. Native checks use root-window offsets when
+  comparing visible rectangles with screen glyph positions and use real taps;
+  `isShown`, `performClick` and preference persistence alone miss this failure.
+  These prevention rules are in the UI guide.
+- The host-rendered official emulator process exited with SIGSEGV during an
+  interrupted capture run. Its crash annotations included invalid color-buffer
+  and hung-thread errors; this does not establish a Mimi crash or its exact GPU
+  root cause. The same AVD was restarted without wiping data or loading an old
+  snapshot, using software rendering (swangle/lavapipe), four cores and 4 GB RAM.
+  The interrupted private preference backup was restored with byte verification
+  before proceeding. Final native suites used that recovered emulator. Frame
+  statistics from the earlier `c0e7f1db` run are not a speed claim for this UI or
+  renderer. Host microphone stays disabled.
+- Final real MediaProjection/AudioPlaybackCapture again passed ten synthetic
+  tone/zero checks, including fresh consent, sound/silence/recovery, normal stop,
+  source opt-out, revocation/restart, all-section active controls/Services Stop
+  and canceled consent. The parsed result is `passed: true`, with no PCM after
+  stop, no microphone or provider requests. Every isolated fixture restored
+  encrypted preferences; the interrupted backup is gone and display/font/rotation
+  were restored. Saved-form drafts were discarded.
+- A separate live observation on production source `3ec7d512` plus the updated
+  `LiveAcceptanceChecks` fixture used the reported `UF8uR6Z6KLc` video, initially
+  confirmed at 0:00, Firefox, Alibaba Audio 3.0 / Qwen-MT Lite and auto → Chinese.
+  Its 180,293ms observation passed: 91 source/91 translation updates, 16 paired
+  final observations, zero overflowed compact views and Stop 1,643ms. Entering
+  centered immersion preserved advancing captions; the original immersive
+  preference was restored afterward. The initial preparation/silent interval is
+  not provider latency. This short run predates the same-screen/palette changes;
+  the full 15:04 acceptance remains scoped to `c0e7f1db` above.
+- Final-source canonical checks passed: shared core 82, shared runtime 710
+  (one ignored), actual JNI, desktop Rust 571 (one ignored), frontend 132 files /
+  2,072 tests, strict lint/typecheck/build and architecture guards. Local Android
+  Debug and Release each passed 184 JVM tests, lint and four-ABI APK verification.
+  Final-source desktop CI [38138427512](https://github.com/yuxino/Mimi/actions/runs/38138427512)
+  and Android CI [38138427488](https://github.com/yuxino/Mimi/actions/runs/38138427488)
+  passed, including macOS, Windows, Linux, Windows ARM64, MSRV and Android
+  signing/packaging rejection checks.
+  Source, APK digests, scoped logs and native pixels are archived privately;
+  media, subtitle content and credentials are outside Git. Physical-device
+  smoothness/capture, API 29 native UI and all live provider accounts remain
+  unverified. This substantial mobile redesign still requires merge review.

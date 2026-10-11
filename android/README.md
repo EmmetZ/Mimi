@@ -16,6 +16,12 @@ Rust subtitle/provider runtime as desktop through JNI.
 
 ## Features
 
+- **Main interface** — Captions, Services and More share one page shell and a
+  persistent status/Start/Stop footer. Captions contains language choices, one
+  live/sample preview, display mode and immersion. Width, font, color and
+  opacity are directly adjustable beside the pinned preview on that same page. Services owns service
+  selection and setup; More contains interface language, diagnostics and the
+  setup guide. Switching sections retains their scroll positions.
 - **System-audio capture** — `MediaProjection` + `AudioPlaybackCapture`
   (API 29+). Requires Android’s `RECORD_AUDIO` runtime grant for playback capture;
   never uses a microphone source. Captures what other apps play
@@ -30,21 +36,25 @@ Rust subtitle/provider runtime as desktop through JNI.
   SecretKey; Baidu requires AppID and AppKey. Other services use an API key. Built-in service models,
   endpoints and language capabilities follow the shared factory. Stored secrets are not filled back into the editor;
   leaving a secret field empty preserves its saved value. Changes are written only with Save and use.
-- **Subtitle overlay** — `TYPE_APPLICATION_OVERLAY` floating window, text-hugging
-  card, always horizontally centered over the video, vertically draggable
-  (position persists). Tap it to open a translucent reading panel with the
+- **Subtitle overlay** — `TYPE_APPLICATION_OVERLAY` floating window, with
+  independently saved compact and expanded positions. Drag the compact caption
+  or the expanded panel's top handle to move it. Tap the compact caption to open a reading panel with the
   current source and translation; confirmed lines appear there only when
-  bounded history is enabled in settings. The panel has a language shortcut,
-  a labeled font-size slider, collapse action, and immersive toggle. Its compact card has adjustable background alpha
-  (0–90 %), text color presets, font size, and whole-window opacity.
-  Appearance changes apply immediately to an existing overlay; empty live captions
-  do not leave a background-only floating window. An optional
-  immersive mode shows plain text with a contrast shadow and passes touches
+  bounded history is enabled in caption styles. The panel has language, style,
+  upward collapse and an icon/label immersive action. Caption and floating controls offer
+  original/translation/bilingual display, width (55–100 %), background alpha
+  (0–90 %), text color presets, font size, and whole-window opacity. The expanded
+  panel also has a direct resize handle.
+  Style changes apply immediately to an existing overlay. Before speech and
+  during a silent gap, an active session shows the same localized listening
+  message as desktop. An optional immersive mode centers the text with lighter
+  typography and a compact contrast shadow, and passes touches
   through to the app below. A small exit control follows the subtitle position;
-  Home and Settings also enter/exit immersive mode without stopping the session.
+  The Captions page also enters/exits immersive mode without stopping the session.
   Returning restores the previous compact/expanded state and saved position.
-  In landscape, the expanded panel stays centered and caps its
-  width at 560 dp; its covered area receives touches until it is collapsed.
+  Floating captions temporarily hide while Mimi's own pages are open; Captions
+  shows the current caption and capture continues. Leaving Mimi restores the
+  floating window. The expanded panel's covered area receives touches until it is collapsed.
 - **Subtitle previews** — the shared factory selects complete paired previews
   for Audio3 + text translation and sentence-identified realtime previews for
   integrated live clients. New sentence identities never borrow old final lines;
@@ -56,7 +66,7 @@ Rust subtitle/provider runtime as desktop through JNI.
   scoped by provider.
 - **History privacy** — disabled by default; opting into history retains only a bounded
   in-memory list. Disabling it or stopping the session clears retained subtitles.
-- **Interface language** — Settings offers Follow system and the same eight interface
+- **Interface language** — More offers Follow system and the same eight interface
   languages as desktop: 简体中文, 繁體中文, English, 日本語, Deutsch, 한국어, Français and ภาษาไทย.
   Changes apply immediately and persist after restart, independently of subtitle
   source and target languages. Android 13+ also exposes this choice in system App languages.
@@ -102,6 +112,11 @@ new APK using `apksigner verify --print-certs`. If Android reports
 `INSTALL_FAILED_UPDATE_INCOMPATIBLE`, use the existing matching debug key;
 do not uninstall the configured app to bypass the mismatch. Preserve its
 encrypted credentials and settings. Release signing remains separate.
+CI debug certificates are disposable. For repeated local acceptance, sign both
+the debug app and its instrumentation APK with the same existing local debug
+keystore, verify their certificates, and keep that identity for later updates.
+The `.dev` app ID alone does not provide signing continuity. Never use a release
+key for these debuggable packages.
 
 ### Signed release
 
@@ -132,8 +147,8 @@ APK is included in the shared `SHA256SUMS.txt`. Existing public assets are never
 overwritten. The reusable Android workflow cannot publish a separate release.
 
 Keep the signing key and its backup outside Git. Use the same key for future
-updates. Debug installations have a different signature and must be uninstalled
-first, which removes their saved settings and credentials. The APK uses release
+updates. The debug app has a separate `.dev` package and can remain installed
+alongside the release app. Preserve each app's settings and credentials. The APK uses release
 build settings; this does not imply physical-device or all-provider validation.
 
 ## Local UI preview
@@ -145,22 +160,38 @@ and previewed without capture or a network session. The appearance screen also
 previews the compact card and immersive text mode. The service tab lists all eight integrations and opens a separate editor with only that service’s fields.
 Credentials require explicit Save and use; changing appearance never saves credentials. Your own service credentials are still required for real translation.
 
-On a development emulator with no active subtitle session:
+The main page groups Captions, Services and More. Captions offers live
+original/translation/bilingual display, width, size, color and opacity controls.
+Its preview stays visible while styles scroll, above the controls in portrait
+and alongside them on wide screens. The floating style dialog uses the same
+arrangement. Direct color choices wrap to retain 48dp touch targets. The preview
+keeps one latest line per language in a stable viewport, so adjusting width or
+size does not move the controls under your finger. Full current captions
+remain available in the expanded reading panel.
+The expanded panel has drag and resize handles and the same appearance controls.
+Display choices do not change recognition or translation requests. A running
+session keeps service editing locked with an explicit Stop action.
+
+The debug app uses `app.yuxino.mimi.android.dev` (mimi Dev), with independent
+credentials and permissions, and installs alongside the release app. Never
+uninstall production to install a debug APK. On an idle development emulator:
 
 ```sh
 ./gradlew assembleDebug assembleDebugAndroidTest
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-adb shell am instrument -w -e theme light app.yuxino.mimi.android.test/app.yuxino.mimi.android.UiSmokeInstrumentation
-adb shell am instrument -w -e theme dark app.yuxino.mimi.android.test/app.yuxino.mimi.android.UiSmokeInstrumentation
-adb shell am instrument -w -e overlay_preview true -e theme light app.yuxino.mimi.android.test/app.yuxino.mimi.android.UiSmokeInstrumentation
-adb shell am instrument -w -e overlay_interaction true app.yuxino.mimi.android.test/app.yuxino.mimi.android.UiSmokeInstrumentation
-adb shell am instrument -w -e interface_language true -e theme light app.yuxino.mimi.android.test/app.yuxino.mimi.android.UiSmokeInstrumentation
+adb shell am instrument -w -e theme light app.yuxino.mimi.android.dev.test/app.yuxino.mimi.android.UiSmokeInstrumentation
+adb shell am instrument -w -e theme dark app.yuxino.mimi.android.dev.test/app.yuxino.mimi.android.UiSmokeInstrumentation
+adb shell am instrument -w -e overlay_preview true -e theme light app.yuxino.mimi.android.dev.test/app.yuxino.mimi.android.UiSmokeInstrumentation
+adb shell am instrument -w -e overlay_interaction true app.yuxino.mimi.android.dev.test/app.yuxino.mimi.android.UiSmokeInstrumentation
+adb shell am instrument -w -e interface_language true -e theme light app.yuxino.mimi.android.dev.test/app.yuxino.mimi.android.UiSmokeInstrumentation
 ```
 
 The interface-language check requires a blank, idle emulator. It exercises the
 native picker, settings recreation and localized overlay controls without capture
-or provider requests. Use `-e leave_language zh-Hans`, force-stop the app, then run
+or provider requests. Editor screenshots use the normal own-page caption hiding;
+overlay screenshots use a separate debug-only host without requesting capture.
+Use `-e leave_language zh-Hans`, force-stop the app, then run
 with `-e interface_language true -e expected_language zh-Hans` to check persistence.
 
 The checks exercise quick language selection/Undo, direct appearance access,
@@ -236,6 +267,7 @@ prove a live DeepL, DeepLX or ChatMock account or physical Android device until 
 app/src/main/java/app/yuxino/mimi/android/
   MainActivity.kt            start flow, overlay-permission gate, projection consent
   SettingsActivity.kt        service list and appearance settings
+  AppearanceControls.kt     shared native Settings/floating appearance controls
   ServiceSettingsActivity.kt provider-specific write-only credential editor
   ServiceSettingsUi.kt       compact service picker
   SettingsStore.kt           EncryptedSharedPreferences-backed settings
@@ -243,18 +275,16 @@ app/src/main/java/app/yuxino/mimi/android/
                              capture loop + overlay window + auto-hide timers
   resample/StreamResampler.kt  O(1) box-filter downmix + resample to PCM16 mono
   provider/ServiceCatalog.kt  service fields, capabilities and language normalization
-  provider/StreamingServiceEngine.kt bounded transport for additional services
-  provider/CloudProtocols.kt Gemini, Azure, Tencent and Baidu wire adapters
-  provider/VolcanoProtocol.kt Doubao binary protobuf adapter
-  provider/GrokProtocol.kt    xAI turn-based transcript adapter
-  provider/ProviderEngine.kt   engine interface + WS URL normalization
-  provider/DashScopeEngine.kt  qwen3.5-livetranslate realtime WS client
-  provider/OpenAIRealtimeEngine.kt  gpt-realtime-translate WS client
+  provider/SharedRuntimeEngine.kt production JNI session engine
+  provider/ProviderEngine.kt  native session interface
   provider/SharedSubtitleCore.kt stateless JNI bridge to shared/mimi-core
   provider/SubtitleBus.kt      native snapshot facade over the shared Rust reducer
-  provider/SharedLivePairStream.kt DashScope identity/transport adapter
-  provider/SharedTranscriptStream.kt OpenAI transcript/transport adapter
 ```
+
+Provider clients and scheduling live in `shared/mimi-runtime`, reached through
+`shared/mimi-android-jni`. Historical Kotlin transport/protocol classes remain
+offline comparison fixtures; production capture never selects them. Run
+`python3 -B scripts/check-shared-runtime.py` to verify this boundary.
 
 ## Verification status
 
@@ -264,6 +294,23 @@ samples; this finding is specific to that browser package. The additional provid
 including Tencent signing and Volcano binary frames, but have not been verified against live accounts. Do not
 interpret build or protocol-test success as physical-device or all-provider acceptance. The original contributor’s
 reported device test applies to the original port, not every subsequent change.
+
+For real playback acceptance, use the independent debug app with a stable local
+signing identity. `LiveAcceptanceChecks` requires native Start and fresh platform
+consent; its bounded report stores counts and status, not subtitle content.
+An explicitly authorized temporary provider fixture must enter the app's private
+cache through stdin, be read back before testing, and be consumed and restored
+in the test's finally block. Never put credentials in arguments, environment
+variables, screenshots, logs or Git, or treat this fixture as configuration sync.
+
+Disable video autoplay and verify the player's actual 0:00 and end states. The
+tested Firefox MediaSession can retain a stale position, so timestamps derived
+from it do not establish playback progress. Use visible player times together
+with continuous native observations. Do not run a separate `uiautomator dump`
+while instrumentation owns UiAutomation; use its own screenshots or a read-only
+ADB screencap. Native visual fixtures, emulator frame statistics and a live
+provider run establish different evidence; record their exact build and remaining
+device/provider gaps in the [integration ledger](../docs/development/integration-runs.md).
 
 ## Known limits
 

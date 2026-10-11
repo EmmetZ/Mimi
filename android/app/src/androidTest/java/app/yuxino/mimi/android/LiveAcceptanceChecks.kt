@@ -30,7 +30,7 @@ internal class LiveAcceptanceChecks(private val test: Instrumentation) {
         failure?.let { throw it }
     }
     fun run(arguments: Bundle?) {
-        val seconds = arguments?.getString("observe_seconds")?.toLongOrNull()?.coerceIn(30, 180) ?: 75
+        val seconds = arguments?.getString("observe_seconds")?.toLongOrNull()?.coerceIn(30, 1200) ?: 75
         val rounds = arguments?.getString("rounds")?.toIntOrNull()?.coerceIn(1, 3) ?: 2
         val events = JSONArray()
         val results = JSONArray()
@@ -42,20 +42,21 @@ internal class LiveAcceptanceChecks(private val test: Instrumentation) {
         var finalListener: SubtitleBus.Listener? = null
         try {
             check(context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0)
-            check(!MimiService.isRunning && SettingsStore.isConfigured(context))
+            check(!MimiService.isRunning)
             check(SettingsStore.historyLines(context) == 0) { "history_must_be_off" }
             if (arguments?.getString("temporary_provider") == "true") {
                 stage = "temporary_provider"
                 temporary = TemporaryProviderAcceptance(context)
                 temporary.apply()
             }
+            check(SettingsStore.isConfigured(context))
             val configuration = SettingsStore.configuration(context)
             home = test.startActivitySync(Intent(context, MainActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) as MainActivity
             for (round in 1..rounds) {
                 stage = "await_native_start_$round"
                 status("LIVE_READY round=$round provider=${configuration.provider.wireProvider} model=${SettingsStore.qwenMtModel(context)} source=${SettingsStore.sourceLang(context)} target=${SettingsStore.targetLang(context)}; use native start and fresh platform consent; no credential values logged.")
-                val deadline = SystemClock.elapsedRealtime() + 90_000
+                val deadline = SystemClock.elapsedRealtime() + 180_000
                 while (!MimiService.isRunning && SystemClock.elapsedRealtime() < deadline) SystemClock.sleep(100)
                 check(MimiService.isRunning) { "native_start_timeout" }
                 val activeModels = MimiService.activeModelNames.toList()
@@ -76,7 +77,7 @@ internal class LiveAcceptanceChecks(private val test: Instrumentation) {
                         check(SettingsStore.qwenMtModel(context) == savedModel && MimiService.isRunning)
                         check(MimiService.activeModelNames == activeModels)
                     } finally { onUi { editor.finish() } }
-                    status("LIVE_MODEL_GUARD_PASSED round=$round model=$savedModel; disabled editor and stale save preserve active model; resume Bilibili playback if paused.")
+                    status("LIVE_MODEL_GUARD_PASSED round=$round model=$savedModel; disabled editor and stale save preserve active model; resume playback if paused.")
                 }
                 stage = "observe_$round"
                 val begin = SystemClock.elapsedRealtime()
@@ -105,6 +106,7 @@ internal class LiveAcceptanceChecks(private val test: Instrumentation) {
                 var lastSourceAt = begin
                 var largestSourceGap = 0L
                 var modelInspected = false
+                var nextProgressAt = begin + 30_000
                 fun observe() {
                     val now = SystemClock.elapsedRealtime()
                     // Hashes are transient comparison state only; no text/hash is logged or saved.
@@ -140,7 +142,14 @@ internal class LiveAcceptanceChecks(private val test: Instrumentation) {
                 }
                 while (SystemClock.elapsedRealtime() - begin < seconds * 1000 && MimiService.isRunning) {
                     onUi { observe() }
-                    if (!modelInspected && activeModels.isNotEmpty() && translationUpdates > 0 && SystemClock.elapsedRealtime() - begin > 10_000) {
+                    val now = SystemClock.elapsedRealtime()
+                    if (now >= nextProgressAt) {
+                        status("LIVE_PROGRESS round=$round observedMs=${now - begin} sourceUpdates=$sourceUpdates translationUpdates=$translationUpdates pairedFinals=${finals.get()} sourceAgeMs=${now - lastSourceAt} capture=${MimiService.captureObservation?.state?.name ?: "WAITING"} running=${MimiService.isRunning}")
+                        nextProgressAt = now + 30_000
+                    }
+                    var overlayVisible = false
+                    onUi { overlayVisible = WindowInspector.getGlobalWindowViews().any { it.tag == "mimi-overlay" && it.isShown } }
+                    if (!modelInspected && overlayVisible && activeModels.isNotEmpty() && translationUpdates > 0 && SystemClock.elapsedRealtime() - begin > 10_000) {
                         stage = "active_model_display_$round"
                         onUi {
                             val root = WindowInspector.getGlobalWindowViews().first { it.tag == "mimi-overlay" }
@@ -167,6 +176,7 @@ internal class LiveAcceptanceChecks(private val test: Instrumentation) {
                     SystemClock.sleep(100)
                 }
                 check(MimiService.isRunning) { "session_ended_during_observation" }
+                check(activeModels.isEmpty() || modelInspected) { "active_model_display_not_observed" }
                 stage = "compact_latest_$round"
                 onUi {
                     val root = WindowInspector.getGlobalWindowViews().first { it.tag == "mimi-overlay" }

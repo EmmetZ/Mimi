@@ -132,6 +132,11 @@ class UiSmokeInstrumentation : Instrumentation() {
             }
         } catch (error: Throwable) {
             failure = error
+            sendStatus(0, Bundle().apply {
+                putString("stream", "UI_CHECK_LOCATION " + error.stackTrace
+                    .filter { it.className.startsWith("app.yuxino.mimi.android") }
+                    .joinToString(" > ") { "${it.fileName}:${it.lineNumber}" } + "\n")
+            })
         } finally {
             onUi {
                 prefs.restore()
@@ -143,7 +148,7 @@ class UiSmokeInstrumentation : Instrumentation() {
             putString("stream", if (failure == null && guideCopy)
                 "Guide copy UI passed ($guideLocale): $screenshots real emulator screenshots; synthetic stopped-sharing state, no credentials, permissions or provider session requested.\n"
             else if (failure == null && immersiveHelp)
-                "Immersive help passed ($guideLocale/$theme): $screenshots native screenshots; home, settings and overlay entries, cancel, duplicate taps, acknowledgement, exit and service teardown; synthetic overlay only, no provider or capture started.\n"
+                "Immersive help passed ($guideLocale/$theme): $screenshots native screenshots; caption-page and floating entries, cancel, duplicate taps, acknowledgement, exit and service teardown; synthetic overlay only, no provider or capture started.\n"
             else if (failure == null && firstRun)
                 "First-run UI passed ($theme): $screenshots real emulator screenshots; synthetic credential fixture only, no provider or capture session started. Clear the dedicated emulator app data after review.\n"
             else if (failure == null)
@@ -368,10 +373,12 @@ class UiSmokeInstrumentation : Instrumentation() {
         prefs.edit().putBoolean("seen", true).remove("immersive_seen").commit()
         SettingsStore.setImmersiveSubtitles(targetContext, false)
         val home = launchHome()
-        var settings: SettingsActivity? = null
+        var settings: MainActivity? = null
         try {
-            val homeEntry = home.findViewById<View>(R.id.home_immersive)
-            onUi { check(homeEntry.performClick()) }
+            val homeEntry = home.findViewById<View>(R.id.immersive_subtitles)
+            // CompoundButton toggles through its checked listener even when
+            // performClick returns false; verify the dialog and saved mode.
+            onUi { homeEntry.performClick() }
             check(!SettingsStore.immersiveSubtitles(targetContext)) {
                 "Home entry enabled immersion before acknowledgement"
             }
@@ -393,10 +400,8 @@ class UiSmokeInstrumentation : Instrumentation() {
                 "Confirming home help did not enable immersion"
             }
             onUi {
-                check((homeEntry as TextView).text.toString() == home.getString(R.string.overlay_exit_immersive)) {
-                    "Home entry did not expose the active exit action"
-                }
-                check(homeEntry.performClick())
+                check((homeEntry as MaterialSwitch).isChecked) { "Home immersion switch did not show its active state" }
+                homeEntry.performClick()
             }
             check(!SettingsStore.immersiveSubtitles(targetContext))
             prefs.edit().remove("immersive_seen").commit()
@@ -430,11 +435,11 @@ class UiSmokeInstrumentation : Instrumentation() {
             onUi { check(immersiveHelpWindow() == null) { "Acknowledged settings explanation repeated" } }
             check(toggle.isChecked)
             click(appearance, R.id.immersive_subtitles)
-            onUi { appearance.finish() }
+            onUi { appearance.findViewById<View>(R.id.tab_caption).performClick() }
             waitForIdleSync()
 
             prefs.edit().remove("immersive_seen").commit()
-            targetContext.startService(Intent(targetContext, MimiService::class.java).setAction(MimiService.ACTION_UI_PREVIEW))
+            targetContext.startService(Intent(targetContext, MimiService::class.java).setAction(MimiService.ACTION_UI_PREVIEW).putExtra("preview_over_own_ui", true))
             val overlay = checkNotNull(waitForOverlayTag("mimi-overlay"))
             val compact = overlay.findViewWithTag<View>("compact-subtitle")
             onUi { compact.performClick() }
@@ -494,8 +499,10 @@ class UiSmokeInstrumentation : Instrumentation() {
     private fun smoke() {
         val home = launchHome()
         onUi { WindowInspector.getGlobalWindowViews().firstNotNullOfOrNull { it.findViewWithTag<View>("guide-skip") }?.performClick() }
-        check(home.findViewById<View>(R.id.copy_capture_diagnostics) == null) { "Diagnostics must not be a home action" }
+        check(!home.findViewById<View>(R.id.copy_capture_diagnostics).isShown) { "Diagnostics must stay in More" }
+        checkMainNavigation(home)
         val diagnostics = openSettings(home, appearance = false)
+        click(diagnostics, R.id.tab_general)
         click(diagnostics, R.id.copy_capture_diagnostics)
         onUi {
             val clipboard = targetContext.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
@@ -506,7 +513,11 @@ class UiSmokeInstrumentation : Instrumentation() {
             check(diagnostic.lines().size == 10) { "Unexpected diagnostic fields" }
             clipboard.clearPrimaryClip()
         }
-        onUi { diagnostics.finish() }
+        // Android's clipboard preview is another UID's touchable window. Let
+        // that transient surface close before injecting actual slider gestures.
+        SystemClock.sleep(8000)
+        capture("navigation-more-$theme")
+        click(diagnostics, R.id.tab_caption)
         val originalTarget = SettingsStore.targetLang(targetContext)
         val testTarget = if (originalTarget == "ja") "en" else "ja"
         click(home, R.id.target_language_action)
@@ -539,20 +550,26 @@ class UiSmokeInstrumentation : Instrumentation() {
         capture("settings-immersive-$theme")
         click(settings, R.id.immersive_subtitles)
         check(SettingsStore.immersiveSubtitles(targetContext) == initialImmersive)
+        val width = settings.findViewById<SeekBar>(R.id.overlay_width)
+        for (value in listOf(55, 100)) {
+            drag(width, value, requireStablePosition = true)
+            check(SettingsStore.overlayWidthPercent(targetContext) == value) { "Width gesture did not reach the requested endpoint" }
+        }
         val seek = settings.findViewById<SeekBar>(R.id.font_size)
+        for (value in listOf(12, 24)) drag(seek, value, requireStablePosition = true)
         drag(seek, if (initialFont < 20) 20 else 16)
         check(SettingsStore.fontSize(targetContext) == seek.progress) { "Font was not automatically saved" }
         val changedFont = seek.progress
-        onUi { settings.findViewById<Spinner>(R.id.translation_color).setSelection(0) }
+        selectCaptionColor(settings, 3)
+        selectCaptionColor(settings, 1)
         waitForIdleSync()
         check(SettingsStore.translationColorIndex(targetContext) == 1) { "Color was not automatically saved" }
         check(SettingsStore.historyLines(targetContext) == initialHistory) { "Appearance enabled history" }
         capture("settings-appearance-$theme")
-        click(settings, R.id.back)
+        click(settings, R.id.tab_caption)
         val reopened = openSettings(home, appearance = true)
         check(reopened.findViewById<SeekBar>(R.id.font_size).progress == changedFont) { "Back discarded appearance" }
-        click(reopened, R.id.appearance_more_toggle)
-        check(reopened.findViewById<View>(R.id.appearance_more_panel).visibility == View.VISIBLE)
+        check(reopened.findViewById<View>(R.id.history_lines).isShown)
         onUi { reopened.findViewById<ScrollView>(R.id.settings_scroll).scrollTo(0, 10000) }
         waitForIdleSync()
         val history = reopened.findViewById<SeekBar>(R.id.history_lines)
@@ -575,7 +592,10 @@ class UiSmokeInstrumentation : Instrumentation() {
             for (field in provider.fields) {
                 val input = root.findViewWithTag<TextInputEditText>("credential-${field.id}")
                 check(input != null) { "Provider field missing: ${provider.id}/${field.id}" }
-                if (field.secret) check(input.text.toString().isEmpty()) { "Stored credential was exposed in UI" }
+                if (field.secret) {
+                    check(input.text.toString().isEmpty()) { "Stored credential was exposed in UI" }
+                    check(input.transformationMethod is android.text.method.PasswordTransformationMethod) { "Credential input is not masked: ${provider.id}/${field.id}" }
+                }
             }
             if (provider.id in listOf("azure", "tencent", "dashscope")) capture("service-${provider.id}-$theme")
             if (!configuredBefore) {
@@ -583,7 +603,18 @@ class UiSmokeInstrumentation : Instrumentation() {
                 check(SettingsStore.provider(targetContext) == activeProvider) { "Invalid form changed active provider" }
             }
             val secret = provider.fields.first { it.secret }
-            onUi { root.findViewWithTag<TextInputEditText>("credential-${secret.id}").setText("unsaved-test-value") }
+            onUi {
+                val input = root.findViewWithTag<TextInputEditText>("credential-${secret.id}")
+                input.setText("unsaved-test-value")
+                check(input.transformationMethod is android.text.method.PasswordTransformationMethod) { "Typing exposed the credential draft" }
+                var parent = input.parent
+                while (parent !is com.google.android.material.textfield.TextInputLayout) parent = parent.parent
+                val eye = parent.findViewById<View>(com.google.android.material.R.id.text_input_end_icon)
+                check(eye.performClick())
+                check(input.transformationMethod !is android.text.method.PasswordTransformationMethod && input.text.toString() == "unsaved-test-value")
+                check(eye.performClick())
+                check(input.transformationMethod is android.text.method.PasswordTransformationMethod)
+            }
             click(editor, R.id.back)
             check(SettingsStore.isConfigured(targetContext, provider) == configuredBefore) { "Unsaved form changed configuration" }
         }
@@ -615,7 +646,7 @@ class UiSmokeInstrumentation : Instrumentation() {
         launchHome()
         try {
             check(targetContext.startService(Intent(targetContext, MimiService::class.java)
-                .setAction(MimiService.ACTION_UI_PREVIEW)) != null)
+                .setAction(MimiService.ACTION_UI_PREVIEW).putExtra("preview_over_own_ui", true)) != null)
             var root: View? = null
             for (attempt in 0 until 30) {
                 waitForIdleSync()
@@ -653,14 +684,15 @@ class UiSmokeInstrumentation : Instrumentation() {
             check(expanded.isShown && !compact.isShown) { "Expanded floating overlay did not open" }
             if (targetContext.resources.displayMetrics.widthPixels > targetContext.resources.displayMetrics.heightPixels) {
                 val params = overlay.layoutParams as WindowManager.LayoutParams
-                check(params.width <= (560 * targetContext.resources.displayMetrics.density).toInt()) {
-                    "Landscape panel is too wide"
+                check(params.width <= targetContext.resources.displayMetrics.widthPixels) {
+                    "Landscape panel exceeds the screen"
                 }
-                check(params.height <= (targetContext.resources.displayMetrics.heightPixels * 0.48f).toInt()) {
+                check(params.height <= (targetContext.resources.displayMetrics.heightPixels * 0.88f).toInt()) {
                     "Landscape panel blocks too much height"
                 }
             }
             capture("overlay-after-expanded-default-$theme")
+            check(expanded.findViewWithTag<ScrollView>("subtitle-transcript-scroll").height >= (64 * expanded.resources.displayMetrics.density).toInt()) { "Expanded caption viewport is too short to read" }
             checkOverlayHeaderLabels(expanded)
             val savedHistory = SettingsStore.historyLines(targetContext)
             targetContext.startService(Intent(targetContext, MimiService::class.java)
@@ -753,10 +785,15 @@ class UiSmokeInstrumentation : Instrumentation() {
             val panelLocation = IntArray(2)
             panel.getLocationOnScreen(panelLocation)
             for (tag in listOf("collapse-overlay", "enter-immersive", "overlay-font", "overlay-route")) {
-                val label = checkNotNull(panel.findViewWithTag<TextView>(tag))
-                check(label.lineCount == 1) { "Overlay action wraps: $tag" }
-                if (tag != "overlay-route") {
-                    check(label.paint.measureText(label.text.toString()) <= label.width - label.paddingLeft - label.paddingRight + 1) {
+                val label = checkNotNull(panel.findViewWithTag<View>(tag))
+                if (tag == "collapse-overlay") check(label.rotation == 180f) { "Collapse chevron must point upwards" }
+                if (tag == "enter-immersive") check(label is TextView && label.text.toString() ==
+                    InterfaceLanguage.context(targetContext).getString(R.string.overlay_enter_immersive)) { "Immersion has no visible localized label" }
+                if (label is TextView && tag == "overlay-route") check(label.lineCount == 1) { "Overlay route wraps" }
+                if (tag != "overlay-route" && label is TextView) {
+                    check(label.layout.height <= label.height - label.paddingTop - label.paddingBottom) { "Overlay action clips vertically: $tag" }
+                    for (line in 0 until label.lineCount) check(label.layout.getEllipsisCount(line) == 0 &&
+                        label.layout.getLineWidth(line) <= label.width - label.paddingLeft - label.paddingRight + 1) {
                         "Overlay action text does not fit: $tag"
                     }
                 }
@@ -768,6 +805,47 @@ class UiSmokeInstrumentation : Instrumentation() {
                 }
             }
         }
+    }
+
+    private fun checkMainNavigation(home: MainActivity) {
+        fun previews(view: View): Int = (if (view is SubtitlePreviewView) 1 else 0) +
+            if (view is android.view.ViewGroup) (0 until view.childCount).sumOf { previews(view.getChildAt(it)) } else 0
+        check(previews(home.window.decorView) == 1) { "Caption controls duplicated the live preview" }
+        val sections = listOf(R.id.tab_caption to R.id.home_panel, R.id.tab_service to R.id.service_panel,
+            R.id.tab_general to R.id.general_panel)
+        for ((tab, panel) in sections) {
+            click(home, tab)
+            onUi {
+                check(home.hasWindowFocus()) { "Navigation left the primary activity" }
+                check(home.findViewById<View>(R.id.start_stop).isShown && home.findViewById<View>(R.id.status).isShown) {
+                    "Navigation hid the session controls"
+                }
+                for ((_, section) in sections) check(home.findViewById<View>(section).isShown == (section == panel))
+                for ((id, _) in sections) {
+                    val label = home.findViewById<TextView>(id)
+                    check(label.layout.height <= label.height - label.paddingTop - label.paddingBottom) { "Navigation label clips vertically" }
+                    for (line in 0 until label.lineCount) check(label.layout.getEllipsisCount(line) == 0) { "Navigation label was truncated" }
+                }
+            }
+        }
+        onUi { openCaptionStyles(home) }
+        onUi { home.findViewById<ScrollView>(R.id.settings_scroll).scrollTo(0, 10000) }
+        waitForIdleSync()
+        val offset = home.findViewById<ScrollView>(R.id.settings_scroll).scrollY
+        val preview = home.findViewById<View>(R.id.subtitle_preview)
+        val previewPosition = IntArray(2).also(preview::getLocationOnScreen)
+        val previewBounds = android.graphics.Rect()
+        check(preview.getGlobalVisibleRect(previewBounds) && previewBounds.height() > 0) {
+            "Scrolling caption settings hid the preview"
+        }
+        click(home, R.id.tab_service)
+        click(home, R.id.tab_caption)
+        check(home.findViewById<ScrollView>(R.id.settings_scroll).scrollY == offset) { "Navigation lost the reader's position" }
+        check(IntArray(2).also(preview::getLocationOnScreen).contentEquals(previewPosition)) { "Navigation moved the pinned preview" }
+        onUi {
+            home.findViewById<ScrollView>(R.id.settings_scroll).scrollTo(0, 0)
+        }
+        click(home, R.id.tab_caption)
     }
 
     private fun checkLongExpandedCaption(panel: View) {
@@ -924,11 +1002,11 @@ class UiSmokeInstrumentation : Instrumentation() {
         pause("调整字号，自动保存", 2200)
         drag(settings.findViewById(R.id.overlay_bg_alpha), 65)
         pause("背景与字幕实时预览", 2200)
-        onUi { settings.findViewById<Spinner>(R.id.translation_color).setSelection(0) }
+        selectCaptionColor(settings, 3)
+        selectCaptionColor(settings, 1)
         pause("白色字幕", 1600)
-        click(settings, R.id.appearance_more_toggle)
         onUi { settings.findViewById<ScrollView>(R.id.settings_scroll).smoothScrollTo(0, 650) }
-        pause("低频选项收起，历史仍默认关闭", 2500)
+        pause("样式直接调整，历史仍默认关闭", 2500)
         click(settings, R.id.tab_service)
         pause("八家服务，已配置的可直接切换", 2800)
         val azure = openService(settings, "azure")
@@ -942,7 +1020,7 @@ class UiSmokeInstrumentation : Instrumentation() {
         onUi { check(aliyun.window.decorView.findViewWithTag<Spinner>("qwen-mt-model").isShown) }
         pause("Audio 3.0 转写，Qwen-MT Lite、Flash 或 Plus 翻译", 3000)
         click(aliyun, R.id.back)
-        click(settings, R.id.back)
+        click(settings, R.id.tab_caption)
         pause("返回首页，外观已经记住", 3000)
         capture("demo-home-$theme")
         pause("演示结束：未启动音频捕获或真实翻译", 15000)
@@ -955,16 +1033,15 @@ class UiSmokeInstrumentation : Instrumentation() {
         return activity
     }
 
-    private fun openSettings(home: MainActivity, appearance: Boolean): SettingsActivity {
-        val monitor = addMonitor(SettingsActivity::class.java.name, null, false)
-        click(home, if (appearance) R.id.subtitle_preview else R.id.go_settings)
-        val settings = waitForMonitorWithTimeout(monitor, 5000) as? SettingsActivity ?: error("Settings did not open")
-        removeMonitor(monitor)
+    private fun openSettings(home: MainActivity, appearance: Boolean): MainActivity {
+        if (appearance) onUi { openCaptionStyles(home) } else click(home, R.id.tab_service)
         waitForIdleSync()
-        return settings
+        check(home.findViewById<View>(if (appearance) R.id.appearance_panel else R.id.service_panel).isShown)
+        check(home.findViewById<View>(R.id.start_stop).isShown) { "Navigation hid the session action" }
+        return home
     }
 
-    private fun openService(settings: SettingsActivity, provider: String): ServiceSettingsActivity {
+    private fun openService(settings: MainActivity, provider: String): ServiceSettingsActivity {
         val monitor = addMonitor(ServiceSettingsActivity::class.java.name, null, false)
         onUi {
             val row = settings.findViewById<View>(R.id.service_panel).findViewWithTag<View>("configure-$provider")
@@ -972,6 +1049,22 @@ class UiSmokeInstrumentation : Instrumentation() {
         }
         val editor = waitForMonitorWithTimeout(monitor, 5000) as? ServiceSettingsActivity ?: error("Service editor missing")
         removeMonitor(monitor); waitForIdleSync(); return editor
+    }
+
+    private fun selectCaptionColor(activity: Activity, index: Int) {
+        val palette = activity.findViewById<android.view.ViewGroup>(R.id.translation_color)
+        onUi { palette.requestRectangleOnScreen(android.graphics.Rect(0, 0, palette.width, palette.height), true) }
+        waitForIdleSync()
+        onUi {
+            val touchSize = (48 * palette.resources.displayMetrics.density).toInt()
+            check((0 until palette.childCount).all { palette.getChildAt(it).width >= touchSize && palette.getChildAt(it).height >= touchSize }) {
+                "Caption color choices lost their touch targets"
+            }
+            val button = palette.findViewWithTag<View>("caption-color-$index")
+            check(button.contentDescription.isNotBlank() && button.performClick())
+            check(SettingsStore.translationColorIndex(targetContext) == index)
+            check(button.isSelected && (0 until palette.childCount).count { palette.getChildAt(it).isSelected } == 1)
+        }
     }
 
     private fun click(activity: Activity, id: Int) {
@@ -996,8 +1089,13 @@ class UiSmokeInstrumentation : Instrumentation() {
     }
 
     /** Actual touch events exercise fromUser persistence, including dragging inside a scroll view. */
-    private fun drag(seek: SeekBar, value: Int) {
+    private fun drag(seek: SeekBar, value: Int, requireStablePosition: Boolean = false) {
+        onUi { seek.requestRectangleOnScreen(android.graphics.Rect(0, 0, seek.width, seek.height), true) }
+        waitForIdleSync()
+        Thread.sleep(220)
         val location = IntArray(2)
+        val preview = seek.rootView.findViewById<View>(R.id.subtitle_preview)
+        val previewPosition = preview?.let { IntArray(2).also(it::getLocationOnScreen) }
         var start = 0f
         var end = 0f
         var y = 0f
@@ -1019,6 +1117,16 @@ class UiSmokeInstrumentation : Instrumentation() {
         for (step in 1..12) { Thread.sleep(45); event(MotionEvent.ACTION_MOVE, start + (end - start) * step / 12) }
         event(MotionEvent.ACTION_UP, end)
         waitForIdleSync()
+        if (requireStablePosition) onUi {
+            val final = IntArray(2)
+            seek.getLocationOnScreen(final)
+            check(kotlin.math.abs(final[1] - location[1]) <= 1) { "Preview moved the slider during a touch gesture" }
+            check(kotlin.math.abs(seek.progress - value) <= 1) { "Slider gesture missed its endpoint" }
+            preview?.let {
+                check(IntArray(2).also(it::getLocationOnScreen).contentEquals(previewPosition)) { "Adjusting style moved the preview" }
+                check(it.getGlobalVisibleRect(android.graphics.Rect())) { "Adjusting style hid the preview" }
+            }
+        }
     }
 
     private fun capture(name: String) {
@@ -1049,6 +1157,8 @@ class UiSmokeInstrumentation : Instrumentation() {
         private val source = restoreSource ?: SettingsStore.sourceLang(targetContext)
         private val target = restoreTarget ?: SettingsStore.targetLang(targetContext)
         private val font = restoreFont ?: SettingsStore.fontSize(targetContext)
+        private val width = SettingsStore.overlayWidthPercent(targetContext)
+        private val mode = SettingsStore.displayMode(targetContext)
         private val color = restoreColor ?: SettingsStore.translationColorIndex(targetContext)
         private val opacity = SettingsStore.overlayOpacity(targetContext)
         private val background = restoreBackground ?: SettingsStore.overlayBgAlpha(targetContext)
@@ -1061,6 +1171,8 @@ class UiSmokeInstrumentation : Instrumentation() {
             SettingsStore.setSourceLang(targetContext, source)
             SettingsStore.setTargetLang(targetContext, target)
             SettingsStore.setFontSize(targetContext, font)
+            SettingsStore.setOverlayWidthPercent(targetContext, width)
+            SettingsStore.setDisplayMode(targetContext, mode)
             SettingsStore.setTranslationColorIndex(targetContext, color)
             SettingsStore.setOverlayOpacity(targetContext, opacity)
             SettingsStore.setOverlayBgAlpha(targetContext, background)
