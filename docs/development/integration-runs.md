@@ -2795,3 +2795,46 @@
 - Read back all 17 public assets, matching GitHub digests and `SHA256SUMS.txt`; independently verified five updater signatures, exact Latest manifest routing and bilingual notes. Both macOS architectures retained the installed formal app's complete signing requirement and their four public files match the locally source-verified packages. GitHub's native Contributors avatar for `@yuxino` was visible.
 - Public Android APK is non-debuggable `1.5.24` / `10524`, uses the same release certificate as v1.5.23, and passed four-ABI shared JNI and 16 KB alignment checks. Website PR #40 deployed successfully; all eight live locales show the concise recommendation and eight v1.5.24 download links.
 - This run verifies distribution, not additional speech quality or installed-updater acceptance. Earlier physical-device, API 29, split-screen, native Intel and manual Windows/Linux speech limits remain. The user's further report of frequent Ali draft meaning changes is pending a separate shared PC/Android investigation; this release does not establish that interim semantic revisions are eliminated.
+
+## 2026-10-13 — Fast signed local UI iteration
+
+- Source: `b04e394b` plus the development-workflow changes in this entry's
+  commit; no subtitle, provider or capture implementation changes. Watch mode
+  uses the signed canonical `local-dev` app, the development identifier and a
+  loopback Vite `frontendDist`. Keeping `tauri/custom-protocol` preserves the
+  existing native dependency cache and bundle Dock-icon path.
+- Actual UI-only settings loaded from `127.0.0.1:1420` and native navigation
+  was available. Temporary React text and CSS font-size edits appeared directly
+  in the native window on the next observation. PID and designated requirement
+  stayed unchanged; the signed bundle and build binary had the same Mach-O UUID.
+  Both source edits and their temporary backups were restored/removed.
+- First watch rebuild on the existing cache: Cargo 14.12 s, signed install
+  15.18 s (launch correctly stopped at a conflicting live test app). After the
+  user approved its normal exit, the next native compilation took 0.47 s and
+  launched successfully. Frontend edits thereafter needed no Rust build, signing
+  or application restart. These warm runs do not predict cold build duration.
+- Canonical `scripts/check.sh` passed in 123.55 s: shared Rust/JNI, native Swift,
+  signing/install recovery, desktop tests, 2,043 frontend tests and production
+  output guards. Subsequent quick-path refinement passed argument safety and
+  the same 181 related frontend tests in 8.18 s including typecheck and selected
+  lint; CSS-only typecheck/diff took 0.30 s. Timings are single local samples.
+  Content-cached full-project lint took 6.28 s initially and 1.02 s on the next
+  unchanged run. Focused desktop checks compile through `cargo test`, avoiding
+  a redundant separate `cargo check` pass.
+- Vite port-collision rejection, failed-installer cleanup, and SIGINT server
+  cleanup passed without touching another server. Dependency scanning is
+  restricted to the app entry, with generated reports/caches ignored; `.env`
+  loading is disabled. Checker self-tests run in full checks/CI while production
+  builds retain the actual output guard. No behavioral regression was removed.
+- After rebasing onto upstream `a95bcb63` (Baidu protocol fix), shared architecture,
+  strict Clippy and Rust/JNI adapter tests passed again in 32.69 s, including
+  720 shared-runtime tests and five native adapter tests. The upstream business
+  change is preserved; this task does not claim new provider acceptance.
+- Remaining scope: no Windows/Linux native hot-preview acceptance, no cold-cache
+  timing, Android JVM run or new provider/audio session. The local JNI checks
+  above exercise Rust adapters, not Java native calls; actual JVM coverage remains
+  an additional gate for portable behavior changes and runs in Android CI.
+  Rust/Swift, permission and native
+  configuration edits still require an incremental signed rebuild. The user's
+  durable instruction is preview first and proportional checks; pure copy/style
+  edits do not require unrelated state matrices or repeated full local suites.
