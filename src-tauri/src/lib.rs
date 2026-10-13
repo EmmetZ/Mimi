@@ -40,6 +40,8 @@ mod settings_store;
 mod windows;
 #[cfg(target_os = "windows")]
 mod windows_startup;
+#[cfg(any(target_os = "windows", test))]
+mod windows_updater_cleanup;
 
 use commands::AppState;
 use core::models::SubtitleDisplayMode;
@@ -119,7 +121,7 @@ pub fn run() {
             // is distinguishable from the installed release app.
             if windows::is_dev_build() {
                 if let Some(window) = app.get_webview_window("settings") {
-                    let _ = window.set_title(&windows::dev_title("mimi 设置"));
+                    let _ = window.set_title(&windows::dev_title("Mimi 设置"));
                 }
             }
 
@@ -130,11 +132,25 @@ pub fn run() {
                 return Err("development builds require the isolated Tauri identifier".into());
             }
             let is_ui_test = std::env::var("MIMI_UI_TEST").as_deref() == Ok("1");
+            #[cfg(target_os = "windows")]
+            if !is_ui_test && !windows::is_dev_build() {
+                let version = app.package_info().version.to_string();
+                tauri::async_runtime::spawn_blocking(move || {
+                    let result = windows_updater_cleanup::cleanup(&std::env::temp_dir(), &version);
+                    if result.removed > 0 || result.failed > 0 {
+                        tracing::info!(
+                            removed = result.removed,
+                            failed = result.failed,
+                            "updater staging cleanup"
+                        );
+                    }
+                });
+            }
             #[cfg(any(test, feature = "development-debugger"))]
             development_debugger::initialize(&app_handle);
             if is_ui_test {
                 if let Some(window) = app.get_webview_window("settings") {
-                    let _ = window.set_title("mimi UI test settings");
+                    let _ = window.set_title("Mimi UI test settings");
                     if std::env::var("MIMI_UI_TEST_COMPACT_SETTINGS").as_deref() == Ok("1") {
                         window.set_size(tauri::LogicalSize::new(520.0, 560.0))?;
                     }
@@ -661,7 +677,7 @@ fn native_menu_labels(language: NativeMenuLanguage) -> NativeMenuLabels {
             stop_subtitles: "停止字幕",
             toggle_devtools: "打开调试工具",
             settings: "设置…",
-            quit: "退出 mimi",
+            quit: "退出 Mimi",
             subtitle_display: "字幕显示",
             display_modes: ["仅译文", "原文与译文", "仅原文"],
             #[cfg(any(target_os = "macos", test))]
@@ -672,7 +688,7 @@ fn native_menu_labels(language: NativeMenuLanguage) -> NativeMenuLabels {
             stop_subtitles: "停止字幕",
             toggle_devtools: "開啟開發者工具",
             settings: "設定…",
-            quit: "結束 mimi",
+            quit: "結束 Mimi",
             subtitle_display: "字幕顯示",
             display_modes: ["僅譯文", "原文與譯文", "僅原文"],
             #[cfg(any(target_os = "macos", test))]
@@ -683,7 +699,7 @@ fn native_menu_labels(language: NativeMenuLanguage) -> NativeMenuLabels {
             stop_subtitles: "字幕を停止",
             toggle_devtools: "開発者ツールを開く",
             settings: "設定…",
-            quit: "mimiを終了",
+            quit: "Mimiを終了",
             subtitle_display: "字幕表示",
             display_modes: ["翻訳のみ", "原文と翻訳", "原文のみ"],
             #[cfg(any(target_os = "macos", test))]
@@ -694,7 +710,7 @@ fn native_menu_labels(language: NativeMenuLanguage) -> NativeMenuLabels {
             stop_subtitles: "Untertitel stoppen",
             toggle_devtools: "Entwicklerwerkzeuge öffnen",
             settings: "Einstellungen…",
-            quit: "mimi beenden",
+            quit: "Mimi beenden",
             subtitle_display: "Untertitelanzeige",
             display_modes: [
                 "Nur Übersetzung",
@@ -709,7 +725,7 @@ fn native_menu_labels(language: NativeMenuLanguage) -> NativeMenuLabels {
             stop_subtitles: "Arrêter les sous-titres",
             toggle_devtools: "Ouvrir les outils de développement",
             settings: "Réglages…",
-            quit: "Quitter mimi",
+            quit: "Quitter Mimi",
             subtitle_display: "Affichage des sous-titres",
             display_modes: [
                 "Traduction seule",
@@ -724,7 +740,7 @@ fn native_menu_labels(language: NativeMenuLanguage) -> NativeMenuLabels {
             stop_subtitles: "자막 중지",
             toggle_devtools: "개발자 도구 열기",
             settings: "설정…",
-            quit: "mimi 종료",
+            quit: "Mimi 종료",
             subtitle_display: "자막 표시",
             display_modes: ["번역만", "원문과 번역", "원문만"],
             #[cfg(any(target_os = "macos", test))]
@@ -735,7 +751,7 @@ fn native_menu_labels(language: NativeMenuLanguage) -> NativeMenuLabels {
             stop_subtitles: "หยุดคำบรรยาย",
             toggle_devtools: "เปิดเครื่องมือสำหรับนักพัฒนา",
             settings: "การตั้งค่า…",
-            quit: "ออกจาก mimi",
+            quit: "ออกจาก Mimi",
             subtitle_display: "การแสดงคำบรรยาย",
             display_modes: ["คำแปลเท่านั้น", "ต้นฉบับและคำแปล", "ต้นฉบับเท่านั้น"],
             #[cfg(any(target_os = "macos", test))]
@@ -746,7 +762,7 @@ fn native_menu_labels(language: NativeMenuLanguage) -> NativeMenuLabels {
             stop_subtitles: "Stop Subtitles",
             toggle_devtools: "Open DevTools",
             settings: "Settings…",
-            quit: "Quit mimi",
+            quit: "Quit Mimi",
             subtitle_display: "Subtitle Display",
             display_modes: [
                 "Translation Only",
@@ -922,7 +938,7 @@ fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
     let _tray = TrayIconBuilder::with_id("mimi-tray")
         .icon(icon)
         .icon_as_template(cfg!(target_os = "macos"))
-        .tooltip(windows::dev_title("mimi"))
+        .tooltip(windows::dev_title("Mimi"))
         .menu(&menu)
         .show_menu_on_left_click(true)
         .on_menu_event(move |app, event| {
@@ -1296,7 +1312,7 @@ mod tests {
         assert_eq!(labels.stop_subtitles, "停止字幕");
         assert_eq!(labels.toggle_devtools, "開啟開發者工具");
         assert_eq!(labels.settings, "設定…");
-        assert_eq!(labels.quit, "結束 mimi");
+        assert_eq!(labels.quit, "結束 Mimi");
         assert_eq!(labels.subtitle_display, "字幕顯示");
         assert_eq!(labels.display_modes, ["僅譯文", "原文與譯文", "僅原文"]);
         assert_eq!(labels.show_in_dock, "在 Dock 中顯示");
@@ -1357,9 +1373,9 @@ mod tests {
         }
         assert_eq!(APPLICATION_QUIT_ACCELERATOR, "CmdOrCtrl+Q");
         for (language, label) in [
-            (NativeMenuLanguage::Chinese, "退出 mimi"),
-            (NativeMenuLanguage::English, "Quit mimi"),
-            (NativeMenuLanguage::Japanese, "mimiを終了"),
+            (NativeMenuLanguage::Chinese, "退出 Mimi"),
+            (NativeMenuLanguage::English, "Quit Mimi"),
+            (NativeMenuLanguage::Japanese, "Mimiを終了"),
         ] {
             assert_eq!(native_menu_labels(language).quit, label);
         }

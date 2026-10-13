@@ -388,7 +388,10 @@ impl QwenMTRequestEncoder {
     ) -> Result<Value, QwenMTProtocolError> {
         if !model
             .supported_language_codes()
-            .contains(&target_language.raw_value())
+            .contains(&match target_language {
+                TargetLanguage::Norwegian => "nb",
+                _ => target_language.raw_value(),
+            })
             || (source_language != SourceLanguage::Automatic
                 && !model
                     .supported_language_codes()
@@ -401,7 +404,7 @@ impl QwenMTRequestEncoder {
         }
         let mut options = json!({
             "source_lang": source_lang_name(source_language),
-            "target_lang": target_language.qwen_mt_name(),
+            "target_lang": match target_language { TargetLanguage::Norwegian => "Norwegian Bokmål", _ => target_language.qwen_mt_name() },
         });
         if let Some(domain_hint) = domain_hint.filter(|_| model != QwenMTModel::Lite) {
             options["domains"] = json!(domain_hint);

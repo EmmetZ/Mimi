@@ -262,6 +262,11 @@ jobs:
 
       - run: npm ci --prefer-offline --no-audit --no-fund
 
+      - name: Shared provider copy
+        run: |
+          python3 -B scripts/sync-provider-copy.py --check
+          python3 -B scripts/sync-provider-copy-test.py
+
       - name: Lint
         run: npm run lint
 

@@ -102,15 +102,15 @@ it("ignores the first acknowledgement arriving after another edit or completed s
   expect(input().value).toBe("First");
 });
 
-it("flushes Enter and external blur without submitting credentials or saving internal expansion", async () => {
+it("flushes Enter and external blur without submitting credentials or changing the input geometry", async () => {
   await render(); await act(() => input().focus());
   await change("Enter name");
   expect((await key("Enter")).defaultPrevented).toBe(true);
   expect(save).toHaveBeenCalledExactlyOnceWith("Enter name");
   expect(submit).not.toHaveBeenCalled();
   await change("Expanded name");
-  await act(() => host.querySelector<HTMLButtonElement>('.config-input__expand')!.click());
-  expect(input().tagName).toBe("TEXTAREA");
+  expect(host.querySelector(".config-input__expand")).toBeNull();
+  expect(input().tagName).toBe("INPUT");
   expect(save).toHaveBeenCalledTimes(1);
   expect(document.activeElement).toBe(input());
   await act(async () => host.querySelector<HTMLButtonElement>('button[type="submit"]')!.focus());
@@ -245,10 +245,10 @@ it("accepts a reused external name while idle even when its earlier save had no 
   expect(save).toHaveBeenCalledTimes(2);
 });
 
-it("normalizes pasted line breaks in an expanded name while preserving other characters", async () => {
+it("keeps names single-line without a misleading expansion affordance", async () => {
   await render();
-  await act(() => host.querySelector<HTMLButtonElement>('.config-input__expand')!.click());
-  await change("  A\r\n / B 😀  "); await tick();
+  expect(host.querySelector(".config-input__expand")).toBeNull();
+  await change("  A / B 😀  "); await tick();
   expect(input().value).toBe("  A / B 😀  ");
   expect(save).toHaveBeenCalledExactlyOnceWith("A / B 😀");
 });
