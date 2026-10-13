@@ -10,8 +10,8 @@ import { useStore } from "./store";
 let latestIconRequest = 0;
 
 /** Selectable lists load on user intent. The chosen application's local icon
- * can refresh silently on macOS/Windows, without permission or capture.
- * Linux checks cached choices without initializing discovery. */
+ * can refresh silently without permission or capture. Linux only reads already
+ * discovered streams; it never initializes discovery in the background. */
 export function useApplicationAudioPicker(disabled = false) {
   const target = useStore(state => state.settings.systemAudioTarget) ?? { kind: "system" as const };
   const ready = useStore(state => state.initializationStatus === "ready");
@@ -28,10 +28,11 @@ export function useApplicationAudioPicker(disabled = false) {
   const switching = useRef(false);
   const lookup = useRef<Promise<ApplicationSnapshot> | null>(null);
   const readSnapshot = useCallback((cachedOnly = false) => {
-    if (cachedOnly) return invoke<ApplicationSnapshot>("audio_applications", { cachedOnly: true });
-    if (lookup.current) return lookup.current;
+    if (!cachedOnly && lookup.current) return lookup.current;
     const generation = ++latestIconRequest;
-    const request = (isTauri ? invoke<ApplicationSnapshot>("audio_applications") : Promise.resolve({ supported: true, applications: [] }))
+    const request = (isTauri ? (cachedOnly
+      ? invoke<ApplicationSnapshot>("audio_applications", { cachedOnly: true })
+      : invoke<ApplicationSnapshot>("audio_applications")) : Promise.resolve({ supported: true, applications: [] }))
       .then(value => {
         if (generation === latestIconRequest) applicationIconCache.replace(value);
         return value;
@@ -39,8 +40,10 @@ export function useApplicationAudioPicker(disabled = false) {
         if (generation === latestIconRequest) applicationIconCache.clear();
         throw error;
       });
-    lookup.current = request;
-    void request.then(() => { lookup.current = null; }, () => { lookup.current = null; });
+    if (!cachedOnly) {
+      lookup.current = request;
+      void request.then(() => { lookup.current = null; }, () => { lookup.current = null; });
+    }
     return request;
   }, []);
   const text = applicationAudioCopy();
