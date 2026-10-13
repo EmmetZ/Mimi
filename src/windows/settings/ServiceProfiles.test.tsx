@@ -192,6 +192,19 @@ it("keeps row copy limits and the last-profile deletion guard", async () => {
   expect([...host.querySelectorAll<HTMLButtonElement>(".service-row__duplicate")].every(button => button.disabled)).toBe(true);
 });
 
+it("pins the active profile without mutating saved order and follows confirmed selection changes", async () => {
+  const profiles = ["First", "Second", "Third"].map((name, index) => ({ ...profile, id: `ordered-${index}`, name, credentialState: "present" as const }));
+  const order = () => [...host.querySelectorAll(".service-row__heading strong")].map(node => node.textContent);
+  await render({ ...settings, profiles, activeProfileId: profiles[2].id });
+  expect(order()).toEqual(["Third", "First", "Second"]);
+  expect(host.querySelector(".service-row")?.getAttribute("data-active")).toBe("true");
+  await render({ ...settings, profiles, activeProfileId: profiles[1].id });
+  expect(order()).toEqual(["Second", "First", "Third"]);
+  expect(profiles.map(item => item.name)).toEqual(["First", "Second", "Third"]);
+  expect(actions.updateProfile).not.toHaveBeenCalled();
+  expect(actions.selectProfile).not.toHaveBeenCalled();
+});
+
 it("marks the current row while allowing its saved language combination to be applied again", async () => {
   const configured = { ...profile, credentialState: "present" as const, languagePreset: { sourceLanguage: "en" as const, targetLanguage: "ja" as const } };
   const initial = { ...settings, profiles: [configured] };
@@ -458,7 +471,7 @@ it("discards late Apple support failures after leaving the service surface", asy
 it("shows a custom speech profile as ready for Original even when its independent translation key is missing", async () => {
   const custom: ServiceProfile = { ...profile, provider: "customDashScopeASR", credentialState: "missing", speechCredentialState: "present", textCredentialState: "missing", textTranslation: "deepL" };
   await render({ ...settings, targetLanguage: "original", profiles: [custom] });
-  expect(host.querySelector(".service-row__heading .settings-help-control__description")?.textContent).toBe(I18N.settings.credentialPresent);
+  expect(host.querySelector(".service-row__heading .settings-help-control")).toBeNull();
   expect(host.querySelector(".service-row__state")).toBeNull();
   await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")!.click());
   expect(host.querySelector(".service-detail__title .credential-badge")?.getAttribute("aria-label")).toBe(I18N.settings.credentialPresent);
@@ -526,14 +539,15 @@ async function submit() {
   await act(async () => host.querySelector(".credential-form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
 }
 
-it.each(["zh", "en", "ja"] as const)("keeps normal credentials in help and actionable credential problems visible in %s", async language => {
+it.each(["zh", "en", "ja"] as const)("omits normal credential status and keeps actionable credential problems visible in %s", async language => {
   setStoredUiLanguage(language);
   for (const [credentialState, label] of [["present", I18N.settings.credentialPresent], ["missing", I18N.settings.credentialMissing], ["unavailable", I18N.settings.credentialUnavailable]] as const) {
     await render({ ...settings, profiles: [{ ...profile, credentialState }] });
     const badge = host.querySelector<HTMLElement>(".credential-badge")!;
     if (credentialState === "present") {
       expect(badge).toBeNull();
-      expect(host.querySelector(".service-row__heading .settings-help-control__description")?.textContent).toBe(label);
+      expect(host.querySelector(".service-row__heading .settings-help-control")).toBeNull();
+      expect(host.querySelector(".service-row__main")?.getAttribute("aria-label")).not.toContain(label);
     } else {
       expect(badge.textContent).toBe(label);
       expect(badge.getAttribute("aria-label")).toBe(label);
@@ -1685,7 +1699,7 @@ it("reports reconnect failure after the selected profile is already saved withou
   await act(async () => host.querySelectorAll<HTMLButtonElement>(".service-row__use")[1].click());
   await render(saved, "error");
   await act(async () => reject(error));
-  expect(host.querySelector('.service-row[data-active="true"]')).toBe(host.querySelectorAll(".service-row")[1]);
+  expect(host.querySelector('.service-row[data-active="true"]')).toBe(host.querySelector(".service-row"));
   expect(host.querySelector('.settings-toast[data-tone="error"]')?.textContent).toContain(profileErrorMessage(error));
   expect(host.querySelector('.settings-toast[data-tone="success"]')).toBeNull();
   expect(host.textContent).not.toContain(error);
@@ -1701,7 +1715,7 @@ it("opens and focuses the active Apple resource editor from another profile with
     <ServiceProfiles settings={snapshot} sessionIsActive={false} visible={visible} appleResourcesRequest={request} />,
   ));
   await show(0);
-  await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")!.click());
+  await act(async () => host.querySelector<HTMLButtonElement>('.service-row[data-active="false"] .service-row__edit')!.click());
   expect(host.querySelector(".service-detail__title")?.textContent).toContain(profile.name);
   await show(1);
   const resources = host.querySelector<HTMLElement>("#apple-speech-resources")!;
@@ -1933,8 +1947,8 @@ it("keeps Alibaba configuration links next to their controls without provider re
 it("keeps unfinished LiveTranslate setup inactive even after its key was saved", async () => {
   const incomplete: ServiceProfile = { ...profile, credentialState: "present", alibabaRealtimeMode: "liveTranslate", alibabaWorkspaceId: "" };
   await render({ ...settings, activeProfileId: "other", profiles: [incomplete, { ...incomplete, id: "other", alibabaRealtimeMode: "disabled" }] });
-  expect(host.querySelector<HTMLButtonElement>(".service-row__use")?.disabled).toBe(true);
-  await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")!.click());
+  expect(host.querySelector<HTMLButtonElement>('.service-row[data-active="false"] .service-row__use')?.disabled).toBe(true);
+  await act(async () => host.querySelector<HTMLButtonElement>('.service-row[data-active="false"] .service-row__edit')!.click());
   expect([...host.querySelectorAll<HTMLButtonElement>("button")].find(button => button.textContent === I18N.settings.checkSpeechRecognition)?.disabled).toBe(true);
   expect(testProfileConnection).not.toHaveBeenCalled();
   expect(actions.selectProfile).not.toHaveBeenCalled();

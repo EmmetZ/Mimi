@@ -112,6 +112,9 @@ export function ServiceProfiles({
   const activeProfile =
     settings.profiles.find((profile) => profile.id === settings.activeProfileId) ??
     settings.profiles[0];
+  const orderedProfiles = [...settings.profiles].sort((a, b) =>
+    Number(b.id === settings.activeProfileId) - Number(a.id === settings.activeProfileId),
+  );
   const [selectedProfileId, setSelectedProfileId] = useState(
     activeProfile?.id ?? settings.activeProfileId,
   );
@@ -766,7 +769,7 @@ export function ServiceProfiles({
             </button>
           </div>
           {settings.profiles.length > 0 && <div className="service-rows" aria-label={I18N.settings.serviceProfilesTitle}>
-            {settings.profiles.map((profile) => {
+            {orderedProfiles.map((profile) => {
               const credentialState = credentialStateForTarget(profile, profile.languagePreset?.targetLanguage ?? settings.targetLanguage);
               const credentialLabel = credentialStateText(credentialState, profile.provider === "appleSpeech");
               return (
@@ -778,13 +781,12 @@ export function ServiceProfiles({
                   <div
                     className="service-row__main"
                     role="group"
-                    aria-label={`${profile.name}${isCustomSpeechProvider(profile.provider) && profile.speechRecognitionName?.trim() ? `, ${I18N.settings.speechRecognition}: ${speechRecognitionDisplayName(profile)}` : ""}, ${credentialLabel}${textTranslationForProfile(profile) !== "followService" ? `, ${I18N.settings.textTranslationLabel}: ${textTranslationDisplayName(profile)}` : ""}`}
+                    aria-label={`${profile.name}${isCustomSpeechProvider(profile.provider) && profile.speechRecognitionName?.trim() ? `, ${I18N.settings.speechRecognition}: ${speechRecognitionDisplayName(profile)}` : ""}${credentialState !== "present" ? `, ${credentialLabel}` : ""}${textTranslationForProfile(profile) !== "followService" ? `, ${I18N.settings.textTranslationLabel}: ${textTranslationDisplayName(profile)}` : ""}`}
                   >
                     <ProviderIcon provider={profile.provider === "deepLX" ? "alibabaCloud" : profile.provider} size={24} />
                     <span className="service-row__copy">
                       <span className="service-row__heading">
                         <strong key={profile.name} title={profile.name}>{profileTitle(profile)}</strong>
-                        {credentialState === "present" && <SettingsHelp text={credentialLabel} label={`${profileTitle(profile)} · ${I18N.settings.helpLabel}`} />}
                         {profile.id === settings.activeProfileId && <span className="profile-active-badge">{I18N.settings.activeProfile}</span>}
                       </span>
                       {profile.languagePreset && <span className="service-row__provider">{SOURCE_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.sourceLanguage]} → {TARGET_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.targetLanguage]}</span>}

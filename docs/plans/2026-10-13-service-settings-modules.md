@@ -65,8 +65,10 @@ rows. Keep the destructive action visually distinct.
 Align the recognition mark with the title, including mixed-provider profiles.
 Avoid repeating a recognition provider already used as the profile title;
 retain distinct custom recognizer names and the independent translation route.
-Normal credential information belongs in adjacent help. Missing/unavailable
-credentials remain visible, and the active marker belongs beside the title.
+Omit normal credential status from list text and help controls. Missing/unavailable
+credentials remain visible, and the active marker belongs beside the title. Pin
+the active profile first for display without changing the saved order of other
+profiles; update this only when the confirmed active profile changes.
 Use the same artwork dimensions as its icon slot to prevent marks crowding text.
 
 ## Verification
