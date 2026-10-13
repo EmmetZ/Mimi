@@ -111,7 +111,7 @@ Try **LiveTranslate (simultaneous)** first for Alibaba simultaneous subtitles. T
 
 1. Open [Beijing workspace management](https://bailian.console.aliyun.com/cn-beijing/settings/workspace) and [API Key management](https://bailian.console.aliyun.com/cn-beijing/model/settings/api-key), or click **Get workspace ID** and **Get API key** in Mimi's Alibaba settings. Copy an existing workspace ID and a key belonging to that workspace. For an API Host such as `llm-xxx.cn-beijing.maas.aliyuncs.com`, the ID is just `llm-xxx`; a saved matching key can be reused.
 2. Stop subtitles. In **Settings → Models & Services → Alibaba Cloud → Recognition and translation**, choose **LiveTranslate (simultaneous)**, enter the workspace ID and API key, save, and select the configuration.
-3. Choose **Automatic** recognition and **Chinese or English** translation, play a short non-sensitive sample, and turn on **Live Subtitles**. Stop afterward. **Current ASR + MT** remains available and restores the saved independent text translator.
+3. Choose **Automatic** recognition and **Chinese or English** translation, play a short non-sensitive sample, and turn on **Live Subtitles**. Stop afterward. **Recognize, then translate** remains available and restores the saved independent text translator.
 
 If access is denied, check the workspace's model-call permission for `qwen3.8-livetranslate-flash-realtime` and any custom key model/IP restrictions. **API usage can be charged**; check trial allowance, expiry, and billing before starting. **Original** hides the translation but may still incur translation usage. A connection check does not verify subtitle quality or long-session stability.
 

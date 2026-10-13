@@ -1231,7 +1231,7 @@ function ProviderPicker({
               <span><strong>{providerDisplayName(provider)}</strong></span>
               <Icon name="chevron-right" />
             </button>
-            <SettingsHelp text={providerDescription(provider)} label={`${providerDisplayName(provider)}: ${I18N.settings.helpLabel}`} />
+            <SettingsHelp text={isCustomSpeechProvider(provider) ? I18N.settings.customSpeechDescription : providerDescription(provider)} label={`${providerDisplayName(provider)}: ${I18N.settings.helpLabel}`} />
           </div>
         ))}
       </div>

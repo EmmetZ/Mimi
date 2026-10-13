@@ -2,7 +2,7 @@
 
 This draft lists **LiveTranslate (simultaneous)** first under
 **Settings → Speech & Translation → Alibaba Cloud → Recognition and
-translation**. Existing profiles keep **Current ASR + MT** until explicitly
+translation**. Existing profiles keep **Recognize, then translate** until explicitly
 changed; a workspace ID is required before LiveTranslate can be saved.
 
 1. Use **Get workspace ID** and **Get API key** to open the official Beijing

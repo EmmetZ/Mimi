@@ -24,6 +24,12 @@ These project rules apply to implementation and review.
   that platform; omit unsupported features from product copy. Android playback
   capture still needs the system audio-recording permission, so explain that
   requirement where permission is requested.
+- Service help explains the actual workflow and relevant choice boundaries;
+  a brand, model name or acronym alone is not an explanation. Check copy against
+  the implemented route. Keep custom-protocol details in confirmation/editor
+  help, with a plain-language purpose in the initial service picker.
+  Break multi-part help at semantic boundaries (workflow, then requirements or
+  limits); preserve those breaks while allowing narrow-window wrapping.
 - Make the title, current state, main action and detail areas easy to distinguish.
   Group related controls, use consistent button sizes and align actions right.
   Do not scatter buttons across large blank areas or add cards to every row.
