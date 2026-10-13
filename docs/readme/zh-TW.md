@@ -19,67 +19,32 @@
   </p>
 </div>
 
-<p align="center">Mimi 把電腦或麥克風中的人聲翻譯成即時字幕。看電影、直播或線上課程時，字幕會浮動顯示在螢幕上。</p>
+![Mimi 雙語字幕示意：原創插畫與範例對白](../assets/readme-preview.png)
 
-![Mimi 雙語字幕視窗，搭配原創插畫與範例對白](../assets/readme-preview.png)
+字幕顯示示意，使用範例對白。[觀看字幕與沉浸模式示範（舊版介面）](../demos/README.md)。
 
-## 功能
+## 邊聽邊看字幕
 
-- 選擇系統聲音、麥克風，或同時開啟兩路。預設使用系統聲音，麥克風需要主動選擇。
-- 選擇要翻譯的應用程式聲音（macOS / Windows 11）。
-- 顯示原文、譯文，或雙語字幕。
-- 調整字幕的位置、大小和顏色，也可讓滑鼠點擊穿透字幕視窗。
-- 按需儲存字幕或音訊到本機，匯出 TXT / WAV；預設不儲存、不錄音。
+- **看懂正在播放的內容**：電影、直播、線上課程中的人聲，顯示為懸浮字幕。可看雙語、只看譯文或只看原文。
+- **選擇聽什麼**：預設使用電腦聲音，也可主動開啟麥克風，或同時使用兩路。macOS / Windows 11 可指定應用程式。
+- **讓字幕適合你**：調整位置、字級和顏色；沉浸模式只留字幕，點擊穿透讓你繼續操作下方應用程式。
+- **需要時再儲存**：桌面版可儲存字幕或錄製所選音源，匯出 TXT / WAV。預設不儲存、不錄音。
 
 ## 開始使用
 
-初次使用，**推薦火山引擎、阿里雲或 Google Gemini**。
+1. **[下載 Mimi](https://github.com/yuxino/mimi/releases/latest)**。支援 macOS 13+（Apple 晶片 / Intel）、Windows x64、Linux x86_64；手機請看 [Android 安裝與使用（英文）](../../android/README.md#start)。
+2. **新增服務設定**。開啟「設定 → 模型與服務」（舊版為「語音與翻譯」），選擇服務並儲存認證資訊。不知道選哪家、Key 去哪拿？請看[服務設定指南（簡體中文）](../provider-setup.zh-CN.md#choose)。
+3. **開啟字幕**。選擇音源、辨識語言和翻譯語言，播放內容，在「字幕」頁開啟「即時字幕」，依系統提示授予錄音權限。
 
-使用 Google Gemini 時，請保持網路連線穩定，並在 [Google AI Studio](https://aistudio.google.com/) 查看可用額度與費用，並取得 API 金鑰。
+Mimi 免費，雲端服務可能收費。雲端辨識會接收音訊，遠端文字翻譯會接收辨識文字；本機處理需選擇支援的 Apple 服務。需求詳見設定指南。
 
-各家服務的啟用入口、認證資訊取得步驟，以及 Mimi 目前使用的模型，見[**服務開通指南（簡體中文）**](../provider-setup.zh-CN.md)。
+## 使用中遇到問題？
 
-1. 開啟「設定 → 語音與翻譯」，新增設定，按提示填入服務供應商認證資訊並儲存。
-2. 選擇辨識和翻譯語言。
-3. 播放內容，在「字幕」頁開啟「即時字幕」。macOS 14.2 以上，全部應用程式或指定單一應用程式均可使用「僅系統音訊錄製」；已有螢幕錄製授權會繼續使用。更早的 macOS 需要「螢幕與系統音訊錄製」。
-
-雲端辨識需要自備服務供應商認證資訊，並將音訊傳送至該服務，呼叫可能產生費用。符合條件的 Mac 可用 Apple Speech 在本機辨識；遠端文字翻譯會將辨識文字傳送至你選擇的服務；Apple Translation 在 Mac 本機處理文字。
-
-[使用與常見問題](../usage.zh-TW.md) · [Android（英文）](../../android/README.md) · [回報問題](https://github.com/yuxino/mimi/issues) · [貢獻指南（簡體中文／英文）](../../.github/CONTRIBUTING.md)
-
-<a id="apple-本地识别"></a>
-
-### Apple 本機辨識
-
-**Apple Speech** 只在系統支援時出現：Apple 晶片、macOS 26 或更新版本，且系統辨識引擎可用。辨識不需要 API 金鑰。先停止字幕，在「辨識語言」中選好語言；未下載時按一下「下載並使用」，Mimi 會下載 Apple 資源，並在就緒後將它設為辨識語言。已下載時按一下「設為辨識語言」，再啟動字幕。無需前往系統設定。不提供自動辨識語言。詳見 [Apple Speech 設定步驟（簡體中文）](../provider-setup.zh-CN.md#apple-speech)。
-
-**Apple Translation** 是獨立的本機文字翻譯服務，目前支援 Apple 晶片、macOS 26 或更新版本。在「文字翻譯」中選擇它並儲存設定，再選擇明確的辨識語言和翻譯語言。Mimi 會顯示語言組合是否就緒；按一下「下載或啟用語言套件」，即可開啟 Apple 的確認介面。翻譯語言套件和語音辨識語言套件分開；會沿用已下載的套件，缺少的由 Apple 在你確認後下載。檢查連線、啟動字幕不會觸發下載。不需要文字翻譯 API 金鑰或文字代理伺服器。
-
-Apple Speech 只看原文時，選擇「不翻譯（僅原文）」。也可搭配 [Index-Translate](#试试-index-translate) 等遠端文字翻譯服務；遠端服務會收到辨識文字。
-
-<a id="试试-index-translate"></a>
-
-### 試試 Index-Translate
-
-B 站的 [Index-Translate](https://github.com/bilibili/Index-Translate#inference) 目前提供免費的公開翻譯 API（截至 2026 年 10 月 5 日）。可以作為文字翻譯服務，搭配阿里雲或 Apple 本機辨識使用。
-
-在「**設定 → 語音與翻譯**」中開啟「**Alibaba Cloud**」或「**Apple Speech**」設定，將「**文字翻譯**」的服務切換為「**OpenAI 相容介面**」，按[官方範例](https://github.com/bilibili/Index-Translate/blob/main/inference/llm/call_api.py#L40-L41)填寫：
-
-| 欄位 | 填寫內容 |
-| --- | --- |
-| 服務位址 | `https://index-translate.bilibili.com/v1` |
-| 模型名稱 | `Index-Translate-35B-A3B` |
-| API 金鑰 | 留空，公開介面目前不需要認證。 |
-
-儲存後，按一下「文字翻譯」旁的連線檢查。如果這個位址之前儲存過金鑰，選擇「移除翻譯金鑰」後再儲存。
-
-Index-Translate 只負責文字翻譯。搭配阿里雲時，仍需設定語音辨識認證資訊，辨識服務可能產生費用；搭配 Apple Speech 時，本機辨識不需要金鑰。免費介面的後續可用性以上游為準。
-
-## 常見問題
-
-**macOS 已開啟音訊錄製權限，仍反覆要求授權？** 先結束 Mimi，在「系統設定 → 隱私權與安全性 → 螢幕與系統音訊錄製」中，僅刪除並重新新增對應應用程式：正式版為 `/Applications/mimi.app`，開發版為 `/Applications/mimi-dev.app`，開啟權限後重新開啟同一個應用程式。詳見[權限恢復步驟](../usage.zh-TW.md#macos-permissions-after-an-update)。
+[使用指南](../usage.zh-TW.md)包含安裝、權限、字幕顯示和儲存記錄。沒有字幕或連線失敗，先看[辨識錯誤](../usage.zh-TW.md#errors)；仍未解決可[回報問題](https://github.com/yuxino/mimi/issues)。
 
 ## 貢獻者
+
+想幫 Mimi 改進？從[貢獻指南（中英）](../../.github/CONTRIBUTING.md)開始。
 
 感謝每一位寫程式碼、提問題、試用和分享的朋友 (๑•̀ㅂ•́)و✧
 

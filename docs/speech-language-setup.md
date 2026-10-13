@@ -4,6 +4,8 @@
 
 ## English
 
+For ordinary service setup, use the [service guide](provider-setup.md#choose). This page covers custom protocols and language parameters.
+
 A third-party service can use a language selected in Mimi **only if its endpoint, protocol and model accept the parameter Mimi sends**. Choosing a language does not add it to a model. Speech recognition and text translation are separate stages.
 
 ### Configure a custom recognition service
@@ -51,6 +53,8 @@ Shared wire fixtures are consumed by desktop Rust and Android tests. The encodab
 
 ### Recheck — 2026-10-13
 
+The Android Alibaba row in the October 6 audit is historical. Current Android and desktop’s Recognize, then translate mode both use Audio3 + Qwen-MT through the shared factory; see [current models](provider-setup.md#current-models). Android has no LiveTranslate mode selector.
+
 Desktop Alibaba LiveTranslate uses `qwen3.8-livetranslate-flash-realtime` with
 automatic source detection and **60 text translation targets plus Original**.
 The initial desktop experiment's Chinese/English-only gate was narrower than
@@ -76,12 +80,14 @@ No real/paid provider requests or audio capture were made for this recheck.
 
 ## 中文
 
+配置内置服务请看[服务配置指南](provider-setup.zh-CN.md#choose)。本页只讲自定义接口和语言参数。
+
 **三方服务可以配置语言，前提是该地址、协议和识别模型支持 Mimi 发出的参数。** 选语言不能给模型增加语种；识别语言与翻译目标是两回事。
 
 ### 怎么接入
 
 1. 打开「设置 → 模型与服务」，按服务文档选择「自定义识别（DashScope 协议）」或「自定义识别（OpenAI 实时兼容）」。
-2. 填入完整 WebSocket 地址、实际部署的识别模型 ID 和密钥，点击「保存识别配置」。不能填网页地址、HTTP 文件转写接口或 Chat Completions 地址。上方表格给出了官方地址与模型示例；不要把翻译模型填进识别模型。
+2. 填入完整 WebSocket 地址、实际部署的识别模型 ID 和密钥，点击「保存识别配置」。不能填网页地址、HTTP 文件转写接口或 Chat Completions 地址。地址和模型名以所用服务的文档为准；不要把翻译模型填进识别模型。
 3. 可按该部署的文档声明它支持的识别语言；不确定时保持未声明。声明只保存在这项配置中并筛选语言选项，不会查询或改变模型；声明为空时只保留「服务默认」。使用这项服务配置，先在「声音与语言 → 翻译成」选择「只显示原文」，只测试语音转文字，再到「声音与语言」选择当前「识别语言」。
 4. 「服务默认」代表不发送语言参数，是否自动检测取决于对端。选择英语等具体语言会发送对应参数；请先确认该模型接受这个代码。保存只写入配置；识别检查成功仅说明本次建立会话成功，不证明识别质量或所有候选语言均可用。
 5. 点击识别旁的检查操作。识别正常后，再独立配置并检查文字翻译，再到「声音与语言」选择翻译目标。
@@ -106,6 +112,8 @@ No real/paid provider requests or audio capture were made for this recheck.
 这些结论来自官方资料、实际请求编码及桌面／Android 共用合成用例，不代表每种语言的云端账号、语音质量或完整字幕会话均已实测。本轮语言目录审计没有发送云端付费音频。Apple 语言包下载与文字检查的原生实测另记于集成记录。
 
 ### 2026-10-13 复核
+
+10 月 6 日审计中的 Android 阿里模型描述属于历史状态。当前 Android 与桌面的「先识别，再翻译」模式均通过共享工厂使用 Audio3 + Qwen-MT，见[当前模型](provider-setup.zh-CN.md#current-models)；Android 暂无 LiveTranslate 模式入口。
 
 桌面阿里同声实际使用 `qwen3.8-livetranslate-flash-realtime`，输入自动识别，
 字幕翻译支持官方 60 种文本目标及「只显示原文」。原先仅中英的实验限制已移除；

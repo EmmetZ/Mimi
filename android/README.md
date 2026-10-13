@@ -1,18 +1,34 @@
-# mimi for Android
+# Mimi for Android
 
-Native Android version of [mimi](../README.md) — live subtitles and
-translation for system audio. Native Kotlin UI/capture (no Tauri), with the same
-Rust subtitle/provider runtime as desktop through JNI.
+Floating translated subtitles for audio playing on your phone. Watch a video,
+stream, or class with the original text, translation, or both on screen.
 
-[Download Android](https://github.com/yuxino/mimi/releases/latest)
+[Desktop home](../README_EN.md) · [中文首页](../README.md)
 
-[Provider setup and current models](../docs/provider-setup.md) · [服务开通与模型指南](../docs/provider-setup.zh-CN.md)
+<a id="start"></a>
 
-> Android is packaged separately from mimi desktop releases. Both builds use
-> `shared/mimi-core` and `shared/mimi-runtime` for subtitle state, actual provider
-> clients, translation scheduling and recovery. Provider credentials remain
-> configured on Android. Shared source alone does not establish live service or
-> device availability; verification limits are listed below.
+## Start here
+
+1. [Download the Android APK](https://github.com/yuxino/mimi/releases/latest) and install it on Android 10 or later.
+2. Open **Services**, choose a service, enter its credentials, and save. The [service setup guide](../docs/provider-setup.md#choose) explains where to get them; cloud usage may cost money.
+3. In **Captions**, choose the spoken and translation languages, then start. Allow display over other apps, audio recording, and the system capture prompt when asked.
+4. Switch to the app you want to hear and play speech. Subtitles appear over it; use Immersive Mode to keep just the text and pass touches through.
+
+Android captures app playback, **not the microphone**. Android still requires the
+audio-recording permission for playback capture. Some apps block capture, so protected
+content may produce no subtitles. Cloud recognition receives the captured audio;
+remote text translation receives recognized text. History is off by default.
+
+Need to change the text translator? See [independent text translation](#independent-text-translation).
+Android has no Apple Speech or custom recognition setup. See [known limits](#known-limits)
+for other differences, or [report an issue](https://github.com/yuxino/mimi/issues).
+
+<details>
+<summary>Feature details and implementation</summary>
+
+Native Kotlin UI and audio capture use the shared Rust subtitle and provider
+runtime through JNI. Credentials are configured separately on Android. Shared
+code does not prove availability on every device; see [verification status](#verification-status).
 
 ## Features
 
@@ -81,6 +97,8 @@ See the [native Before/After comparison](https://github.com/yuxino/Mimi/pull/211
 for the empty-overlay, live font-size and help-icon repairs. Optional explanations
 appear on mouse hover/long press; tap a help icon to read scrollable details.
 Setup, permission and audio-recovery instructions remain visible.
+
+</details>
 
 ## Requirements
 

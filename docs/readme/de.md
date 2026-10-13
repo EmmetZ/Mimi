@@ -19,67 +19,32 @@
   </p>
 </div>
 
-<p align="center">Mimi macht Sprache von deinem Computer oder Mikrofon zu live übersetzten Untertiteln. Schau Filme, verfolge Streams oder nimm an Unterricht teil, während die Untertitel über deinem Bildschirm schweben.</p>
+![Mimis zweisprachige Untertitel mit fiktivem Beispieldialog](../assets/readme-preview.png)
 
-![Mimis zweisprachiges Untertitelfenster über einer eigens illustrierten Szene](../assets/readme-preview.png)
+Oberflächenillustration mit Beispieldialog. [Untertitel und immersiven Modus ansehen (ältere Oberfläche)](../demos/README.md).
 
-## Funktionen
+## Beim Hören mitlesen
 
-- Wähle Systemaudio, Mikrofon oder beides. Systemaudio ist voreingestellt; das Mikrofon wird nur nach ausdrücklicher Auswahl erfasst.
-- Übersetze das Audio einer ausgewählten App unter macOS oder Windows 11.
-- Zeige Originaltext, Übersetzung oder beides an.
-- Passe Position, Größe und Farbe der Untertitel an oder lass Mausklicks durch das Fenster hindurchgehen.
-- Speichere bei Bedarf Untertitel oder Audio lokal und exportiere TXT / WAV. Speichern und Aufnahme sind standardmäßig ausgeschaltet.
+- **Verstehen, was läuft**: schwebende Untertitel für Sprache in Filmen, Streams und Unterricht. Zeige beide Sprachen, nur die Übersetzung oder nur das Original.
+- **Audio auswählen**: standardmäßig den Computerton; Mikrofon oder beide Quellen aktivierst du selbst. Unter macOS / Windows 11 kannst du eine einzelne App wählen.
+- **Lesbarkeit anpassen**: ändere Position, Schriftgröße und Farbe. Im immersiven Modus bleibt nur der Text; mit Klickdurchleitung bedienst du die App darunter.
+- **Bei Bedarf speichern**: speichere am Desktop Untertitel oder das gewählte Audio und exportiere TXT / WAV. Speichern und Aufnehmen sind standardmäßig aus.
 
 ## Erste Schritte
 
-Für die erste Einrichtung **empfehlen wir Volcano Engine, Alibaba Cloud oder Google Gemini**.
+1. **[Mimi herunterladen](https://github.com/yuxino/mimi/releases/latest)** für macOS 13+ (Apple-Chip / Intel), Windows x64 oder Linux x86_64. Für Smartphones gibt es die [Android-Anleitung (Englisch)](../../android/README.md#start).
+2. **Einen Dienst einrichten** unter Einstellungen → Modelle & Dienste (in älteren Versionen Sprache & Übersetzung). Wähle einen Dienst und speichere die Zugangsdaten. Die [Einrichtungsanleitung (Englisch)](../provider-setup.md#choose) erklärt die Auswahl und wo du einen Schlüssel bekommst.
+3. **Untertitel starten**. Wähle Audioquelle, gesprochene Sprache und Zielsprache. Spiele etwas ab, aktiviere Live-Untertitel auf der Untertitelseite und erteile die angefragten Audioberechtigungen.
 
-Verwende für Google Gemini eine stabile Netzwerkverbindung. Prüfe dein verfügbares Kontingent, die Abrechnung und deine API-Schlüssel in [Google AI Studio](https://aistudio.google.com/).
+Mimi ist kostenlos; Cloud-Dienste können Gebühren erheben. Cloud-Erkennung erhält Audio, externe Textübersetzung den erkannten Text. Lokale Verarbeitung erfordert unterstützte Apple-Dienste; Voraussetzungen stehen in der Einrichtungsanleitung.
 
-Links zur Freischaltung, Hinweise zu Zugangsdaten und die derzeit von Mimi verwendeten Modelle findest du in der **[Anleitung zur Anbietereinrichtung (Englisch)](../provider-setup.md)**.
+## Hilfe benötigt?
 
-1. Öffne Einstellungen → Sprache & Übersetzung, füge eine Konfiguration hinzu, gib die angeforderten Anbieterzugangsdaten ein und speichere.
-2. Wähle die Erkennungs- und Übersetzungssprachen.
-3. Spiele etwas ab und aktiviere unter Untertitel die Live-Untertitel. Ab macOS 14.2 genügt „Nur Systemaudioaufnahme“ für alle Anwendungen oder eine ausgewählte Anwendung. Bestehende Bildschirmaufnahme-Berechtigungen werden weiterverwendet. Ältere macOS-Versionen benötigen „Bildschirm- und Systemaudioaufnahme“.
-
-Cloud-Sprachdienste erfordern deine eigenen Zugangsdaten und erhalten dein Audio; dabei können Nutzungsgebühren entstehen. Apple Speech erkennt Audio auf unterstützten Macs lokal. Eine externe Textübersetzung sendet den erkannten Text an den von dir gewählten Dienst; mit Apple Translation bleibt der Text auf dem Mac.
-
-[Einrichtung & Hilfe](../usage.de.md) · [Android (Englisch)](../../android/README.md) · [Fehler melden](https://github.com/yuxino/mimi/issues) · [Mitwirken (Chinesisch/Englisch)](../../.github/CONTRIBUTING.md)
-
-<a id="apple-local-recognition"></a>
-
-### Lokale Erkennung mit Apple
-
-**Apple Speech** wird angezeigt, wenn das System die Voraussetzungen erfüllt: Apple-Chip, macOS 26 oder neuer und eine verfügbare Systemtranskription. Ein API-Schlüssel für die Spracherkennung ist nicht nötig. Stoppe die Untertitel und wähle unter **Erkennungssprache** die Sprache. Falls sie fehlt, klicke auf **Laden und verwenden**; Mimi lädt die Ressourcen von Apple und wählt die Sprache aus, sobald sie bereit ist. Klicke bei einer bereits geladenen Sprache auf **Erkennungssprache festlegen** und starte anschließend die Untertitel. Du musst dafür nicht in die Systemeinstellungen wechseln. Eine automatische Spracherkennung wird nicht angeboten. Siehe [Apple Speech einrichten (Englisch)](../provider-setup.md#apple-speech).
-
-**Apple Translation** ist ein separater lokaler Textübersetzungsdienst auf unterstützten Macs mit Apple-Chip und macOS 26 oder neuer. Wähle ihn unter **Textübersetzung**, speichere die Konfiguration und wähle eine konkrete Ausgangs- und Zielsprache. Mimi zeigt an, ob das Paar bereit ist; mit **Sprachen laden oder aktivieren** öffnest du Apples Einrichtungsbestätigung. Übersetzungsmodelle sind von Spracherkennungsmodellen getrennt. Vorhandene Modelle werden wiederverwendet; fehlende lädt Apple nach deiner Bestätigung. Verbindungsprüfungen und Untertitelsitzungen fordern nie einen Download an. Ein Text-API-Schlüssel oder Textproxy ist nicht nötig.
-
-Wähle **Keine Übersetzung (nur Original)**, um mit Apple Speech nur den Originaltext anzuzeigen. Du kannst auch einen externen Textübersetzer wie [Index-Translate](#try-index-translate) verwenden; dieser Dienst erhält den erkannten Text.
-
-<a id="try-index-translate"></a>
-
-### Index-Translate ausprobieren
-
-Bilibilis [Index-Translate](https://github.com/bilibili/Index-Translate#inference) bietet derzeit eine kostenlose öffentliche Übersetzungs-API an (Stand: 5. Oktober 2026). Sie kann die Textübersetzung für die Erkennung mit Alibaba Cloud oder Apple Speech übernehmen.
-
-Öffne unter **Einstellungen → Sprache & Übersetzung** eine Konfiguration für **Alibaba Cloud** oder **Apple Speech** und wähle unter **Textübersetzung** die **OpenAI-kompatible API**. Verwende die Werte aus dem [offiziellen Beispiel](https://github.com/bilibili/Index-Translate/blob/main/inference/llm/call_api.py#L40-L41):
-
-| Feld | Wert |
-| --- | --- |
-| Dienstadresse | `https://index-translate.bilibili.com/v1` |
-| Modellname | `Index-Translate-35B-A3B` |
-| API-Schlüssel | Leer lassen; die öffentliche API erfordert derzeit keine Authentifizierung. |
-
-Speichere und starte dann die Verbindungsprüfung neben **Textübersetzung**. Falls für diese Adresse bereits ein Schlüssel gespeichert ist, entferne ihn mit **Übersetzungsschlüssel entfernen** und speichere erneut.
-
-Index-Translate übernimmt ausschließlich die Textübersetzung. Lass bei Alibaba Cloud dessen Zugangsdaten für die Spracherkennung eingerichtet; für die Erkennung können weiterhin Gebühren entstehen. Apple Speech benötigt keinen Erkennungsschlüssel. Die Verfügbarkeit der kostenlosen API hängt vom Anbieter ab.
-
-## Häufige Fragen
-
-**macOS fragt trotz aktivierter Berechtigung immer wieder nach der Aufnahmeerlaubnis?** Beende Mimi und entferne ausschließlich seinen Eintrag unter Systemeinstellungen → Datenschutz & Sicherheit → Bildschirm- & Systemaudioaufnahme. Füge ihn anschließend erneut hinzu. Verwende für die veröffentlichte App `/Applications/mimi.app` oder für die Entwicklung `/Applications/mimi-dev.app`, aktiviere den Eintrag und öffne dieselbe App erneut. Siehe [Berechtigungen wiederherstellen](../usage.de.md#macos-permissions-after-an-update).
+Die [Nutzungsanleitung](../usage.de.md) erklärt Installation, Berechtigungen, Untertitelanzeige und gespeicherte Sitzungen. Bei fehlenden Untertiteln oder Verbindungsproblemen beginne mit [Erkennungsfehlern](../usage.de.md#errors). Bleibt das Problem bestehen, [melde es](https://github.com/yuxino/mimi/issues).
 
 ## Mitwirkende
+
+Du möchtest mithelfen? Beginne mit der [Beitragsanleitung (Englisch/Chinesisch)](../../.github/CONTRIBUTING.md).
 
 Danke an alle, die Code schreiben, Probleme melden, Mimi ausprobieren oder weiterempfehlen (๑•̀ㅂ•́)و✧
 

@@ -1,7 +1,8 @@
 # Try Alibaba LiveTranslate simultaneous interpretation
 
-This draft lists **LiveTranslate (simultaneous)** first under
-**Settings → Speech & Translation → Alibaba Cloud → Recognition and
+The current development build starts new Alibaba configurations in
+**LiveTranslate (simultaneous)** under
+**Settings → Models & Services → Alibaba Cloud → Recognition and
 translation**. Existing profiles keep **Recognize, then translate** until explicitly
 changed; a workspace ID is required before LiveTranslate can be saved.
 
@@ -9,7 +10,7 @@ changed; a workspace ID is required before LiveTranslate can be saved.
    console and copy an existing workspace ID and its matching key.
 2. Choose LiveTranslate in Mimi, fill the workspace ID, reuse or enter the
    matching key, save, and select the configuration.
-3. Choose automatic recognition and Chinese or English translation, play a
+3. Choose automatic recognition and a supported text translation target, play a
    short non-sensitive sample, and start subtitles. Stop afterward.
 
 The configuration guide is linked beside the mode selector. Saving alone starts

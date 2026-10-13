@@ -2,9 +2,37 @@
 
 [Back to README](../README_EN.md) · [简体中文](provider-setup.zh-CN.md) · [Usage & FAQ](usage.md)
 
-This guide explains where to enable each service, where to get its credentials, and what to enter in Mimi. Configure only the services you plan to use. For a first setup, the README recommends Volcano Engine, Alibaba Cloud or Google Gemini.
+Choose a service, get its credentials, and set it up in Mimi. You only need to enable the service you want to use.
 
-Alibaba LiveTranslate setup checked: **2026-10-13**; other service instructions last checked: **2026-10-06**. The instructions primarily cover the current desktop app, with Android differences noted separately. Console menus, model access, trial allowances, and billing rules can change. Check the linked official documentation and your own account status.
+<a id="choose"></a>
+
+## Which setup fits?
+
+| What you want | Choose |
+| --- | --- |
+| One service for recognition and translation | [Volcano Engine](#volcano-engine), [Gemini](#google-gemini), [Tencent Cloud](#tencent-cloud), [Baidu](#baidu-translate), or [OpenAI](#openai-realtime); use [Azure OpenAI](#azure-openai) if you have Azure deployments |
+| Use Alibaba simultaneous translation | [LiveTranslate](#alibaba-livetranslate) returns original and translated text from one service; currently a desktop experiment |
+| Use DeepL or another text translator | [Alibaba Cloud’s Recognize, then translate mode](#alibaba-cloud) lets you change the translator independently |
+| Process locally on a Mac | [Apple Speech](#apple-speech) recognizes speech; [Apple Translation](#apple-translation) translates text. Requires Apple silicon, macOS 26+, and the language packs |
+| Use your own recognition endpoint | [Custom recognition](#custom-recognition), with translation configured separately; the service must support the matching realtime speech protocol |
+| Use your xAI account | [xAI Grok](#xai-grok) translates segments after pauses in speech |
+
+Choose based on the languages you need, your accounts, and your budget. [Text translators](#text-translation) such as DeepL and Index-Translate only process text; they cannot listen to audio by themselves.
+
+Alibaba LiveTranslate setup checked: **2026-10-13**; other service instructions last checked: **2026-10-06**. These instructions follow the current source. Older versions call Models & Services “Speech & Translation”; experimental features may not be released yet. Android differences are noted separately. Console menus, model access, trial allowances, and billing rules can change. Check the linked official documentation and your own account status.
+
+<a id="setup"></a>
+
+## Complete the setup in Mimi
+
+1. Stop subtitles, open **Settings → Models & Services**, and add a configuration for your service.
+2. Get the credentials using the instructions below, enter each value in its corresponding field, and save. Do not combine credentials into JSON or paste an entire code example.
+3. Select the recognition and translation languages, then run the connection check beside the configuration. When using independent text translation, check recognition and translation separately.
+4. Play a short clip containing speech, then turn on **Live Subtitles** to confirm that text appears. A successful connection check confirms only that check; it does not verify every language or long-running sessions.
+
+Cloud recognition receives audio from the selected source, and remote text translation receives the recognized text. Running two audio sources generates separate service usage for each. **Mimi being free does not mean the service APIs are free**: check service activation, available credits, and billing before starting. Connection checks may also generate a small amount of API usage. Do not expose real credentials in issues, logs, or screenshots.
+
+<a id="services"></a>
 
 ## Find your service
 
@@ -24,94 +52,40 @@ Alibaba LiveTranslate setup checked: **2026-10-13**; other service instructions 
 
 Only setting up text translation? Go to [Apple Translation](#apple-translation), [DeepL](#deepl), [DeepLX](#deeplx), [ChatMock](#chatmock), [OpenAI-compatible API / Index-Translate](#openai-compatible), or [Original text only](#original-only). To check which models Mimi calls, see [Current models and request paths](#current-models).
 
-<a id="current-models"></a>
-
-## Current models and request paths
-
-This table describes the desktop app's default and optional request paths. Model IDs help you check access and understand usage. Built-in configurations select their models automatically; only Azure deployments and custom services require you to enter names. Providers can update models under the same ID, and an ID alone does not guarantee recognition quality or support for a particular language.
-
-| Desktop service | Models or APIs used for recognition / original text and translation | How to select them in Mimi |
-| --- | --- | --- |
-| Alibaba Cloud | Recognition: `qwen-audio-3.0-asr-flash-streaming`; default text translation: `qwen-mt-lite` | Fixed built-in models; the text translation service can be changed independently |
-| Alibaba Cloud — optional LiveTranslate | `qwen3.8-livetranslate-flash-realtime`; original and translated text come from one realtime session | Select **LiveTranslate (simultaneous)** under **Recognition and translation**; [setup](#alibaba-livetranslate) |
-| Google Gemini | `gemini-3.5-live-translate-preview`; original and translated text come from the same Live session, with no separate ASR model to enter | Fixed built-in model |
-| Volcano Engine | Doubao Simultaneous Interpretation 2.0, resource ID `volc.service_type.10053`; `/api/v4/ast/v2/translate` | Built-in service endpoint; the request does not specify a public model ID |
-| Tencent Cloud | ASR realtime speech translation; translation model: `hunyuan-translation-lite` | Fixed built-in configuration; the service provides recognition without a separate ASR model ID in the request |
-| Baidu Translate | Realtime speech translation at `/ws/realtime_speech_trans` | Built-in service endpoint; the request does not specify a public model ID |
-| OpenAI Realtime | Translation: `gpt-realtime-translate`; original transcription: `gpt-realtime-whisper` | Fixed built-in models using the dedicated Realtime translation endpoint |
-| Azure OpenAI | Translation: your deployment of `gpt-realtime-translate`; original text: your compatible realtime transcription deployment | Enter both actual deployment names; Mimi does not choose the transcription model for you |
-| xAI Grok | Voice: `grok-voice-latest`; original transcription: `grok-transcribe` | Fixed built-in models; turn-based translation |
-| Apple Speech | macOS `SpeechTranscriber` with downloaded language packs; text translation is configured separately | Select a local language pack; there is no cloud model ID |
-| Custom DashScope / OpenAI Realtime recognition | Recognition uses the model ID you enter; text translation is configured separately | Enter the endpoint, model, and recognition key yourself |
-
-Alibaba Cloud on desktop currently uses `qwen-mt-lite` by default. It does not automatically switch to `qwen-mt-flash` or `qwen-mt-plus` for different recognition languages. The default recognition service receives a continuous audio stream over WebSocket, while remote independent text translation sends recognized text over HTTP. Apple Translation runs locally. Changing text translation does not change the recognition model.
-
-Model and routing references: [Shared service selection](../shared/mimi-runtime/src/clients/translation_client.rs) · [Current translation modes](../shared/mimi-runtime/src/core/configuration.rs) · [Provider protocols](../shared/mimi-runtime/src/core/protocols/) · [Default Qwen-MT model](../shared/mimi-runtime/src/core/protocols/qwen_mt.rs)
-
-### Alibaba Cloud on Android
-
-| Android mode | Current default models and requests |
-| --- | --- |
-| Built-in recognition + translation | Uses the shared Audio3 recognizer (`qwen-audio-3.0-asr-flash-streaming`) and Qwen-MT; Lite is the default |
-| Independent text translation / no translation | Uses the same Audio3 recognizer, then the selected text service if translation is enabled |
-
-Production Android sessions use the same shared Rust provider factory as desktop. Historical Kotlin transport classes remain for offline regressions; their models are not the current production defaults. Saved advanced preferences do not override unsupported built-in transports. See [shared provider selection](../shared/mimi-runtime/src/clients/translation_client.rs) and [platform parity](development/platform-parity.md).
-
-### Models used for independent text translation
-
-| Text translation service | What Mimi selects |
-| --- | --- |
-| Alibaba Cloud (desktop and Android default) | `qwen-mt-lite` |
-| Apple Translation | macOS Translation framework and downloaded system resources; no cloud model ID |
-| DeepL | Official text translation API; Mimi does not specify `model_type` or a model ID |
-| DeepLX | The `/translate` service at the configured address; Mimi does not select its upstream model |
-| ChatMock / OpenAI-compatible API | The model ID you enter; there is no shared built-in default model |
-| Index-Translate example | `Index-Translate-35B-A3B`, configured through the OpenAI-compatible API option |
-| Skip translation / no translation | No text translation model is called |
-
-Request references: [DeepL](../src-tauri/src/core/protocols/deepl.rs) · [DeepLX](../src-tauri/src/core/protocols/deeplx.rs) · [OpenAI-compatible text translation](../src-tauri/src/core/protocols/openai_compatible.rs) · [Official Index example](https://github.com/bilibili/Index-Translate/blob/main/inference/llm/call_api.py)
-
-## Complete the setup in Mimi
-
-1. Stop subtitles, open **Settings → Models & Services**, and add a configuration for your service.
-2. Get the credentials using the instructions below, enter each value in its corresponding field, and save. Do not combine credentials into JSON or paste an entire code example.
-3. Select the recognition and translation languages, then run the connection check beside the configuration. When using independent text translation, check recognition and translation separately.
-4. Play a short clip containing speech, then turn on **Live Subtitles** to confirm that text appears. A successful connection check confirms only that check; it does not verify every language or long-running sessions.
-
-Cloud recognition receives audio from the selected source, and remote text translation receives the recognized text. Running two audio sources generates separate service usage for each. **Mimi being free does not mean the service APIs are free**: check service activation, available credits, and billing before starting. Connection checks may also generate a small amount of API usage. Do not expose real credentials in issues, logs, or screenshots.
-
 <a id="alibaba-cloud"></a>
 
 ## Alibaba Cloud (Model Studio)
+
+**LiveTranslate** returns original and translated text from one service. **Recognize, then translate** lets you choose a separate text translator. New configurations in the current development build start with LiveTranslate; existing ones keep their mode.
 
 Links: [Beijing API Key management](https://bailian.console.aliyun.com/cn-beijing/model/settings/api-key) · [Beijing workspace management](https://bailian.console.aliyun.com/cn-beijing/settings/workspace) · [Official activation guidance](https://help.aliyun.com/zh/model-studio/faq-about-alibaba-cloud-model-studio) · [Get an API key](https://help.aliyun.com/zh/model-studio/get-api-key)
 
 1. Sign in to Alibaba Cloud and complete any real-name verification required by the console. In Model Studio, select **China North 2 (Beijing)** and follow the prompts to enable model services in that region.
 2. Open API Key management in the Beijing region and use an existing key belonging to the workspace you intend to use. A separate key is not required for each model.
 3. If the workspace or key restricts model access, confirm that the models in the table below are authorized.
-4. Add **Alibaba Cloud** in Mimi, enter the key under **Speech recognition → API Key**, and save. Default text translation uses the same Model Studio credentials.
+4. Add **Alibaba Cloud** in Mimi. For LiveTranslate, enter the workspace ID and key using the [steps below](#alibaba-livetranslate). For Recognize, then translate, enter the key under **Speech recognition → API Key**. That mode’s built-in text translator uses the same Model Studio credentials.
 
 | Mode | Current model access required |
 | --- | --- |
-| Desktop default recognition + translation | `qwen-audio-3.0-asr-flash-streaming` and `qwen-mt-lite` |
+| Desktop Recognize, then translate | `qwen-audio-3.0-asr-flash-streaming` and `qwen-mt-lite` |
 | Desktop with independent text translation or Skip translation | Recognition still uses `qwen-audio-3.0-asr-flash-streaming`; configure translation for the selected service |
-| Desktop optional LiveTranslate | `qwen3.8-livetranslate-flash-realtime` in the selected Beijing workspace |
-| Android default recognition + translation | `qwen-audio-3.0-asr-flash-streaming` and `qwen-mt-lite` (same shared default as desktop) |
+| Desktop LiveTranslate | `qwen3.8-livetranslate-flash-realtime` in the selected Beijing workspace |
+| Android default recognition + translation | `qwen-audio-3.0-asr-flash-streaming` and `qwen-mt-lite` (shared implementation with desktop’s two-stage mode) |
 | Android with independent text translation or no translation | `qwen-audio-3.0-asr-flash-streaming`; configure translation for the selected service |
 
-Use a **Model Studio / DashScope API key**, not an Alibaba Cloud AccessKey ID / AccessKey Secret pair. The default ASR + MT route uses `dashscope.aliyuncs.com`; optional LiveTranslate uses a Beijing workspace-specific host. Neither offers a region or endpoint field. Keys from other regions cannot be used interchangeably. See the [official region guidance](https://help.aliyun.com/zh/model-studio/regions) and [platform parity](development/platform-parity.md).
+Use a **Model Studio / DashScope API key**, not an Alibaba Cloud AccessKey ID / AccessKey Secret pair. Recognize, then translate uses `dashscope.aliyuncs.com`; LiveTranslate uses a Beijing workspace-specific host. Neither offers a region or endpoint field. Keys from other regions cannot be used interchangeably. See the [official region guidance](https://help.aliyun.com/zh/model-studio/regions) and [platform parity](development/platform-parity.md).
 
-Billing: the default setup on both platforms includes both speech recognition and text translation. Changing the text translation service still generates cloud recognition usage; whether it is charged depends on the recognition model's remaining trial allowance and billing status. Check [Model Studio pricing](https://help.aliyun.com/zh/model-studio/model-pricing) and the trial status of the models you use.
+Billing: speech recognition and translation can both incur charges. Changing the text translation service still generates cloud recognition usage; whether it is charged depends on the recognition model's remaining trial allowance and billing status. Check [Model Studio pricing](https://help.aliyun.com/zh/model-studio/model-pricing) and the trial status of the models you use.
 
 <a id="alibaba-livetranslate"></a>
 
 ### Configure LiveTranslate simultaneous interpretation on desktop
 
-Try **LiveTranslate (simultaneous)** first for Alibaba simultaneous subtitles. This experimental mode uses `qwen3.8-livetranslate-flash-realtime` to return original and translated text from one audio session, with no translated speech playback. It currently supports **Beijing**, **automatic source recognition**, and **Chinese or English translation targets**. Existing ASR + MT configurations stay unchanged; Android has no selector yet.
+**LiveTranslate (simultaneous)** is a desktop experiment in the current source. It uses `qwen3.8-livetranslate-flash-realtime` to return original and translated text from one audio session, with no translated speech playback. It currently supports **Beijing**, **automatic source recognition**, and **60 text translation targets plus Original**. Existing Recognize, then translate configurations stay unchanged; Android has no selector yet.
 
 1. Open [Beijing workspace management](https://bailian.console.aliyun.com/cn-beijing/settings/workspace) and [API Key management](https://bailian.console.aliyun.com/cn-beijing/model/settings/api-key), or click **Get workspace ID** and **Get API key** in Mimi's Alibaba settings. Copy an existing workspace ID and a key belonging to that workspace. For an API Host such as `llm-xxx.cn-beijing.maas.aliyuncs.com`, the ID is just `llm-xxx`; a saved matching key can be reused.
 2. Stop subtitles. In **Settings → Models & Services → Alibaba Cloud → Recognition and translation**, choose **LiveTranslate (simultaneous)**, enter the workspace ID and API key, save, and select the configuration.
-3. Choose **Automatic** recognition and **Chinese or English** translation, play a short non-sensitive sample, and turn on **Live Subtitles**. Stop afterward. **Recognize, then translate** remains available and restores the saved independent text translator.
+3. Choose **Automatic** recognition and the desired translation language from the available options, play a short non-sensitive sample, and turn on **Live Subtitles**. Stop afterward. **Recognize, then translate** remains available and restores the saved independent text translator.
 
 If access is denied, check the workspace's model-call permission for `qwen3.8-livetranslate-flash-realtime` and any custom key model/IP restrictions. **API usage can be charged**; check trial allowance, expiry, and billing before starting. **Original** hides the translation but may still incur translation usage. A connection check does not verify subtitle quality or long-session stability.
 
@@ -260,7 +234,7 @@ A normal webpage URL, HTTP file-transcription endpoint, or Chat Completions endp
 
 ## Independent text translation
 
-On desktop, **Alibaba Cloud, Apple Speech, and both custom recognition options** support independent text translation. Other built-in speech services use their own translation pipelines. Android currently offers independent text translation only within Alibaba Cloud configurations.
+On desktop, **Alibaba Cloud’s Recognize, then translate mode, Apple Speech, and both custom recognition options** support independent text translation. Other built-in speech services use their own translation pipelines. Android currently offers independent text translation only within Alibaba Cloud configurations.
 
 Complete the **Speech recognition** section first, then choose a service under **Text translation**. When you select DeepL, DeepLX, ChatMock, or an OpenAI-compatible API, Mimi does not use the recognition key in place of translation credentials. Default Alibaba Cloud translation is covered in the [Alibaba Cloud section](#alibaba-cloud).
 
@@ -321,13 +295,15 @@ Enable a text model with your chosen provider and obtain its **service address, 
 
 The endpoint must support non-streaming Chat Completions and return `choices[0].message.content`. The service address can be an API base path such as `/v1` or the full `/chat/completions` path. Mimi appends only `/chat/completions`; **it does not add `/v1` automatically**. For example, `https://example.com/v1` produces requests to `https://example.com/v1/chat/completions`. Use HTTPS for remote services; HTTP is allowed for loopback addresses. Addresses cannot contain a username, password, query parameters, or fragment.
 
-As of the check date, Bilibili's [official Index-Translate example](https://github.com/bilibili/Index-Translate/blob/main/inference/llm/call_api.py) provides this free public text translation endpoint without authentication:
+As of 2026-10-13, Bilibili's [official Index-Translate example](https://github.com/bilibili/Index-Translate/blob/main/inference/llm/call_api.py) provides this free public text translation endpoint without authentication:
 
 | Mimi field | What to enter |
 | --- | --- |
 | Service address | `https://index-translate.bilibili.com/v1` |
 | Model name | `Index-Translate-35B-A3B` |
 | API key (optional) | Leave blank |
+
+After saving, run the text translation connection check.
 
 If a key was previously saved for this same address, choose **Remove translation key** and save. Simply leaving the input blank may retain the old key. Continued availability of the free endpoint depends on the upstream service. Index-Translate translates text only; cloud speech recognition may still incur charges.
 
@@ -345,6 +321,8 @@ Android's eight built-in cloud speech services use the corresponding credentials
 
 On a phone, `127.0.0.1` refers to the phone itself. To connect to ChatMock or DeepLX on a computer, normally use that computer's HTTPS service address. Local HTTP on Android requires explicit opt-in. For emulator and USB development connections, see the [Android guide](../android/README.md#independent-text-translation).
 
+<a id="troubleshooting"></a>
+
 ## Still not working?
 
 | Problem | Check first |
@@ -357,3 +335,54 @@ On a phone, `127.0.0.1` refers to the phone itself. To connect to ChatMock or De
 | One particular language fails | Check the specific model and API's support in [speech and language setup](speech-language-setup.md#english). An available UI option does not mean your account has access |
 
 If the problem continues, report it in [Issues](https://github.com/yuxino/mimi/issues) with your Mimi version, operating system, service name, language pair, and sanitized error details. For audio permissions and installation problems, see the [usage guide](usage.md).
+
+<a id="current-models"></a>
+
+## Current models and request paths
+
+This table describes the desktop app's default and optional request paths. Model IDs help you check access and understand usage. Built-in configurations select their models automatically; only Azure deployments and custom services require you to enter names. Providers can update models under the same ID, and an ID alone does not guarantee recognition quality or support for a particular language.
+
+| Desktop service | Models or APIs used for recognition / original text and translation | How to select them in Mimi |
+| --- | --- | --- |
+| Alibaba Cloud — Recognize, then translate | Recognition: `qwen-audio-3.0-asr-flash-streaming`; default text translation: `qwen-mt-lite` | Fixed built-in models; the text translation service can be changed independently |
+| Alibaba Cloud — LiveTranslate | `qwen3.8-livetranslate-flash-realtime`; original and translated text come from one realtime session | Select **LiveTranslate (simultaneous)** under **Recognition and translation**; [setup](#alibaba-livetranslate) |
+| Google Gemini | `gemini-3.5-live-translate-preview`; original and translated text come from the same Live session, with no separate ASR model to enter | Fixed built-in model |
+| Volcano Engine | Doubao Simultaneous Interpretation 2.0, resource ID `volc.service_type.10053`; `/api/v4/ast/v2/translate` | Built-in service endpoint; the request does not specify a public model ID |
+| Tencent Cloud | ASR realtime speech translation; translation model: `hunyuan-translation-lite` | Fixed built-in configuration; the service provides recognition without a separate ASR model ID in the request |
+| Baidu Translate | Realtime speech translation at `/ws/realtime_speech_trans` | Built-in service endpoint; the request does not specify a public model ID |
+| OpenAI Realtime | Translation: `gpt-realtime-translate`; original transcription: `gpt-realtime-whisper` | Fixed built-in models using the dedicated Realtime translation endpoint |
+| Azure OpenAI | Translation: your deployment of `gpt-realtime-translate`; original text: your compatible realtime transcription deployment | Enter both actual deployment names; Mimi does not choose the transcription model for you |
+| xAI Grok | Voice: `grok-voice-latest`; original transcription: `grok-transcribe` | Fixed built-in models; turn-based translation |
+| Apple Speech | macOS `SpeechTranscriber` with downloaded language packs; text translation is configured separately | Select a local language pack; there is no cloud model ID |
+| Custom DashScope / OpenAI Realtime recognition | Recognition uses the model ID you enter; text translation is configured separately | Enter the endpoint, model, and recognition key yourself |
+
+Alibaba Cloud’s Recognize, then translate mode uses `qwen-mt-lite` as its built-in text translator by default. It does not automatically switch to `qwen-mt-flash` or `qwen-mt-plus` for different recognition languages. In this mode, recognition receives a continuous audio stream over WebSocket, while remote independent text translation sends recognized text over HTTP. Apple Translation runs locally. Changing text translation does not change the recognition model.
+
+Model and routing references: [New and existing desktop configurations](../src-tauri/src/settings_store.rs) · [Shared service selection](../shared/mimi-runtime/src/clients/translation_client.rs) · [Current translation modes](../shared/mimi-runtime/src/core/configuration.rs) · [Provider protocols](../shared/mimi-runtime/src/core/protocols/) · [Default Qwen-MT model](../shared/mimi-runtime/src/core/protocols/qwen_mt.rs)
+
+### Alibaba Cloud on Android
+
+| Android mode | Current default models and requests |
+| --- | --- |
+| Built-in recognition + translation | Uses the shared Audio3 recognizer (`qwen-audio-3.0-asr-flash-streaming`) and Qwen-MT; Lite is the default |
+| Independent text translation / no translation | Uses the same Audio3 recognizer, then the selected text service if translation is enabled |
+
+Production Android sessions use the same shared Rust provider factory as desktop. Historical Kotlin transport classes remain for offline regressions; their models are not the current production defaults. Saved advanced preferences do not override unsupported built-in transports. See [shared provider selection](../shared/mimi-runtime/src/clients/translation_client.rs) and [platform parity](development/platform-parity.md).
+
+### Models used for independent text translation
+
+| Text translation service | What Mimi selects |
+| --- | --- |
+| Alibaba Cloud two-stage mode (desktop / Android) | `qwen-mt-lite` |
+| Apple Translation | macOS Translation framework and downloaded system resources; no cloud model ID |
+| DeepL | Official text translation API; Mimi does not specify `model_type` or a model ID |
+| DeepLX | The `/translate` service at the configured address; Mimi does not select its upstream model |
+| ChatMock / OpenAI-compatible API | The model ID you enter; there is no shared built-in default model |
+| Index-Translate example | `Index-Translate-35B-A3B`, configured through the OpenAI-compatible API option |
+| Skip translation / no translation | No text translation model is called |
+
+Request references: [DeepL](../src-tauri/src/core/protocols/deepl.rs) · [DeepLX](../src-tauri/src/core/protocols/deeplx.rs) · [OpenAI-compatible text translation](../src-tauri/src/core/protocols/openai_compatible.rs) · [Official Index example](https://github.com/bilibili/Index-Translate/blob/main/inference/llm/call_api.py)
+
+Once configured, [start subtitles](#setup). For audio permissions, subtitle display, and saved sessions, see the [usage guide](usage.md).
+
+[Back to services](#services) · [Back to home](../README_EN.md)
