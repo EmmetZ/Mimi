@@ -84,8 +84,10 @@ code does not prove availability on every device; see [verification status](#ver
   endpoint/model/hotword keys are retained without enabling unsupported overrides.
 - **Credentials** — EncryptedSharedPreferences (Android Keystore master key),
   stored separately from profile metadata and isolated per configuration.
-- **History privacy** — disabled by default; opting into history retains only a bounded
-  in-memory list. Disabling it or stopping the session clears retained subtitles.
+- **Subtitle history** — new installations keep the three most recent confirmed
+  captions in memory by default. Existing installations keep their previous setting,
+  including the former zero default. Set the count to zero or stop the session to
+  clear retained subtitles; this does not save a transcript to disk.
 - **Interface language** — More offers Follow system and the same eight interface
   languages as desktop: 简体中文, 繁體中文, English, 日本語, Deutsch, 한국어, Français and ภาษาไทย.
   Changes apply immediately and persist after restart, independently of subtitle

@@ -43,6 +43,10 @@ object SettingsStore {
     private fun get(context: Context): SharedPreferences {
         return prefs ?: synchronized(this) {
             prefs ?: run {
+                val freshInstall = isFreshCaptionInstall(
+                    java.io.File(context.applicationInfo.dataDir), context.filesDir,
+                    context.getSharedPreferences("first_run", Context.MODE_PRIVATE).contains("seen"),
+                )
                 val masterKey = MasterKey.Builder(context)
                     .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                     .build()
@@ -50,7 +54,12 @@ object SettingsStore {
                     context, FILE, masterKey,
                     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-                ).also { prefs = it }
+                ).also {
+                    if (freshInstall && !it.contains(KEY_HISTORY_LINES)) {
+                        check(it.edit().putInt(KEY_HISTORY_LINES, 3).commit()) { "appearance_save_failed" }
+                    }
+                    prefs = it
+                }
             }
         }
     }
@@ -236,7 +245,7 @@ object SettingsStore {
     fun setOverlayOpacity(context: Context, value: Int) =
         writeAppearance(get(context).edit().putInt(KEY_OVERLAY_OPACITY, value.coerceIn(20, 100)))
 
-    /** History retention is opt-in; zero clears retained content immediately. */
+    /** New installs start with three confirmed captions; upgrades keep the old zero fallback. */
     fun historyLines(context: Context): Int =
         get(context).getInt(KEY_HISTORY_LINES, 0).coerceIn(0, 6)
 
