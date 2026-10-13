@@ -52,6 +52,9 @@ Preserve these product constraints:
   sample comparison and regression-learning workflow. Read it before integration
   testing or investigating subtitle quality; keep verified runs and remaining
   gaps in `docs/development/integration-runs.md`.
+- `config/`: frontend tool configuration (Vite, ESLint, PostCSS, Tailwind and
+  TypeScript projects). Run the npm scripts so tools use these explicit paths.
+  The root `tsconfig.json` remains the editor discovery entry point.
 - `scripts/check.sh`: canonical automated test and strict-build entry point.
 - `scripts/package-app.sh`: release-shaped local build via `tauri build`, signed with the stable local identity; compare its identity before replacing a release, especially older ad-hoc installations.
 - `scripts/codesign-identity.sh`: honors explicit `MIMI_CODESIGN_IDENTITY`, then a per-Mac public certificate fingerprint saved after an approved local migration; otherwise it selects the exact fingerprint of the unique `mimi Local Development` identity or reports unavailable. A missing/invalid pinned identity fails closed rather than reverting to self-signing. macOS packaging and development launch fail closed rather than use ad-hoc signing.
