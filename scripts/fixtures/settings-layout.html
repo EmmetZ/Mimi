@@ -45,6 +45,20 @@ window.__TAURI_INTERNALS__ = {
         receivingAudioData: fixture.state === "silent" || fixture.state === "receiving",
       };
     }
+    if (command === "audio_applications") {
+      if (args?.cachedOnly) return { supported: true, applications: fixture.streamState === "missing" ? [] : [useStore.getState().settings.systemAudioTarget].filter(target => target.kind === "application") };
+      if (fixture.streamState === "failed") throw new Error("application_audio_list_failed");
+      return { supported: true, applications: fixture.streamState === "empty" ? [] : [
+        { id: "fixture-stream-1", name: "Fixture Player · Music #7" },
+        { id: "fixture-stream-2", name: "Fixture Player · Video #8" },
+      ] };
+    }
+    if (command === "session_switch_system_audio_target") {
+      const current = useStore.getState().settings;
+      useStore.setState({ settings: { ...current, systemAudioTarget: args.target,
+        recordSessionAudio: false } });
+      return;
+    }
     if (command === "app_desktop_shortcut_commands") return null;
     if (["overlay_control_set_panel_height", "plugin:window|set_size", "plugin:window|set_position"].includes(command)) return;
     if (command === "session_switch_source_language") {
@@ -209,7 +223,9 @@ window.applyLayoutCase = async next => {
   const profile = { id: next.profileId ?? "layout-custom", name: next.profileName ?? "Fixture configuration", provider: next.provider ?? "customDashScopeASR", credentialState: "present", speechCredentialState: "present", textCredentialState: "present", textTranslation: next.textTranslation ?? (next.provider && !["customDashScopeASR", "customOpenAIASR", "alibabaCloud", "deepLX"].includes(next.provider) ? "followService" : appleProfile ? "followService" : "chatMock"), textTranslationNames: { chatMock: next.translationName ?? "" }, speechRecognitionName: next.speechRecognitionName, ...next.profileOverrides };
   useStore.setState({
     initializationStatus: "ready",
-    settings: { ...initial.settings, uiLanguage: next.language, microphoneInputAvailable: next.platform === "macos", windowsAudioSource: next.state === "missing" ? "removed-output" : "fixture-output",
+    settings: { ...initial.settings, uiLanguage: next.language,
+      systemAudioTarget: next.systemAudioTarget ?? { kind: "system" },
+      microphoneInputAvailable: next.platform === "macos", windowsAudioSource: next.state === "missing" ? "removed-output" : "fixture-output",
       sourceLanguage, targetLanguage,
       ...(next.editor || next.surface || next.listProfiles || next.provider ? { profiles: next.profiles ?? (next.listProfiles
         ? [profile, { ...profile, id: "layout-other", name: next.profileName ?? "Other configuration" }]
@@ -283,8 +299,20 @@ window.applyLayoutCase = async next => {
     }
   }
 };
-// An explicit local review URL can select this existing synthetic fixture.
-const reviewCase = new URLSearchParams(location.search).get("review");
-await window.applyLayoutCase({ platform: "windows", language: "zh", state: "idle", theme: "light", deviceName: "Fixture headphones", ...(reviewCase ? JSON.parse(reviewCase) : {}) });
+const query = new URLSearchParams(location.search);
+// Explicit review cases and Linux playback-stream parameters share this local fixture.
+const reviewCase = query.get("review");
+await window.applyLayoutCase({ platform: query.get("platform") ?? "windows", language: query.get("language") ?? "zh",
+  state: query.get("state") ?? "idle", theme: query.get("theme") ?? "light", deviceName: "Fixture headphones",
+  category: query.get("category") ?? undefined, surface: query.get("surface") ?? undefined,
+  streamState: query.get("streamState") ?? undefined,
+  ...(query.has("selectedStream") ? { systemAudioTarget: { kind: "application", id: "fixture-stream-1",
+    name: "Fixture Player · Very long playback stream 音频流 ストリーム ".repeat(3) } } : {}),
+  ...(reviewCase ? JSON.parse(reviewCase) : {}),
+});
+if (query.has("openAudio")) {
+  document.querySelector(".application-audio-picker button[role=combobox]")?.click();
+  await settle();
+}
 window.layoutReady = true;
 </script></body></html>

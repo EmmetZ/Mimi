@@ -2892,20 +2892,26 @@ pub async fn capture_status(
 #[tauri::command]
 pub async fn audio_applications(
     state: State<'_, AppState>,
+    cached_only: Option<bool>,
 ) -> Result<crate::audio::applications::ApplicationSnapshot, String> {
     if app_is_ui_test() {
         return Ok(crate::audio::applications::ApplicationSnapshot {
             supported: true,
             applications: vec![crate::audio::applications::AudioApplication {
                 id: "test.player".into(),
-                name: "Test Player".into(),
+                name: if cfg!(target_os = "linux") {
+                    "Test Player · Test stream"
+                } else {
+                    "Test Player"
+                }
+                .into(),
                 icon_data_url: None,
             }],
         });
     }
     state
         .session
-        .audio_applications()
+        .audio_applications(cached_only.unwrap_or(false))
         .await
         .map_err(|error| error.to_string())
 }
