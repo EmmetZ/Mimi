@@ -445,7 +445,8 @@ samples and [the run ledger](integration-runs.md) for this check's exact scope.
 Python source guards and their mutation fixtures must read and write repository
 text with explicit UTF-8. Windows Python can default to cp1252: the shared-runtime
 guard once failed on non-ASCII Kotlin before checking the architecture. Keep the
-legacy-locale regression in `scripts/check-shared-runtime-test.py`; setting UTF-8
+legacy-locale regressions in `scripts/check-shared-runtime-test.py` and
+`scripts/sync-provider-copy-test.py` (including generation and check-only mode); setting UTF-8
 only in CI would leave direct Gradle/native build entry points broken.
 Format repository paths in guard diagnostics with `Path.as_posix()` as well;
 native Windows separators must not invalidate a correctly rejected mutation.
