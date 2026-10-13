@@ -25,7 +25,8 @@ export function ApplicationAudioPicker({ disabled = false, onBusyChange, onActio
   }, [onBusyChange, picker.pending]);
   const options = picker.options.map(option => ({
     ...option,
-    icon: option.value === "" ? <span className="application-audio-picker__symbol" aria-hidden="true"><Volume1 /></span> : <ApplicationIcon dataUrl={option.iconDataUrl} />,
+    // Volume1's artwork spans x=2..17: center the drawing, not its 24px canvas.
+    icon: option.value === "" ? <span className="application-audio-picker__symbol" aria-hidden="true"><Volume1 viewBox="-2.5 0 24 24" /></span> : <ApplicationIcon dataUrl={option.iconDataUrl} />,
   }));
   const failure = picker.error ?? (picker.missing ? picker.text.unavailable : null);
   return <span className="application-audio-picker" aria-busy={picker.pending || picker.loading}

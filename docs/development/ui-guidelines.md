@@ -14,6 +14,8 @@ These project rules apply to implementation and review.
 - Configuration pickers show the provider mark in both the selected value and
   every option, consistently with the floating controls. Application pickers
   share one icon slot; match fallback symbols to the artwork's visible size.
+  Center the SVG's drawn bounds, not just its canvas; asymmetric marks can
+  look off-center inside a correctly centered wrapper.
   macOS raster icons must cover at least twice their CSS dimensions for Retina
   displays, without increasing the bounded icon cache or fetching remote assets.
 - Name the actual function, state or action in plain language. Do not use slogans,
