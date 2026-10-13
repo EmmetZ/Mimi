@@ -478,7 +478,7 @@ export const SETTINGS = {
   providerTencentCloud: "Tencent Cloud",
   providerBaiduTranslate: "Baidu Translate",
   providerXAI: "xAI Grok",
-  providerAlibabaDescription: "รู้จำเสียงและแปลแบบเรียลไทม์",
+  providerAlibabaDescription: "รองรับการแปลพร้อมเสียง หรือรู้จำเสียงก่อนแล้วแปลด้วยบริการที่คุณเลือก",
   providerOpenAIDescription: "แปลต่อเนื่องด้วย Realtime",
   providerGoogleGeminiDescription: "การแปล Gemini Live รุ่นทดลอง",
   providerAzureOpenAIDescription: "การแปล Azure Realtime",

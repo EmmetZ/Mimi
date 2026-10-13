@@ -482,7 +482,7 @@ export const SETTINGS = {
   providerTencentCloud: "騰訊雲",
   providerBaiduTranslate: "百度翻譯",
   providerXAI: "xAI Grok",
-  providerAlibabaDescription: "即時語音辨識與翻譯。",
+  providerAlibabaDescription: "支援同聲傳譯，也可先辨識再翻譯，並自行選擇翻譯服務。",
   providerOpenAIDescription: "Realtime 連續同步口譯。",
   providerGoogleGeminiDescription: "Gemini Live 同步口譯預覽版。",
   providerAzureOpenAIDescription: "Azure Realtime 同步口譯。",
