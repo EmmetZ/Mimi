@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { ProviderIcon } from "../../components/ProviderIcon";
 import { I18N } from "../../lib/i18n";
 import { profileErrorMessage } from "../../lib/connectionDiagnostics";
 import { credentialStateForTarget, usesAlibabaRealtime } from "../../lib/providerCapabilities";
@@ -31,6 +32,7 @@ export function VoiceSettings({ onOpenModels, onOpenAppleResources }: { onOpenMo
       <SettingsRow label={settingsPageCopy().selection}>
         {settings.profiles.length ? <SettingsSelect label={settingsPageCopy().selection} value={settings.activeProfileId} disabled={locked}
           options={settings.profiles.map(profile => ({ value: profile.id, label: profile.name,
+            icon: <ProviderIcon provider={profile.provider === "deepLX" ? "alibabaCloud" : profile.provider} size={32} />,
             disabled: profile.id !== settings.activeProfileId && (credentialStateForTarget(profile, profile.languagePreset?.targetLanguage ?? settings.targetLanguage) !== "present" || (usesAlibabaRealtime(profile) && !profile.alibabaWorkspaceId?.trim())) }))}
           onChange={id => { void choose(id); }} /> : <button type="button" className="settings-button settings-button--quiet settings-button--compact" onClick={onOpenModels}>{I18N.settings.addProfile}</button>}
       </SettingsRow>

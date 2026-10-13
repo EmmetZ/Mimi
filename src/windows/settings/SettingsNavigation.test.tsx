@@ -322,6 +322,23 @@ it("hides microphone color while retaining the system color control", async () =
   expect(host.querySelector(`[role="group"][aria-label="${I18N.settings.systemSubtitleColor}"]`)).not.toBeNull();
 });
 
+it("shows each configuration's provider in both the selected voice control and its menu", async () => {
+  await mount(); await select("voice");
+  const settings = useStore.getState().settings;
+  const expectedProvider = (provider: string) => provider === "deepLX" ? "alibabaCloud" : provider;
+  const picker = host.querySelector<HTMLButtonElement>('#voice-model [role="combobox"]')!;
+  const active = settings.profiles.find(profile => profile.id === settings.activeProfileId)!;
+  expect(picker.querySelector(".provider-icon")?.getAttribute("data-provider")).toBe(expectedProvider(active.provider));
+  await act(async () => picker.click());
+  const options = [...document.querySelectorAll('[role="option"]')];
+  expect(options).toHaveLength(settings.profiles.length);
+  options.forEach((option, index) => {
+    expect(option.querySelector(".provider-icon")?.getAttribute("data-provider")).toBe(expectedProvider(settings.profiles[index].provider));
+    expect(option.textContent).toContain(settings.profiles[index].name);
+  });
+  expect(saveSettings).not.toHaveBeenCalled();
+});
+
 it("keeps language controls out of an empty configuration state and opens its single setup entry", async () => {
   useStore.setState({ settings: { ...initial.settings, profiles: [], activeProfileId: "" }, initializationStatus: "ready" });
   await mount(); await select("voice");
