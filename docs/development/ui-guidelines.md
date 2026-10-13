@@ -46,9 +46,11 @@ These project rules apply to implementation and review.
   header. Preserve unsaved drafts when adding is cancelled, restore the editor
   position and focus, and invalidate saved-secret reveals while it is hidden.
   Multiple configurations keep a list in saved order.
-- An empty configuration list needs a short, readable next-step instruction
-  beside its add action. Show it only after a successful settings load; a zero
-  count alone is not sufficient guidance for a fresh install.
+- With no configurations, show the service picker directly after a successful
+  settings load. Keep one short next-step instruction, omit an intermediate
+  empty page and cancel-to-empty action, and create only after confirmation.
+  Reuse the same responsive picker for later Add actions; loading failures
+  remain retryable errors rather than being presented as a fresh install.
 - Keep essential labels, choices and actionable errors readable at normal text
   size. Put non-essential explanations behind hover/focus help icons. Long raw
   diagnostics and advanced details start collapsed; bound long lists and text.

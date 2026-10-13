@@ -454,7 +454,7 @@ export const SETTINGS = {
   manageServiceProfiles: "Konfigurationen verwalten",
   addProfile: "Konfiguration hinzufügen",
   firstProfileTitle: "Ersten Sprachdienst hinzufügen",
-  firstProfileHint: "Klicke auf „Konfiguration hinzufügen“, um einen Dienst auszuwählen.",
+  firstProfileHint: "Wähle einen Dienst aus und richte ihn anschließend ein.",
   chooseProvider: "Sprachdienst hinzufügen",
   chooseProviderDescription: "Wähle Spracherkennung oder Live-Übersetzung.",
   confirmAddProfile: "Hinzufügen bestätigen",

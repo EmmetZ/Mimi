@@ -454,7 +454,7 @@ export const SETTINGS = {
   manageServiceProfiles: "จัดการการกำหนดค่า",
   addProfile: "เพิ่มการกำหนดค่า",
   firstProfileTitle: "เพิ่มบริการเสียงแรกของคุณ",
-  firstProfileHint: "คลิก “เพิ่มการกำหนดค่า” เพื่อเลือกบริการ",
+  firstProfileHint: "เลือกบริการที่ต้องการใช้ แล้วตั้งค่าต่อ",
   chooseProvider: "เพิ่มบริการเสียง",
   chooseProviderDescription: "เลือกการรู้จำเสียงหรือการแปลสด",
   confirmAddProfile: "ยืนยันการเพิ่ม",

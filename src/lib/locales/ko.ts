@@ -454,7 +454,7 @@ export const SETTINGS = {
   manageServiceProfiles: "구성 관리",
   addProfile: "구성 추가",
   firstProfileTitle: "첫 음성 서비스 추가",
-  firstProfileHint: "「구성 추가」를 클릭하여 사용할 서비스를 선택하세요.",
+  firstProfileHint: "사용할 서비스를 선택한 다음 설정을 진행하세요.",
   chooseProvider: "음성 서비스 추가",
   chooseProviderDescription: "음성 인식 또는 실시간 번역을 선택하세요.",
   confirmAddProfile: "추가 확인",

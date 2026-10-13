@@ -4,7 +4,7 @@
 <body><main id="root"></main><script type="module">
 // Local UI fixtures only: no native bridge, credentials, provider or capture.
 let fixture = {};
-window.layoutFixtureRequests = { translationStatus: 0, translationPrepare: 0, speechPrepare: 0, speechSave: 0, credentialSave: 0, credentialReveal: 0, connectionCheck: 0 };
+window.layoutFixtureRequests = { profileCreate: 0, translationStatus: 0, translationPrepare: 0, speechPrepare: 0, speechSave: 0, credentialSave: 0, credentialReveal: 0, connectionCheck: 0 };
 window.__TAURI_EVENT_PLUGIN_INTERNALS__ = { unregisterListener: () => {} };
 window.__TAURI_INTERNALS__ = {
   metadata: { currentWindow: { label: "settings" }, currentWebview: { label: "settings" } },
@@ -98,6 +98,15 @@ window.__TAURI_INTERNALS__ = {
       useStore.setState({ settings: snapshot });
       return snapshot;
     }
+    if (command === "profile_create") {
+      window.layoutFixtureRequests.profileCreate += 1;
+      if (fixture.failCreate) throw new Error("fixture_create_failed");
+      const current = useStore.getState().settings;
+      const created = { id: `fixture-created-${current.profiles.length}`, provider: args.provider, name: args.name, credentialState: "missing", speechCredentialState: "missing", textTranslation: "followService" };
+      const snapshot = { ...current, profiles: [...current.profiles, created], activeProfileId: current.activeProfileId || created.id };
+      useStore.setState({ settings: snapshot });
+      return snapshot;
+    }
     if (command === "profile_duplicate") {
       if (fixture.failDuplicate) throw new Error("fixture_duplicate_failed");
       const current = useStore.getState().settings;
@@ -184,7 +193,7 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 0));
 let generation = 0;
 window.applyLayoutCase = async next => {
   fixture = { ...next };
-  window.layoutFixtureRequests = { translationStatus: 0, translationPrepare: 0, speechPrepare: 0, speechSave: 0, credentialSave: 0, credentialReveal: 0, connectionCheck: 0 };
+  window.layoutFixtureRequests = { profileCreate: 0, translationStatus: 0, translationPrepare: 0, speechPrepare: 0, speechSave: 0, credentialSave: 0, credentialReveal: 0, connectionCheck: 0 };
   Object.defineProperty(navigator, "userAgent", { configurable: true, value: next.platform === "windows" ? "Windows NT 10.0" : next.platform === "macos" ? "Macintosh" : "Linux x86_64" });
   const active = ["receiving", "silent", "noData"].includes(next.state);
   document.body.dataset.window = next.surface === "overlay" ? "overlay-control" : "settings";
@@ -266,7 +275,7 @@ window.applyLayoutCase = async next => {
     }
   }
   if (next.providerPicker || next.providerConfirmation) {
-    document.querySelector("#service-add-profile").click();
+    document.querySelector("#service-add-profile")?.click();
     await settle();
     if (next.providerConfirmation) {
       document.querySelector('.provider-option[data-provider="openAIRealtime"]').click();

@@ -1090,68 +1090,82 @@
 }
 
 .provider-picker {
-  padding: 12px;
-  border: 1px solid var(--settings-border-strong);
-  border-radius: 11px;
-  background: var(--settings-panel-raised);
+  container-type: inline-size;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
-
 .provider-picker__heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
-
 .provider-picker__heading > span {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
-
-.provider-picker__heading strong {
-  font-size: 12px;
-  font-weight: 630;
+.provider-picker__heading h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.5;
 }
-
-
+.provider-picker[data-initial-setup="true"] .provider-picker__heading {
+  margin-bottom: 8px;
+}
+.provider-picker[data-initial-setup="true"] .provider-picker__heading h2 {
+  font-size: 20px;
+}
+.provider-picker__intro {
+  margin: 0 0 24px;
+  color: var(--settings-text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
 .provider-picker__options {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 32px;
 }
-
+@container (min-width: 560px) {
+  .provider-picker__options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .provider-option {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 9px;
+  gap: 12px;
   min-width: 0;
-  padding: 10px;
-  border: 1px solid var(--settings-border);
-  border-radius: 10px;
+  min-height: 60px;
+  margin: 4px 0;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 6px;
   color: var(--settings-text);
-  background: var(--settings-control);
+  background: transparent;
   text-align: left;
 }
-
+.provider-option > .provider-icon,
+.provider-option > .provider-icon > :is(img, svg) {
+  width: 24px;
+  height: 24px;
+}
 .provider-option > span:nth-child(2) {
-  display: flex;
   min-width: 0;
-  flex-direction: column;
-  gap: 2px;
+  overflow-wrap: anywhere;
 }
-
 .provider-option strong {
-  font-size: 13px;
-  font-weight: 630;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.5;
 }
-
 .provider-option > svg {
   color: var(--settings-text-faint);
-  font-size: 11px;
-  transform: rotate(-90deg);
+  font-size: 14px;
 }
 
 .profile-active-badge {
@@ -1797,34 +1811,6 @@
   color: var(--settings-text-faint);
   font-size: 12px;
 }
-.services-toolbar--empty {
-  flex-wrap: wrap;
-  gap: 16px 24px;
-  margin-bottom: 0;
-  padding: 8px 0;
-}
-.services-empty-copy {
-  flex: 1 1 240px;
-  min-width: 0;
-}
-.services-empty-copy h2 {
-  margin: 0 0 6px;
-  color: var(--settings-text);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.5;
-}
-.services-empty-copy p {
-  margin: 0;
-  color: var(--settings-text-muted);
-  font-size: 13px;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-.services-toolbar--empty > button {
-  flex: 0 0 auto;
-  margin-left: auto;
-}
 .services-toolbar__count,
 .service-detail__name-help,
 .provider-picker__name-help,
@@ -2192,37 +2178,6 @@
 }
 .subtitle-preview[data-immersive="true"] .subtitle-preview__text {
   background: transparent;
-}
-.provider-picker {
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-.provider-picker__heading {
-  margin-bottom: 20px;
-}
-.provider-picker__heading strong {
-  font-size: 17px;
-}
-.provider-picker__options {
-  gap: 0;
-  grid-template-columns: 1fr;
-}
-.provider-option {
-  padding: 15px 0;
-  border: 0;
-  border-bottom: 1px solid var(--settings-border);
-  border-radius: 0;
-  background: transparent;
-}
-.provider-option strong {
-  font-size: 13px;
-}
-.provider-option > svg {
-  transform: none;
-}
-.provider-option:hover {
-  background: var(--settings-selection-soft);
 }
 .subtitle-preview__controls {
   display: grid;
@@ -2807,12 +2762,8 @@
   justify-content: flex-end;
   gap: 8px;
 }
-.provider-picker__heading > span {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-}
 .provider-picker__option-row {
+  min-width: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;

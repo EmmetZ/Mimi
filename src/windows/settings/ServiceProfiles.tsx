@@ -167,7 +167,9 @@ export function ServiceProfiles({
   if (singleProfile && !showsEditor && !showsProviderPicker) setShowsEditor(true);
 
   const navigationRoot = useRef<HTMLDivElement>(null);
-  const pageKey = showsProviderPicker ? "picker" : showsEditor && selectedProfile ? `editor:${selectedProfile.id}` : "list";
+  const initialSetup = settings.profiles.length === 0;
+  const pickerVisible = showsProviderPicker || initialSetup;
+  const pageKey = pickerVisible ? "picker" : showsEditor && selectedProfile ? `editor:${selectedProfile.id}` : "list";
   const rememberPagePosition = useServicePageNavigation(navigationRoot, pageKey, visible, openedProfileEditorRequest);
 
   const invalidateProfileCheck = useCallback((profileId: string, stage?: ConnectionCheckStage) => {
@@ -584,10 +586,11 @@ export function ServiceProfiles({
 
   return (
     <div ref={navigationRoot}>
-    {!showsEditor && !showsProviderPicker && overview}
+    {!showsEditor && !pickerVisible && overview}
     <SettingsSection id="service-profiles" title={I18N.settings.serviceProfilesTitle} hideHeading>
-      {showsProviderPicker && (
+      {pickerVisible && (
         <ProviderPicker
+          initialSetup={initialSetup}
           apple={apple}
           disabled={mutationsDisabled}
           cancelDisabled={pendingAction !== null}
@@ -598,7 +601,7 @@ export function ServiceProfiles({
         />
       )}
       {showsEditor && selectedProfile ? (
-        <div className="service-detail" hidden={showsProviderPicker}>
+        <div className="service-detail" hidden={pickerVisible}>
           <div className="service-detail__header">
             {!singleProfile && <button
               type="button"
@@ -721,7 +724,7 @@ export function ServiceProfiles({
               inputId={`profile-api-key-${selectedProfile.id}`}
               disabled={mutationsDisabled}
               busy={pendingAction === "save-key" || pendingAction === "delete-key"}
-              visible={visible && !showsProviderPicker && pendingConfirmation === null}
+              visible={visible && !pickerVisible && pendingConfirmation === null}
               feedback={feedback}
               onSaveTranslationName={(route, name) => handleSaveTranslationName(selectedProfile, route, name)}
               onSaveRecognitionName={(name: string) => updateProfile(selectedProfile.id, undefined, { speechRecognitionName: name })}
@@ -772,17 +775,10 @@ export function ServiceProfiles({
           </ServiceEditorModule>
           </div>
         </div>
-      ) : !showsProviderPicker && (
+      ) : !pickerVisible && (
         <div className="services-home">
-          <div className={`services-toolbar${settings.profiles.length === 0 ? " services-toolbar--empty" : ""}`}>
-            {settings.profiles.length === 0 ? (
-              <div className="services-empty-copy">
-                <h2>{I18N.settings.firstProfileTitle}</h2>
-                <p>{I18N.settings.firstProfileHint}</p>
-              </div>
-            ) : (
-              <span className="services-toolbar__count">{I18N.settings.profileCount(settings.profiles.length)}<SettingsHelp label={I18N.settings.helpLabel} text={`${I18N.settings.servicesHint}\n${I18N.settings.profileSwitchHelp}`} /></span>
-            )}
+          <div className="services-toolbar">
+            <span className="services-toolbar__count">{I18N.settings.profileCount(settings.profiles.length)}<SettingsHelp label={I18N.settings.helpLabel} text={`${I18N.settings.servicesHint}\n${I18N.settings.profileSwitchHelp}`} /></span>
             <button
               type="button"
               className="settings-button settings-button--compact settings-button--quiet"
@@ -861,7 +857,7 @@ export function ServiceProfiles({
           )}
         </div>
       )}
-      {feedback && !showsProviderPicker && !(showsEditor && selectedProfile) && <InlineFeedback tone={feedback.tone}>{feedback.message}</InlineFeedback>}
+      {feedback && !pickerVisible && !(showsEditor && selectedProfile) && <InlineFeedback tone={feedback.tone}>{feedback.message}</InlineFeedback>}
     </SettingsSection>
     {pendingConfirmation?.kind === "profile" && settings.profiles.some(profile => profile.id === pendingConfirmation.profileId) && (
       <DestructiveConfirmation
@@ -1195,6 +1191,7 @@ function credentialFieldCopy(field: CredentialFieldName, provider: ServiceProvid
 }
 
 function ProviderPicker({
+  initialSetup,
   apple,
   disabled,
   cancelDisabled,
@@ -1203,6 +1200,7 @@ function ProviderPicker({
   onChoose,
   onCancel,
 }: {
+  initialSetup: boolean;
   apple: ReturnType<typeof useAppleSpeechSupport>;
   disabled: boolean;
   cancelDisabled: boolean;
@@ -1213,14 +1211,15 @@ function ProviderPicker({
 }) {
   const [selectedProvider, setSelectedProvider] = useState<ServiceProvider | null>(null);
   return (
-    <div className="provider-picker settings-panel">
+    <div className="provider-picker settings-panel" data-initial-setup={initialSetup}>
       <div className="provider-picker__heading">
         <span>
-          <strong tabIndex={-1} data-service-page-heading>{I18N.settings.chooseProvider}</strong>
+          <h2 tabIndex={-1} data-service-page-heading>{initialSetup ? I18N.settings.firstProfileTitle : I18N.settings.chooseProvider}</h2>
           <SettingsHelp text={I18N.settings.chooseProviderDescription} label={I18N.settings.helpLabel} />
         </span>
-        <button type="button" className="settings-link" disabled={cancelDisabled} onClick={onCancel}>{I18N.settings.cancel}</button>
+        {!initialSetup && <button type="button" className="settings-link" disabled={cancelDisabled} onClick={onCancel}>{I18N.settings.cancel}</button>}
       </div>
+      {initialSetup && <p className="provider-picker__intro">{I18N.settings.firstProfileHint}</p>}
       {!selectedProvider && requiresStop && <InlineFeedback tone="info">{I18N.settings.profileCreateRequiresStop}</InlineFeedback>}
       {!selectedProvider && feedback && <InlineFeedback tone={feedback.tone}>{feedback.message}</InlineFeedback>}
       {apple.failed && <InlineFeedback tone="error">{I18N.settings.appleSpeechLoadFailed} <button type="button" className="settings-link" disabled={disabled || apple.loading} onClick={() => void apple.refresh()}>{I18N.settings.retryLoadingSettings}</button></InlineFeedback>}
@@ -1228,7 +1227,7 @@ function ProviderPicker({
         {SERVICE_PROVIDERS.filter(provider => provider !== "appleSpeech" || apple.support?.available).map((provider) => (
           <div className="provider-picker__option-row" key={provider}>
             <button type="button" className="provider-option" data-provider={provider} disabled={disabled} onClick={() => setSelectedProvider(provider)}>
-              <ProviderIcon provider={provider} />
+              <ProviderIcon provider={provider} size={24} />
               <span><strong>{providerDisplayName(provider)}</strong></span>
               <Icon name="chevron-right" />
             </button>

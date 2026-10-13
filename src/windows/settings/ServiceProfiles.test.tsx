@@ -720,7 +720,11 @@ it("starts with no service and creates the first chosen provider only after conf
   expect(host.querySelector(".service-row")).toBeNull();
   expect(host.textContent).toContain(I18N.settings.firstProfileTitle);
   expect(host.textContent).toContain(I18N.settings.firstProfileHint);
-  await click(I18N.settings.addProfile);
+  expect(actions.createProfile).not.toHaveBeenCalled();
+  expect(profileRevealCredential).not.toHaveBeenCalled();
+  expect(testProfileConnection).not.toHaveBeenCalled();
+  expect(host.querySelector("#service-add-profile")).toBeNull();
+  expect(host.querySelector(".provider-picker__heading button.settings-link")).toBeNull();
   await previewProvider(created.provider);
   expect(actions.createProfile).not.toHaveBeenCalled();
   await click(I18N.settings.cancel);
@@ -2097,4 +2101,23 @@ it("hides a revealed saved key when opening Add and does not reveal it again on 
   expect(host.querySelector<HTMLInputElement>(".credential-form input")!.type).toBe("password");
   expect(profileRevealCredential).toHaveBeenCalledOnce();
   expect(actions.saveProfileCredentials).not.toHaveBeenCalled();
+});
+
+
+it("keeps first-time setup available after failed creation and restores the chosen service on cancellation", async () => {
+  actions.createProfile.mockRejectedValue("synthetic-private-create-error");
+  await render({ ...settings, profiles: [], activeProfileId: "" });
+  const option = host.querySelector<HTMLButtonElement>('.provider-option[data-provider="alibabaCloud"]')!;
+  option.focus();
+  await act(async () => option.click());
+  await click(I18N.settings.confirmAddProfile);
+  expect(actions.createProfile).toHaveBeenCalledOnce();
+  expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+  expect(document.body.textContent).not.toContain("synthetic-private-create-error");
+  await click(I18N.settings.cancel);
+  expect(document.querySelector('[role="dialog"]')).toBeNull();
+  expect(document.activeElement).toBe(option);
+  expect(host.querySelectorAll(".provider-option")).toHaveLength(SERVICE_PROVIDERS.length - 1);
+  expect(host.querySelector(".service-detail")).toBeNull();
+  expect(host.querySelector(".provider-picker__heading button.settings-link")).toBeNull();
 });

@@ -457,7 +457,7 @@ export const SETTINGS = {
   manageServiceProfiles: "管理服務設定",
   addProfile: "新增設定",
   firstProfileTitle: "新增第一個語音服務",
-  firstProfileHint: "點擊「新增設定」，選擇你要使用的服務。",
+  firstProfileHint: "選擇你要使用的服務，新增後繼續設定。",
   chooseProvider: "新增語音服務",
   chooseProviderDescription: "選擇語音辨識或同步口譯服務。",
   confirmAddProfile: "確認新增",

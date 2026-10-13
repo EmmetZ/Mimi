@@ -57,13 +57,24 @@ signing requirements, binary/update filenames and canonical installation paths.
 
 With one configuration, Models & Services opens its settings directly. Keep Add
 in the header, omit the list counter and Back action, and retain the same editor
-if a second profile arrives while editing. Zero profiles retain the setup entry;
-two or more profiles retain the saved-order list. Loading and deletion down to
+if a second profile arrives while editing. After a successful settings load,
+zero profiles show the provider picker directly, with a first-service heading
+and a short next-step instruction. There is no intermediate empty page or
+cancel-to-empty action. Two or more profiles retain the saved-order list. Loading and deletion down to
 one profile follow the same rule. Opening the provider picker from the sole
 editor keeps unsaved drafts mounted; cancellation restores its position and Add
 focus. Revealed saved secrets are invalidated on this transition and stay hidden
 on return. No automatic selection, connection check or secret read accompanies
 opening the editor.
+
+The same provider picker serves initial setup and later Add actions. Use a flat
+list with two columns when its content width allows, one column in narrow
+windows, consistent 24 px brand marks, visible service names and adjacent help.
+Do not add promotional cards or decorative backgrounds. Keep provider order and
+platform availability intact. Picking a provider opens the existing confirmation;
+only confirming creates it. Cancel restores option focus, errors allow retry,
+and a created first profile opens its editor at the top. Loading/error states
+must not masquerade as an empty setup screen.
 
 ## Configuration list density
 

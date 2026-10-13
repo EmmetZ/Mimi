@@ -345,6 +345,7 @@ it("keeps language controls out of an empty configuration state and opens its si
   expect(host.querySelectorAll("#voice-model button")).toHaveLength(1);
   await act(async () => host.querySelector<HTMLButtonElement>("#voice-model button")!.click());
   expect(host.querySelector("#settings-category-service")?.getAttribute("aria-current")).toBe("page");
-  expect(host.querySelector(".services-empty-copy")).not.toBeNull();
+  expect(host.querySelector('.provider-picker[data-initial-setup="true"]')).not.toBeNull();
+  expect(host.querySelector("#service-add-profile")).toBeNull();
   expect(saveProfileCredentials).not.toHaveBeenCalled();
 });

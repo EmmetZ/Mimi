@@ -454,7 +454,7 @@ export const SETTINGS = {
   manageServiceProfiles: "Gérer les configurations",
   addProfile: "Ajouter une configuration",
   firstProfileTitle: "Ajoutez votre premier service vocal",
-  firstProfileHint: "Cliquez sur « Ajouter une configuration » pour choisir un service.",
+  firstProfileHint: "Choisissez un service, puis configurez-le.",
   chooseProvider: "Ajouter un service vocal",
   chooseProviderDescription: "Choisissez la reconnaissance vocale ou la traduction en direct.",
   confirmAddProfile: "Confirmer l’ajout",

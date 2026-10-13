@@ -3023,3 +3023,28 @@
   Sole-profile evidence uses synthetic browser data, not deletion of the real
   configurations. Windows/Linux native acceptance and visual user acceptance
   remain separate. Browser test pages were closed after review.
+
+## 2026-10-13 — First configuration service picker
+
+- Source: `8f7e5f6b` plus this entry's frontend changes. Zero configurations now
+  enter provider selection directly after settings initialization. The shared
+  Add picker uses two flat columns where space permits, a single narrow column,
+  24 px marks and an actual heading; confirmation still gates profile creation.
+- Quick frontend typecheck, selected lint and 1,839 related tests across 107
+  files passed. Coverage includes empty/loading/error entry, no automatic secret
+  reads or connection checks, first creation, cancellation focus and failed
+  creation. All eight locales received the same revised next-step instruction.
+- Synthetic browser geometry passed 32 combinations (520/1000 px, eight locales,
+  light/dark), including all 11 available options and icon/text/help spacing.
+  Confirmed that cancellation creates nothing and restores option focus; first
+  confirmed creation makes exactly one profile, enters its editor at scroll zero
+  and focuses its heading. No credential or provider operation accompanied it.
+- The actual signed macOS watch app exposed an intermediate-width issue: its
+  content was just below the initial two-column breakpoint. Lowered that
+  breakpoint from 600 to 560 px and visually verified two columns and wrapping
+  there. Native Add/Cancel restored the list and Add focus, preserving all 11
+  real configurations. Reviewed Chinese wide and Japanese dark narrow fixtures.
+- No capture, provider requests, real configuration writes, native rebuild or
+  production replacement. Browser fixture pages were closed. Zero-profile
+  screenshots are synthetic; native Windows/Linux and visual user acceptance
+  remain separate. No full Rust/shared acceptance run for this frontend change.
