@@ -11152,6 +11152,78 @@
           }
         ]
       }
+    },
+    {
+      "id": "deepLX-source-en-GB-ja",
+      "provider": "deepLX",
+      "text": "  Synthetic source.  ",
+      "source": "en-GB",
+      "target": "ja",
+      "expected": {
+        "text": "Synthetic source.",
+        "source_lang": "EN-GB",
+        "target_lang": "JA"
+      }
+    },
+    {
+      "id": "deepLX-source-en-US-ja",
+      "provider": "deepLX",
+      "text": "  Synthetic source.  ",
+      "source": "en-US",
+      "target": "ja",
+      "expected": {
+        "text": "Synthetic source.",
+        "source_lang": "EN-US",
+        "target_lang": "JA"
+      }
+    },
+    {
+      "id": "deepLX-source-es-419-ja",
+      "provider": "deepLX",
+      "text": "  Synthetic source.  ",
+      "source": "es-419",
+      "target": "ja",
+      "expected": {
+        "text": "Synthetic source.",
+        "source_lang": "ES-419",
+        "target_lang": "JA"
+      }
+    },
+    {
+      "id": "deepLX-source-pt-BR-ja",
+      "provider": "deepLX",
+      "text": "  Synthetic source.  ",
+      "source": "pt-BR",
+      "target": "ja",
+      "expected": {
+        "text": "Synthetic source.",
+        "source_lang": "PT-BR",
+        "target_lang": "JA"
+      }
+    },
+    {
+      "id": "deepLX-source-pt-PT-ja",
+      "provider": "deepLX",
+      "text": "  Synthetic source.  ",
+      "source": "pt-PT",
+      "target": "ja",
+      "expected": {
+        "text": "Synthetic source.",
+        "source_lang": "PT-PT",
+        "target_lang": "JA"
+      }
+    },
+    {
+      "id": "deepLX-source-zh_tw-ja",
+      "provider": "deepLX",
+      "text": "  Synthetic source.  ",
+      "source": "zh_tw",
+      "target": "ja",
+      "expected": {
+        "text": "Synthetic source.",
+        "source_lang": "ZH-HANT",
+        "target_lang": "JA"
+      }
     }
   ],
   "endpointRequests": [
@@ -12362,7 +12434,7 @@
       "target": "zh",
       "expected": {
         "text": "Synthetic source.",
-        "source_lang": "auto",
+        "source_lang": "EN-US",
         "target_lang": "ZH"
       }
     },
@@ -15204,7 +15276,10 @@
         "de",
         "el",
         "en",
+        "en-GB",
+        "en-US",
         "es",
+        "es-419",
         "et",
         "fi",
         "fr",
@@ -15220,6 +15295,8 @@
         "nl",
         "pl",
         "pt",
+        "pt-BR",
+        "pt-PT",
         "ro",
         "ru",
         "sk",
@@ -15228,7 +15305,8 @@
         "tr",
         "uk",
         "vi",
-        "zh"
+        "zh",
+        "zh_tw"
       ],
       "targetLanguages": [
         "ar",
@@ -15672,5 +15750,252 @@
     {"id": "openrouter-reasoner", "endpoint": "https://openrouter.ai/api/v1", "model": "deepseek/deepseek-r1", "expected": {}},
     {"id": "openrouter-unknown", "endpoint": "https://openrouter.ai/api/v1", "model": "synthetic/synthetic-model", "expected": {}},
     {"id": "local-chatmock", "endpoint": "http://127.0.0.1:8000/v1", "model": "gpt-5.6-sol", "expected": {}}
-  ]
+  ],
+  "alibabaRealtimeLanguages": {
+    "model": "qwen3.8-livetranslate-flash-realtime",
+    "source": "https://help.aliyun.com/zh/model-studio/qwen3-5-livetranslate-flash-realtime#supported-languages",
+    "automatic": true,
+    "languages": [
+      {
+        "code": "zh",
+        "wire": "zh"
+      },
+      {
+        "code": "en",
+        "wire": "en"
+      },
+      {
+        "code": "ar",
+        "wire": "ar"
+      },
+      {
+        "code": "de",
+        "wire": "de"
+      },
+      {
+        "code": "fr",
+        "wire": "fr"
+      },
+      {
+        "code": "es",
+        "wire": "es"
+      },
+      {
+        "code": "pt",
+        "wire": "pt"
+      },
+      {
+        "code": "id",
+        "wire": "id"
+      },
+      {
+        "code": "it",
+        "wire": "it"
+      },
+      {
+        "code": "ko",
+        "wire": "ko"
+      },
+      {
+        "code": "ru",
+        "wire": "ru"
+      },
+      {
+        "code": "th",
+        "wire": "th"
+      },
+      {
+        "code": "vi",
+        "wire": "vi"
+      },
+      {
+        "code": "ja",
+        "wire": "ja"
+      },
+      {
+        "code": "tr",
+        "wire": "tr"
+      },
+      {
+        "code": "hi",
+        "wire": "hi"
+      },
+      {
+        "code": "ms",
+        "wire": "ms"
+      },
+      {
+        "code": "nl",
+        "wire": "nl"
+      },
+      {
+        "code": "ur",
+        "wire": "ur"
+      },
+      {
+        "code": "no",
+        "wire": "nb"
+      },
+      {
+        "code": "sv",
+        "wire": "sv"
+      },
+      {
+        "code": "da",
+        "wire": "da"
+      },
+      {
+        "code": "he",
+        "wire": "he"
+      },
+      {
+        "code": "fi",
+        "wire": "fi"
+      },
+      {
+        "code": "pl",
+        "wire": "pl"
+      },
+      {
+        "code": "is",
+        "wire": "is"
+      },
+      {
+        "code": "cs",
+        "wire": "cs"
+      },
+      {
+        "code": "tl",
+        "wire": "fil"
+      },
+      {
+        "code": "fa",
+        "wire": "fa"
+      },
+      {
+        "code": "yue",
+        "wire": "yue"
+      },
+      {
+        "code": "el",
+        "wire": "el"
+      },
+      {
+        "code": "af",
+        "wire": "af"
+      },
+      {
+        "code": "ast",
+        "wire": "ast"
+      },
+      {
+        "code": "be",
+        "wire": "be"
+      },
+      {
+        "code": "bg",
+        "wire": "bg"
+      },
+      {
+        "code": "bn",
+        "wire": "bn"
+      },
+      {
+        "code": "bs",
+        "wire": "bs"
+      },
+      {
+        "code": "ca",
+        "wire": "ca"
+      },
+      {
+        "code": "ceb",
+        "wire": "ceb"
+      },
+      {
+        "code": "et",
+        "wire": "et"
+      },
+      {
+        "code": "gl",
+        "wire": "gl"
+      },
+      {
+        "code": "gu",
+        "wire": "gu"
+      },
+      {
+        "code": "hr",
+        "wire": "hr"
+      },
+      {
+        "code": "hu",
+        "wire": "hu"
+      },
+      {
+        "code": "jv",
+        "wire": "jv"
+      },
+      {
+        "code": "kk",
+        "wire": "kk"
+      },
+      {
+        "code": "kn",
+        "wire": "kn"
+      },
+      {
+        "code": "ky",
+        "wire": "ky"
+      },
+      {
+        "code": "lv",
+        "wire": "lv"
+      },
+      {
+        "code": "mk",
+        "wire": "mk"
+      },
+      {
+        "code": "ml",
+        "wire": "ml"
+      },
+      {
+        "code": "mr",
+        "wire": "mr"
+      },
+      {
+        "code": "pa",
+        "wire": "pa"
+      },
+      {
+        "code": "ro",
+        "wire": "ro"
+      },
+      {
+        "code": "sk",
+        "wire": "sk"
+      },
+      {
+        "code": "sl",
+        "wire": "sl"
+      },
+      {
+        "code": "sw",
+        "wire": "sw"
+      },
+      {
+        "code": "tg",
+        "wire": "tg"
+      },
+      {
+        "code": "az",
+        "wire": "az"
+      },
+      {
+        "code": "uk",
+        "wire": "uk"
+      }
+    ]
+  }
 }

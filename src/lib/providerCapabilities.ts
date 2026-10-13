@@ -167,7 +167,7 @@ export function capabilitiesForProfile(
   profile: ServiceProfile,
   targetLanguage: TargetLanguage = "zh",
 ): ProviderCapabilities {
-  if (usesAlibabaRealtime(profile)) return { sourceLanguages: ["auto"], targetLanguages: ["original", "zh", "en"], translationModes: ["turbo"] };
+  if (usesAlibabaRealtime(profile)) return { sourceLanguages: ["auto"], targetLanguages: ["original", ...languageCatalogs.alibabaRealtime.targetLanguages as TargetLanguage[]], translationModes: ["turbo"] };
   if (textTranslationForProfile(profile) === "apple" && (isStandaloneAsrProvider(profile.provider) || ["alibabaCloud", "deepLX"].includes(profile.provider))) {
     // Only the native runtime can certify Apple's catalog. An unavailable or
     // not-yet-loaded catalog must not borrow a cloud provider's language list.

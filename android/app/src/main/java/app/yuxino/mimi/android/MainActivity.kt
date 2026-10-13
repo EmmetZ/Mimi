@@ -206,14 +206,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun copyDiagnostics() {
         val observation = MimiService.captureObservation
-        val report = "mimi Android capture diagnostics v1\n" +
+        val report = "Mimi Android capture diagnostics v1\n" +
             "androidApi=${Build.VERSION.SDK_INT}\nsource=android_playback_capture\nusage=media,game,unknown\nmicrophone=false\n" +
             "running=${MimiService.isRunning}\nobservation=${observation?.state?.name ?: "STOPPED"}\n" +
             "pcmAgeMs=${observation?.pcmAgeMs ?: "unknown"}\nsoundAgeMs=${observation?.soundAgeMs ?: "unknown"}\n" +
             "captureError=${MimiService.lastCaptureError ?: "none"}"
         val copied = runCatching {
             (getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager)
-                .setPrimaryClip(android.content.ClipData.newPlainText("mimi capture diagnostics", report))
+                .setPrimaryClip(android.content.ClipData.newPlainText("Mimi capture diagnostics", report))
         }.isSuccess
         Toast.makeText(this, if (copied) R.string.capture_diagnostics_copied else R.string.capture_diagnostics_copy_failed,
             if (copied) Toast.LENGTH_SHORT else Toast.LENGTH_LONG).show()

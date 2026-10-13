@@ -360,9 +360,9 @@ cat > "$BUILD_APP/Contents/Info.plist" <<PLIST
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key>
-  <string>mimi dev</string>
+  <string>Mimi Dev</string>
   <key>CFBundleDisplayName</key>
-  <string>mimi dev</string>
+  <string>Mimi Dev</string>
   <key>CFBundleIdentifier</key>
   <string>app.yuxino.mimi.dev</string>
   <key>CFBundleExecutable</key>

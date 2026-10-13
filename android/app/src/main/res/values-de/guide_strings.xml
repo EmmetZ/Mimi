@@ -17,7 +17,7 @@
     <string name="guide_not_started">Erfassung noch nicht gestartet</string>
     <string name="guide_audio">Audio erkannt · als Nächstes auf Untertitel achten</string>
     <string name="guide_wait_audio">Warten auf Audio · prüfen, ob die Wiedergabe stumm ist</string>
-    <string name="guide_capture_limits">Manche Apps blockieren die Audiofreigabe. DRM-Inhalte, Anrufe und Apps mit Erfassungssperre können nicht erfasst werden. mimi respektiert diese Grenzen.</string>
+    <string name="guide_capture_limits">Manche Apps blockieren die Audiofreigabe. DRM-Inhalte, Anrufe und Apps mit Erfassungssperre können nicht erfasst werden. Mimi respektiert diese Grenzen.</string>
     <string name="guide_see_caption">Auf Untertitel achten</string>
     <string name="guide_start_trial">Probelauf starten · Bildschirm freigeben</string>
     <string name="guide_complete_title">Untertitel werden angezeigt</string>

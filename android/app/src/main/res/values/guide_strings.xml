@@ -16,7 +16,7 @@
     <string name="guide_not_started">Capture has not started</string>
     <string name="guide_audio">Audio detected · next, look for captions</string>
     <string name="guide_wait_audio">Waiting for audio · check that playback is not muted</string>
-    <string name="guide_capture_limits">Some apps block audio sharing. DRM content, calls and apps that opt out of capture cannot be captured. mimi respects these limits.</string>
+    <string name="guide_capture_limits">Some apps block audio sharing. DRM content, calls and apps that opt out of capture cannot be captured. Mimi respects these limits.</string>
     <string name="guide_see_caption">Look for captions</string>
     <string name="guide_start_trial">Start trial · share screen</string>
     <string name="guide_complete_title">Captions are displayed</string>

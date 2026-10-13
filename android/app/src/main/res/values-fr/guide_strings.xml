@@ -17,7 +17,7 @@
     <string name="guide_not_started">La capture n’a pas démarré</string>
     <string name="guide_audio">Son détecté · vérifiez maintenant les sous-titres</string>
     <string name="guide_wait_audio">En attente du son · vérifiez que la lecture n’est pas en sourdine</string>
-    <string name="guide_capture_limits">Certaines applications bloquent le partage audio. Les contenus DRM, les appels et les applications qui refusent la capture ne peuvent pas être capturés. mimi respecte ces limites.</string>
+    <string name="guide_capture_limits">Certaines applications bloquent le partage audio. Les contenus DRM, les appels et les applications qui refusent la capture ne peuvent pas être capturés. Mimi respecte ces limites.</string>
     <string name="guide_see_caption">Vérifier les sous-titres</string>
     <string name="guide_start_trial">Démarrer l’essai · partager l’écran</string>
     <string name="guide_complete_title">Sous-titres affichés</string>

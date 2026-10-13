@@ -29,6 +29,7 @@ const RELEASES_LATEST_URL: &str = "https://github.com/yuxino/mimi/releases/lates
 #[serde(rename_all = "camelCase")]
 pub enum SettingsNavigationTarget {
     Service,
+    Voice,
     Export,
     AppleSpeechResources,
     ActiveProfile,
@@ -1229,6 +1230,10 @@ mod tests {
     #[test]
     fn settings_navigation_target_accepts_only_known_sections() {
         assert_eq!(
+            serde_json::from_str::<SettingsNavigationTarget>(r#""voice""#).unwrap(),
+            SettingsNavigationTarget::Voice
+        );
+        assert_eq!(
             serde_json::from_str::<SettingsNavigationTarget>(r#""service""#).unwrap(),
             SettingsNavigationTarget::Service
         );
@@ -2141,7 +2146,7 @@ pub async fn profile_create(
         .inspect_err(|_| {
             let _ = emit_settings_snapshot(&app, &state.settings);
         })?;
-    state.settings.create_profile(provider, &name)?;
+    state.settings.create_profile_for_setup(provider, &name)?;
     emit_settings_snapshot(&app, &state.settings)
 }
 

@@ -1195,17 +1195,49 @@ impl SettingsStore {
             .ok_or_else(|| PROFILE_CATALOG_UNAVAILABLE.to_string())
     }
 
+    /// New desktop Alibaba configurations start with integrated translation.
+    /// Legacy profiles and duplicate operations retain their stored mode.
+    pub fn create_profile_for_setup(
+        &self,
+        provider: ProviderKind,
+        name: &str,
+    ) -> Result<ServiceProfile, String> {
+        let mode = if provider == ProviderKind::AlibabaCloud {
+            crate::core::provider::AlibabaRealtimeMode::LiveTranslate
+        } else {
+            crate::core::provider::AlibabaRealtimeMode::Disabled
+        };
+        self.create_profile_with_mode(provider, name, mode)
+    }
+
+    #[cfg(test)]
     pub fn create_profile(
         &self,
         provider: ProviderKind,
         name: &str,
     ) -> Result<ServiceProfile, String> {
-        let profile = ServiceProfile::new(
+        self.create_profile_with_mode(
+            provider,
+            name,
+            crate::core::provider::AlibabaRealtimeMode::Disabled,
+        )
+    }
+
+    fn create_profile_with_mode(
+        &self,
+        provider: ProviderKind,
+        name: &str,
+        mode: crate::core::provider::AlibabaRealtimeMode,
+    ) -> Result<ServiceProfile, String> {
+        let mut profile = ServiceProfile::new(
             format!("profile-{}", uuid::Uuid::new_v4().simple()),
             name,
             provider,
         )
         .map_err(|error| error.to_string())?;
+        profile
+            .set_alibaba_realtime(mode, "")
+            .map_err(|error| error.to_string())?;
         self.mutate_catalog_with_normalization(Some(&profile.id), |catalog| {
             if catalog.profiles.len() >= MAXIMUM_PROFILE_COUNT {
                 return Err("No more service profiles can be added.".to_string());
@@ -1381,11 +1413,19 @@ impl SettingsStore {
             let mut updated = current.clone();
             if alibaba_realtime_mode.is_some() || alibaba_workspace_id.is_some() {
                 let workspace = alibaba_workspace_id.unwrap_or(&current.alibaba_workspace_id);
+                let mode = alibaba_realtime_mode.unwrap_or(current.alibaba_realtime_mode);
+                // Creation can persist an unfinished setup. An explicit mode /
+                // workspace edit must still validate before committing any fields.
+                if mode != crate::core::provider::AlibabaRealtimeMode::Disabled
+                    && !crate::core::provider::alibaba_workspace_id_is_valid(workspace.trim())
+                {
+                    return Err(
+                        crate::core::provider::ServiceProfileError::InvalidAlibabaWorkspaceId
+                            .to_string(),
+                    );
+                }
                 updated
-                    .set_alibaba_realtime(
-                        alibaba_realtime_mode.unwrap_or(current.alibaba_realtime_mode),
-                        workspace,
-                    )
+                    .set_alibaba_realtime(mode, workspace)
                     .map_err(|error| error.to_string())?;
             }
             if let Some(model) = qwen_mt_model {
@@ -3996,6 +4036,45 @@ mod read_only_manual_probe_tests {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn new_alibaba_setup_defaults_to_livetranslate_and_survives_restart() {
+        use crate::core::provider::AlibabaRealtimeMode;
+        let directory = tempfile::tempdir().unwrap();
+        let fake = FakeSecretStore::default();
+        let store = fresh_store(directory.path(), &fake);
+        let legacy = store
+            .create_profile(ProviderKind::AlibabaCloud, "Legacy")
+            .unwrap();
+        let profile = store
+            .create_profile_for_setup(ProviderKind::AlibabaCloud, "New")
+            .unwrap();
+        assert_eq!(
+            profile.alibaba_realtime_mode,
+            AlibabaRealtimeMode::LiveTranslate
+        );
+        assert!(profile.alibaba_workspace_id.is_empty());
+        assert_eq!(
+            store.profile(&legacy.id).unwrap().alibaba_realtime_mode,
+            AlibabaRealtimeMode::Disabled
+        );
+        let copy = store.duplicate_profile(&legacy.id, "Copy").unwrap();
+        assert_eq!(copy.alibaba_realtime_mode, AlibabaRealtimeMode::Disabled);
+        let other = store
+            .create_profile_for_setup(ProviderKind::OpenAIRealtime, "Other")
+            .unwrap();
+        assert_eq!(other.alibaba_realtime_mode, AlibabaRealtimeMode::Disabled);
+        drop(store);
+        let reopened = fresh_store(directory.path(), &fake);
+        assert_eq!(
+            reopened.profile(&profile.id).unwrap().alibaba_realtime_mode,
+            AlibabaRealtimeMode::LiveTranslate
+        );
+        assert_eq!(
+            reopened.profile(&legacy.id).unwrap().alibaba_realtime_mode,
+            AlibabaRealtimeMode::Disabled
+        );
+    }
+
     #[test]
     fn alibaba_realtime_metadata_switch_reuses_key_and_preserves_text_destination() {
         use crate::core::provider::AlibabaRealtimeMode;

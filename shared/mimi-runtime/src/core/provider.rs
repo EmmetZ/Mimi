@@ -6,8 +6,8 @@
 use crate::core::models::{SourceLanguage, TargetLanguage, TranslationMode};
 use crate::core::network_proxy::{ProxyConfig, ProxyConfigError};
 use crate::core::protocols::{
-    audio3, baidu_translate, deepl_languages, gemini_live, openai_realtime, tencent_cloud,
-    volcano_engine, xai_realtime,
+    audio3, baidu_translate, deepl_languages, gemini_live, live_translate, openai_realtime,
+    tencent_cloud, volcano_engine, xai_realtime,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -51,15 +51,24 @@ impl AlibabaRealtimeMode {
         }
     }
 
-    /// Deliberately narrow desktop experiment. These are not the full model catalogs.
+    /// Qwen3.8 recognizes input automatically; all 60 text targets are available.
     pub fn capabilities(self) -> ProviderCapabilities {
         ProviderCapabilities {
             source_languages: vec![SourceLanguage::Automatic],
-            target_languages: vec![
-                TargetLanguage::Original,
-                TargetLanguage::SimplifiedChinese,
-                TargetLanguage::English,
-            ],
+            target_languages: [
+                vec![TargetLanguage::Original],
+                target_languages(
+                    &live_translate::TRANSLATION_LANGUAGE_CODES
+                        .iter()
+                        .map(|code| match *code {
+                            "nb" => "no",
+                            "fil" => "tl",
+                            code => code,
+                        })
+                        .collect::<Vec<_>>(),
+                ),
+            ]
+            .concat(),
             translation_modes: vec![TranslationMode::Turbo],
             input_sample_rate_hz: 16_000,
             target_pairs: Vec::new(),
@@ -796,9 +805,9 @@ impl ServiceProfile {
         {
             return Err(ServiceProfileError::UnsupportedAlibabaRealtime);
         }
-        if (mode != AlibabaRealtimeMode::Disabled || !workspace_id.is_empty())
-            && !alibaba_workspace_id_is_valid(workspace_id)
-        {
+        // Profiles may be saved before setup is complete. Session configuration
+        // still requires a valid workspace before capture or provider access.
+        if !workspace_id.is_empty() && !alibaba_workspace_id_is_valid(workspace_id) {
             return Err(ServiceProfileError::InvalidAlibabaWorkspaceId);
         }
         self.alibaba_realtime_mode = mode;
@@ -995,9 +1004,10 @@ mod tests {
                 .unwrap();
         assert_eq!(profile.alibaba_realtime_mode, AlibabaRealtimeMode::Disabled);
         assert!(profile.alibaba_workspace_id.is_empty());
-        assert!(profile
+        profile
             .set_alibaba_realtime(AlibabaRealtimeMode::LiveTranslate, "")
-            .is_err());
+            .unwrap();
+        assert_eq!(profile.validated().unwrap(), profile);
         profile.text_translation = Some(TextTranslation::DeepLX);
         profile
             .set_alibaba_realtime(AlibabaRealtimeMode::LiveTranslate, " test-workspace ")

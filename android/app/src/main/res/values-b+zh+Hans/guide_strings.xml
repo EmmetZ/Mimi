@@ -16,7 +16,7 @@
     <string name="guide_not_started">还没有开始采集</string>
     <string name="guide_audio">已采集到声音 · 下一步看看字幕</string>
     <string name="guide_wait_audio">正在等待声音 · 请确认播放器没有静音</string>
-    <string name="guide_capture_limits">有些应用禁止共享声音；DRM 内容、通话声音和主动退出采集的应用无法捕获。mimi 不会绕过这些限制。</string>
+    <string name="guide_capture_limits">有些应用禁止共享声音；DRM 内容、通话声音和主动退出采集的应用无法捕获。Mimi 不会绕过这些限制。</string>
     <string name="guide_see_caption">去看字幕</string>
     <string name="guide_start_trial">开始试用 · 共享屏幕</string>
     <string name="guide_complete_title">字幕已显示</string>
@@ -55,7 +55,7 @@
     <string name="guide_help_openai">在 OpenAI API 平台创建项目与 API Key，确认可使用 Realtime 模型。ChatGPT 订阅不包含 API 用量。</string>
     <string name="guide_help_gemini">在 Google AI Studio 的项目里创建 Gemini API Key，确认项目可使用 Live API。</string>
     <string name="guide_help_azure">创建支持 Realtime 的 Azure OpenAI 资源，部署实时模型与转写模型。部署名称由你设置。</string>
-    <string name="guide_help_volcano">在新版豆包语音控制台实名认证、开通同声传译 2.0，再创建 API Key。mimi 使用新版 API Key，不使用旧版 AppID / Access Token。</string>
+    <string name="guide_help_volcano">在新版豆包语音控制台实名认证、开通同声传译 2.0，再创建 API Key。Mimi 使用新版 API Key，不使用旧版 AppID / Access Token。</string>
     <string name="guide_help_tencent">实时语音翻译需要账号 AppID 和同一账号的 SecretID、SecretKey。AppID 在账号信息页，注意不是 UIN；密钥对在访问管理的 API 密钥页。还需在 ASR 控制台开通服务。混元大模型的单个 API Key 不能用于此接口。后付费需自行开通。</string>
     <string name="guide_tencent_app_id">获取 AppID（账号信息）</string>
     <string name="guide_tencent_secret_pair">获取 SecretID / SecretKey（API 密钥）</string>

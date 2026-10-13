@@ -67,7 +67,7 @@ export async function verifyQwenMTModelLayout(page, baseUrl = "http://127.0.0.1:
         // Let pending viewport-resize handlers settle before opening the popup.
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         const issues = [];
-        const picker = [...document.querySelectorAll('.service-stage--translation [role="combobox"]')].find(node => node.textContent.startsWith("Qwen-MT"));
+        const picker = [...document.querySelectorAll('.service-editor-module--models [role="combobox"]')].find(node => node.textContent.startsWith("Qwen-MT"));
         if (!picker) return ["model picker missing"];
         const row = picker.closest(".settings-field");
         const rect = node => node.getBoundingClientRect();

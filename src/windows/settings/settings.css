@@ -237,9 +237,9 @@
 }
 
 .settings-console__frame {
-  width: min(100%, 740px);
-  margin: 0 auto;
-  padding: 36px 32px 40px;
+  width: min(100%, 960px);
+  margin: 0;
+  padding: 32px 32px 40px;
 }
 
 .settings-page-header {
@@ -1849,10 +1849,10 @@
 .service-row__main {
   min-width: 0;
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) auto;
+  grid-template-columns: 32px minmax(0, 1fr);
   gap: 8px 12px;
   align-items: center;
-  padding: 15px 8px;
+  padding: 14px 12px;
   border: 0;
   background: transparent;
   color: inherit;
@@ -1889,6 +1889,7 @@
   overflow-wrap: anywhere;
 }
 .service-row__state {
+  grid-column: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1905,7 +1906,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
-  padding: 12px 8px;
+  padding: 8px 12px;
 }
 .service-row__action {
   display: flex;
@@ -2111,16 +2112,14 @@
   cursor: default;
 }
 .subtitle-preview {
-  border-radius: 12px;
-  background: var(--settings-panel-raised);
-  margin-bottom: 22px;
+  margin-bottom: 24px;
   overflow: hidden;
 }
 .subtitle-preview__label {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 18px 0;
+  padding: 0;
   font-size: 11px;
   color: var(--settings-text-faint);
 }
@@ -2129,7 +2128,7 @@
 }
 .subtitle-preview__stage {
   padding: 12px 18px 18px;
-  margin: 12px 18px;
+  margin: 16px 0 24px;
   border-radius: 9px;
   background: #242424;
 }
@@ -2194,7 +2193,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 24px;
-  padding: 20px 18px 22px;
+  padding: 24px 0 0;
   border-top: 1px solid var(--settings-border);
 }
 .subtitle-preview__controls .settings-row {
@@ -2907,16 +2906,15 @@
 .saved-credential-input__toggle:focus-visible { outline: 2px solid var(--settings-text-muted); outline-offset: 2px; border-radius: 4px; }
 @media (max-width: 700px) { .service-stage .settings-field > .config-input-group { grid-column: 1 / -1; } }
 
-/* Restored session controls from the previous settings layout. */
+/* Session controls share the flat section style of other settings pages. */
 .settings-session-card {
   display: flex;
   flex-direction: column;
   gap: 16px;
   margin-bottom: 22px;
-  padding: 18px 20px;
-  border: 1px solid var(--settings-border);
-  border-radius: 12px;
-  background: var(--settings-panel);
+  padding: 0 0 22px;
+  border-bottom: 1px solid var(--settings-border);
+  background: transparent;
 }
 
 .settings-session-control {
@@ -3245,7 +3243,26 @@
 .profile-language-preset__controls > span { overflow-wrap: anywhere; }
 
 
-/* Setup actions stay with their field and wrap within the existing label column. */
+/* Setup actions share the input column and a consistent trailing alignment. */
+.alibaba-realtime-settings {
+  border-top: 0;
+  margin-top: 16px;
+  padding-top: 0;
+}
+.alibaba-setup-control {
+  display: grid;
+  grid-column: 2;
+  min-width: 0;
+  gap: 6px;
+}
+.alibaba-setup-control > .alibaba-setup-link {
+  justify-self: end;
+}
+@media (max-width: 700px) {
+  .service-stage .settings-field > .alibaba-setup-control {
+    grid-column: 1 / -1;
+  }
+}
 .alibaba-setup-field-label {
   flex-wrap: wrap;
   gap: 4px;
@@ -3255,4 +3272,160 @@
   align-items: center;
   gap: 2px;
   text-align: start;
+}
+
+
+/* Service editing follows one module rhythm across native and custom providers. */
+.service-detail__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px 16px;
+}
+.service-detail__header > .service-back {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding-inline: 0;
+  min-height: 28px;
+  border: 0;
+  background: transparent;
+  color: var(--settings-text-muted);
+}
+.service-detail__header .service-detail__quick-actions { margin: 0; }
+.service-detail__configuration { display: grid; gap: 24px; margin-top: 24px; }
+.service-detail .service-editor-module--setup { padding-top: 0; border-top: 0; }
+.service-editor-module,
+.service-detail .service-proxies {
+  min-width: 0;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--settings-border);
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+.service-editor-module__heading h3,
+.service-detail .service-proxies > h3 {
+  margin: 0;
+  color: var(--settings-text);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+.service-editor-module > .profile-form { margin: 0; }
+.service-editor-module .alibaba-realtime-settings { margin: 0; gap: 16px; }
+.service-editor-module .credential-panel { border-top: 0; padding-top: 0; }
+.service-editor-module .service-stages { margin: 0; gap: 24px; }
+.service-editor-module .service-stage { border-top: 0; padding-top: 0; gap: 16px; }
+.service-editor-module .service-stage--translation { border-top: 1px solid var(--settings-border); padding-top: 20px; }
+.service-editor-module .service-credential-toolbar { gap: 10px; margin-bottom: 20px; }
+.service-editor-module .credential-storage-help { color: var(--settings-text); font-weight: 650; }
+.service-editor-module--languages .profile-language-settings { border: 0; padding: 0; margin: 0; }
+.service-editor-module--languages .profile-language-settings__heading { display: none; }
+.service-editor-module--languages .profile-language-preset { margin: 0; }
+.service-editor-module--languages .settings-row { padding: 0; }
+.service-editor-module--languages .profile-language-settings { display: grid; gap: 16px; }
+.service-editor-module--management .service-detail__actions { margin: 0; }
+.service-editor-module .service-stage__field-label { gap: 6px; }
+.service-editor-module .alibaba-setup-link { font-size: inherit; min-height: 24px; }
+.service-editor-module .alibaba-setup-control { gap: 8px; }
+.service-editor-module .service-stage .settings-field,
+.service-editor-module .service-detail__name > .settings-field,
+.service-detail .service-proxies .settings-row,
+.service-editor-module--languages .settings-row {
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 12px;
+}
+@media (max-width: 700px) {
+  .service-detail__header { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .service-detail__header .service-detail__quick-actions { justify-content: flex-start; }
+  .service-editor-module,
+  .service-detail .service-proxies { padding: 20px 0 0; }
+  .service-editor-module .service-stage .settings-field,
+  .service-editor-module .service-detail__name > .settings-field,
+  .service-detail .service-proxies .settings-row,
+  .service-editor-module--languages .settings-row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .service-editor-module .service-stage .settings-field > .config-input-group,
+  .service-editor-module .service-stage .settings-field > .settings-select-wrap,
+  .service-editor-module .service-stage .settings-field > .alibaba-setup-control { grid-column: 1 / -1; }
+  .service-editor-module .service-stage__heading { gap: 8px 12px; }
+}
+
+.service-editor-module .settings-field:has(> .alibaba-setup-control) > :first-child {
+  align-self: start;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+#service-profiles-panel > #audio-input {
+  padding: 20px;
+  border: 1px solid var(--settings-border);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.services-home .service-rows {
+  border: 1px solid var(--settings-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.services-home .service-row:last-child { border-bottom: 0; }
+.services-home .services-toolbar { margin-bottom: 16px; }
+@media (max-width: 700px) {
+  #service-profiles-panel > #audio-input { padding: 16px; }
+  .service-editor-module .settings-field:has(> .alibaba-setup-control) > :first-child { min-height: auto; }
+}
+
+
+/* Every editable field uses the same label and control columns. */
+.service-editor-module .credential-form__fields { gap: 16px; }
+.service-editor-module .credential-form__fields > .settings-field {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 12px;
+}
+.service-editor-module .credential-form__fields > .settings-field > .config-input-group,
+.service-editor-module .credential-form__fields > .settings-field > .credential-unavailable { grid-column: 2; }
+.service-editor-module .credential-form__actions { margin-top: 8px; }
+.service-editor-module .service-credential-toolbar .connection-check { margin-inline-start: auto; }
+.service-editor-module .service-credential-toolbar .credential-storage-help { flex: 1; }
+.voice-settings { display: grid; gap: 24px; }
+.voice-settings > .settings-card,
+.voice-settings > .profile-language-settings {
+  padding: 0;
+  margin: 0;
+}
+.voice-settings > :not(:first-child) { padding-top: 24px; border-top: 1px solid var(--settings-border); }
+.voice-settings .profile-language-settings__heading { margin-bottom: 16px; }
+.voice-settings .settings-card__header { margin-bottom: 16px; }
+.voice-settings .settings-row { grid-template-columns: 160px minmax(0, 1fr); }
+.voice-settings .settings-row__control { min-width: 0; }
+.voice-settings .settings-select-wrap { width: 100%; }
+@media (max-width: 700px) {
+  .service-editor-module .credential-form__fields > .settings-field { grid-template-columns: minmax(0, 1fr); }
+  .service-editor-module .credential-form__fields > .settings-field > .config-input-group,
+  .service-editor-module .credential-form__fields > .settings-field > .credential-unavailable { grid-column: 1 / -1; }
+  .voice-settings > .settings-card,
+  .voice-settings > .profile-language-settings { padding: 20px 0 0; }
+  .voice-settings .settings-row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+}
+
+.service-editor-module--models > .settings-field {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+.service-editor-module--models > .settings-field > .settings-select-wrap { grid-column: 2; }
+@media (max-width: 700px) {
+  .service-editor-module--models > .settings-field { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .service-editor-module--models > .settings-field > .settings-select-wrap { grid-column: 1 / -1; }
+}
+
+/* Keep compact service lists readable without sacrificing explicit actions. */
+@media (min-width: 740px) and (max-width: 900px) {
+  .service-row { grid-template-columns: minmax(0, 1fr) auto; column-gap: 4px; }
+  .service-row__main { padding-block: 16px; grid-template-columns: 28px minmax(0, 1fr); }
+  .service-row__state { grid-column: 2; }
+  .service-row__actions { max-width: 180px; padding-inline: 8px; gap: 2px; }
+  .service-row__action { min-width: 68px; justify-content: flex-start; }
 }

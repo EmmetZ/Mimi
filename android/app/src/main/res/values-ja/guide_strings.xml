@@ -16,7 +16,7 @@
     <string name="guide_not_started">まだ音声を取得していません</string>
     <string name="guide_audio">音声を検出 · 次は字幕を確認</string>
     <string name="guide_wait_audio">音声を待っています · 再生がミュートでないか確認してください</string>
-    <string name="guide_capture_limits">音声の共有を禁止するアプリもあります。DRM コンテンツ、通話、取得を拒否するアプリの音声は取得できません。mimi はこれらの制限を守ります。</string>
+    <string name="guide_capture_limits">音声の共有を禁止するアプリもあります。DRM コンテンツ、通話、取得を拒否するアプリの音声は取得できません。Mimi はこれらの制限を守ります。</string>
     <string name="guide_see_caption">字幕を確認</string>
     <string name="guide_start_trial">試用開始 · 画面を共有</string>
     <string name="guide_complete_title">字幕を表示中</string>
