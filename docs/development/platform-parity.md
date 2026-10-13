@@ -44,8 +44,8 @@ architecture tests are not a successful remote CI or Android build.
 
 ## Shared behavior
 
-Both platforms select Qwen-MT Lite, Flash or Plus through the same provider
-factory; Lite is the default. Recognition uses Audio3. The shared capability
+In Alibaba ASR + MT mode, both platforms select Qwen-MT Lite, Flash or Plus
+through the same provider factory; Lite is the default. Recognition uses Audio3. The shared capability
 normalizer retains the Lite language intersection for comparable trials; Audio3
 itself represents 30 explicit hints plus automatic detection. Plus returns
 complete translations; Lite and Flash stream. Android keeps old model/custom
@@ -127,7 +127,8 @@ Android production route.
 | Runtime recovery feedback | Shared connection/retry/timeout state in native UI | Same shared state, localized in floating subtitles; capture-no-audio guidance takes priority |
 | Apple local recognition | One language selector with runtime resource status; explicit Download and use prepares and applies a missing language, while ready languages can be applied directly; no speech API key; independent text translation keeps its own service and credentials | Not available; no Apple API or asset-management dependency |
 | Apple local text translation | Apple silicon with macOS 26+: runtime language-pair availability, explicit in-app model preparation, installed-only translation without API keys or a text proxy; pairs with Apple/custom/Alibaba recognition | Not available; Apple Translation is a native macOS adapter, not a shared HTTP provider |
-| Built-in Alibaba pipeline | Audio 3.0: 30 explicit recognition hints plus automatic detection; Qwen-MT retains its model-specific target catalog | Same Audio3 + Qwen-MT factory, models and capability normalization |
+| Alibaba modes | New profiles default to simultaneous translation (LiveTranslate), with automatic source detection and 60 represented text-translation targets. ASR + MT remains selectable; existing and copied profiles retain their mode | Audio3 + independent text translation only. The shared runtime and JNI support LiveTranslate, but Android has no mode/workspace editor or persisted configuration bridge yet |
+| Alibaba ASR + MT pipeline | Audio 3.0: 30 explicit recognition hints plus automatic detection; Qwen-MT retains its model-specific target catalog | Same Audio3 + Qwen-MT factory, models and capability normalization |
 | Translation scheduling | Speculative drafts plus serial prioritized finals and provider recovery | Same Rust speculative preview, final priority, queues, retry/cooldown and MT budget continuity |
 | Opening MT previews | Shared opening length eligibility for the stability timer; a non-resetting maximum still permits short drafts after at least two seconds. Existing preview corrections and source finals retain their paths | Same Rust opening eligibility and wait bound; no native reading-speed toggle or separate MT scheduler |
 | Independent text HTTP bounds | HQ source fields up to 65,536 UTF-8 bytes; response bodies up to 1 MiB; decoded text uses native adapter bounds | Same shared clients and UTF-8/response bounds |
