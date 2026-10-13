@@ -142,8 +142,7 @@ it("keeps language choices available for active and paused sessions but blocks c
 it("places independent proxy controls inside a service profile and blocks changes while subtitles are paused", async () => {
   await mount(); await select("service");
   expect(host.querySelector("#application-settings-panel #network-proxy")).toBeNull();
-  expect(host.querySelector(".service-proxies")).toBeNull();
-  await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")!.click());
+  await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")?.click());
   expect(host.querySelector("#service-profiles-panel .service-proxies")?.textContent).toContain(I18N.settings.networkProxySpeechScope);
   expect(host.querySelectorAll('.service-proxies [role="combobox"]')).toHaveLength(2);
   const selector = host.querySelector<HTMLButtonElement>('.service-proxies [role="combobox"]')!;
@@ -160,7 +159,7 @@ it("places independent proxy controls inside a service profile and blocks change
 
 it("clears a saved-value reveal when leaving services while preserving the unsaved replacement draft", async () => {
   await mount(); await select("service");
-  await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")!.click());
+  await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")?.click());
   const field = () => host.querySelector<HTMLInputElement>(".credential-panel input")!;
   const eye = () => host.querySelector<HTMLButtonElement>(".saved-credential-input__toggle")!;
   expect(profileRevealCredential).not.toHaveBeenCalled();
@@ -227,7 +226,7 @@ it("blocks placeholder session and credential controls while loading settings an
 it("preserves a masked unsaved credential draft while moving between categories", async () => {
   await mount();
   await select("service");
-  await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")!.click());
+  await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")?.click());
   const input = host.querySelector<HTMLInputElement>('.credential-panel input[type="password"]')!;
   await act(async () => {
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, "synthetic-unsaved-draft");

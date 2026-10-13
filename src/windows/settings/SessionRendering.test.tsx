@@ -28,7 +28,7 @@ it.each([false, true])("keeps non-subtitle windows and an unsaved credential dra
       <Profiler id="settings" onRender={() => commits.settings++}><SettingsView /></Profiler>
       <Profiler id="control" onRender={() => commits.control++}><OverlayControlWindow /></Profiler>
     </>));
-    await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")!.click());
+    await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")?.click());
     const input = host.querySelector<HTMLInputElement>('.credential-panel input[type="password"]')!;
     await act(async () => {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, "synthetic-unsaved-key");

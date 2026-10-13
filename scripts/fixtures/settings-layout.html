@@ -222,7 +222,7 @@ window.applyLayoutCase = async next => {
     await settle();
   }
   if (next.editor && !next.surface) {
-    document.querySelector(".service-row__edit").click();
+    document.querySelector(".service-row__edit")?.click();
     await settle();
     if (next.reveal) {
       for (const button of document.querySelectorAll(".saved-credential-input__toggle")) button.click();
@@ -266,7 +266,7 @@ window.applyLayoutCase = async next => {
     }
   }
   if (next.providerPicker || next.providerConfirmation) {
-    document.querySelector(".services-toolbar > button").click();
+    document.querySelector("#service-add-profile").click();
     await settle();
     if (next.providerConfirmation) {
       document.querySelector('.provider-option[data-provider="openAIRealtime"]').click();

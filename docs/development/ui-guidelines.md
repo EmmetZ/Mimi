@@ -32,14 +32,20 @@ These project rules apply to implementation and review.
   that inflates short rows. Keep action wording at minimum width, omit redundant
   icons if necessary, and check artwork bounds as well as its outer icon slot.
   Keep configuration order stable when selection changes; mark the active row. Omit
-  routine saved/ready credential state from the list, including redundant help
-  icons; show missing or unavailable state when the user needs to act.
+  routine saved/ready credential state from lists and editor headers, including
+  redundant help icons; show missing or unavailable state when the user needs
+  to act. A provider mark does not need a repeated brand-name subtitle under a
+  configuration alias. Retain distinct user-defined recognition names.
 - Navigation must define scroll and focus together. Enter settings subpages at
   the top after content replacement; return to a list at its saved position and
   entry control. Category switches start at the top without stealing sidebar
   focus. Keep modal cancellation and ordinary data refreshes in place. Test
   from a scrolled viewport, including lower-list entries and native deep links;
   a successful click alone does not establish navigation acceptance.
+- A single configuration opens directly into its settings, with Add in the
+  header. Preserve unsaved drafts when adding is cancelled, restore the editor
+  position and focus, and invalidate saved-secret reveals while it is hidden.
+  Multiple configurations keep a list in saved order.
 - An empty configuration list needs a short, readable next-step instruction
   beside its add action. Show it only after a successful settings load; a zero
   count alone is not sufficient guidance for a fresh install.

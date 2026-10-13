@@ -3001,3 +3001,25 @@
   Windows/Linux acceptance. No full Rust/shared suite or new speech-quality
   acceptance was performed for these frontend-only changes. Visual acceptance
   remains with the user; keep fixed order and omit routine credential status.
+
+## 2026-10-13 — Sole configuration and redundant provider labels
+
+- Source: `b41f0093` plus the frontend changes in this entry's commit. The
+  existing signed macOS watch app received hot updates without a native rebuild
+  or session restart. Its 11 real profiles were preserved; no provider request,
+  capture, credential reveal or configuration mutation was used for acceptance.
+- One configuration now opens its editor directly. Related regressions cover
+  loading into one profile, reduction to one, draft preservation on Add/Cancel,
+  saved-secret reveal invalidation, copying to a second profile, and focus on
+  returning to the new list. Quick frontend typecheck, selected lint and all
+  242 related tests passed; no full Rust/shared suite was needed or run.
+- Browser fixtures checked 32 list and 32 sole-editor layouts: 520/952 px,
+  eight locales, light/dark. An initial sole-editor selector also matched the
+  hidden diagnostics Back control; after scoping it to the service editor,
+  all 32 cases passed. Add opens at zero and cancellation restored the tested
+  200 px position and Add focus. Reviewed Chinese screenshots of both states.
+- Native macOS screenshot confirmed the aliased Alibaba row has no repeated
+  brand subtitle, missing credentials remain inline, and row heights align.
+  Sole-profile evidence uses synthetic browser data, not deletion of the real
+  configurations. Windows/Linux native acceptance and visual user acceptance
+  remain separate. Browser test pages were closed after review.

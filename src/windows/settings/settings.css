@@ -1888,7 +1888,6 @@
   flex-wrap: wrap;
   gap: 2px 8px;
 }
-.service-row__route { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; min-width: 0; }
 .service-row__heading > strong { min-width: 0; }
 .service-row__heading .profile-active-badge { flex: 0 0 auto; }
 .service-row__copy strong {
@@ -1995,6 +1994,7 @@
 .settings-diagnostics-back {
   align-self: flex-start;
 }
+.service-detail[hidden] { display: none; }
 .service-detail__header {
   display: flex;
   align-items: center;
@@ -2883,9 +2883,12 @@
   outline-offset: 2px;
 }
 
-.service-detail__status .credential-badge,
-.service-row__state .credential-badge {
+.service-detail__status .credential-badge {
   font-size: 14px;
+}
+.service-row__state .credential-badge {
+  font-size: 13px;
+  font-weight: 400;
 }
 .settings-row__description[role="status"] {
   font-size: 13px;

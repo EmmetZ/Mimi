@@ -53,6 +53,18 @@ Product-facing settings, overlay/tray labels, native window/display names and
 Android strings use Mimi. Preserve application identifiers, storage keys,
 signing requirements, binary/update filenames and canonical installation paths.
 
+## Single and multiple configurations
+
+With one configuration, Models & Services opens its settings directly. Keep Add
+in the header, omit the list counter and Back action, and retain the same editor
+if a second profile arrives while editing. Zero profiles retain the setup entry;
+two or more profiles retain the saved-order list. Loading and deletion down to
+one profile follow the same rule. Opening the provider picker from the sole
+editor keeps unsaved drafts mounted; cancellation restores its position and Add
+focus. Revealed saved secrets are invalidated on this transition and stay hidden
+on return. No automatic selection, connection check or secret read accompanies
+opening the editor.
+
 ## Configuration list density
 
 Keep Use / Edit / More in one compact text-action strip. Copy and Delete live
@@ -65,15 +77,15 @@ visible action wording. Menu keyboard entry, arrow navigation, Escape/Tab,
 outside focus, blur, scrolling and disabled mutations must remain predictable.
 
 Align the recognition mark with the title, including mixed-provider profiles.
-Avoid repeating a recognition provider already used as the profile title;
+Avoid repeating the recognition provider identified by the primary brand mark;
 retain distinct custom recognizer names and the independent translation route.
 For ordinary names, show the translation inline as “Apple Speech → DeepL”, with
 one primary brand mark and the full translation role in the accessible label.
-For a distinct configuration alias, keep that alias primary and put the actual
-recognition → translation route together below it. Do not use a second indented
+A configuration alias stays primary with any independent translation route
+inline. Only a distinct user-defined recognizer alias needs secondary text. Do not use a second indented
 logo and “Text translation” label to inflate every mixed-provider row.
-Omit normal credential status from list text and help controls. Missing/unavailable
-credentials remain visible. When the active profile can restore a different saved
+Omit normal credential status from list text, editor headers and help controls.
+Missing/unavailable credentials remain visible inline beside the list title. When the active profile can restore a different saved
 language pair, retain its Use action and show its current marker beside the name
 so this operation stays available. Keep the list in saved order when the active
 profile changes; do not move the selected row to the top.

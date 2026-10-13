@@ -117,7 +117,7 @@ export function ServiceProfiles({
   const [selectedProfileId, setSelectedProfileId] = useState(
     activeProfile?.id ?? settings.activeProfileId,
   );
-  const [showsEditor, setShowsEditor] = useState(false);
+  const [showsEditor, setShowsEditor] = useState(settings.profiles.length === 1);
   const [handledProfileEditorRequest, setHandledProfileEditorRequest] = useState(0);
   const [deferredProfileEditorRequest, setDeferredProfileEditorRequest] = useState(0);
   const [openedProfileEditorRequest, setOpenedProfileEditorRequest] = useState(0);
@@ -161,9 +161,14 @@ export function ServiceProfiles({
     [activeProfile, selectedProfileId, settings.profiles],
   );
 
+  // A lone configuration is the settings page, rather than an empty catalog.
+  // Keep an already-open editor mounted if another configuration arrives.
+  const singleProfile = settings.profiles.length === 1;
+  if (singleProfile && !showsEditor && !showsProviderPicker) setShowsEditor(true);
+
   const navigationRoot = useRef<HTMLDivElement>(null);
   const pageKey = showsProviderPicker ? "picker" : showsEditor && selectedProfile ? `editor:${selectedProfile.id}` : "list";
-  const rememberListPosition = useServicePageNavigation(navigationRoot, pageKey, visible, openedProfileEditorRequest);
+  const rememberPagePosition = useServicePageNavigation(navigationRoot, pageKey, visible, openedProfileEditorRequest);
 
   const invalidateProfileCheck = useCallback((profileId: string, stage?: ConnectionCheckStage) => {
     const epochs = profileCheckEpochs.current;
@@ -347,7 +352,7 @@ export function ServiceProfiles({
 
   const handleDuplicate = async (profile: ServiceProfile) => {
     if (mutationsDisabled || atProfileLimit) return;
-    rememberListPosition(`profile-more-${profile.id}`);
+    if (pageKey === "list") rememberPagePosition(`profile-more-${profile.id}`);
     const previousIds = new Set(settings.profiles.map(profile => profile.id));
     const name = profileCopyName(profile.name, I18N.settings.profileCopySuffix, settings.profiles);
     const snapshot = await perform("duplicate", () => duplicateProfile(profile.id, name), I18N.settings.profileDuplicated);
@@ -501,9 +506,16 @@ export function ServiceProfiles({
     );
   };
 
+  const openProviderPicker = () => {
+    dismissSettingsToast();
+    rememberPagePosition("service-add-profile");
+    setFeedback(null);
+    setShowsProviderPicker(true);
+  };
+
   const openEditor = (profileId: string) => {
     dismissSettingsToast();
-    rememberListPosition(`profile-edit-${profileId}`);
+    rememberPagePosition(`profile-edit-${profileId}`);
     setSelectedProfileId(profileId);
     setPendingConfirmation(null);
     setFeedback(null);
@@ -574,7 +586,7 @@ export function ServiceProfiles({
     <div ref={navigationRoot}>
     {!showsEditor && !showsProviderPicker && overview}
     <SettingsSection id="service-profiles" title={I18N.settings.serviceProfilesTitle} hideHeading>
-      {showsProviderPicker ? (
+      {showsProviderPicker && (
         <ProviderPicker
           apple={apple}
           disabled={mutationsDisabled}
@@ -584,10 +596,11 @@ export function ServiceProfiles({
           onChoose={(provider) => void handleCreate(provider)}
           onCancel={() => { dismissSettingsToast(); setShowsProviderPicker(false); }}
         />
-      ) : showsEditor && selectedProfile ? (
-        <div className="service-detail">
+      )}
+      {showsEditor && selectedProfile ? (
+        <div className="service-detail" hidden={showsProviderPicker}>
           <div className="service-detail__header">
-            <button
+            {!singleProfile && <button
               type="button"
               className="settings-button settings-button--quiet service-back"
               disabled={pendingAction !== null}
@@ -600,14 +613,14 @@ export function ServiceProfiles({
             >
               <Icon name="chevron-left" />
               {I18N.settings.backToServices}
-            </button>
+            </button>}
             <div className="service-detail__identity">
               <ProviderIcon provider={selectedProfile.provider === "deepLX" ? "alibabaCloud" : selectedProfile.provider} />
               <div className="service-detail__copy">
                 <div className="service-detail__title">
                   <div className="service-detail__name-help"><h2 ref={profileDetailHeading} tabIndex={-1} key={selectedProfile.name}>{profileTitle(selectedProfile)}</h2><SettingsHelp text={profileDescription(selectedProfile)} label={I18N.settings.helpLabel} /></div>
                   <div className="service-detail__status">
-                    <CredentialBadge state={credentialStateForTarget(selectedProfile, settings.targetLanguage)} nativeSpeech={selectedProfile.provider === "appleSpeech"} />
+                    {credentialStateForTarget(selectedProfile, settings.targetLanguage) !== "present" && <CredentialBadge state={credentialStateForTarget(selectedProfile, settings.targetLanguage)} nativeSpeech={selectedProfile.provider === "appleSpeech"} />}
                     {selectedProfile.id === settings.activeProfileId && (
                       <span className="profile-active-badge">
                         <Icon name="checkmark" />
@@ -619,6 +632,11 @@ export function ServiceProfiles({
               </div>
             </div>
           <div className="service-detail__quick-actions">
+            {singleProfile && <button id="service-add-profile" type="button"
+              className="settings-button settings-button--compact settings-button--quiet"
+              disabled={mutationsDisabled} onClick={openProviderPicker}>
+              <Icon name="plus" />{I18N.settings.addProfile}
+            </button>}
             {canUseProfile(selectedProfile) &&
               profileSelectionChangesSettings(selectedProfile, settings) && (
                 <span className="service-detail__use">
@@ -703,7 +721,7 @@ export function ServiceProfiles({
               inputId={`profile-api-key-${selectedProfile.id}`}
               disabled={mutationsDisabled}
               busy={pendingAction === "save-key" || pendingAction === "delete-key"}
-              visible={visible && pendingConfirmation === null}
+              visible={visible && !showsProviderPicker && pendingConfirmation === null}
               feedback={feedback}
               onSaveTranslationName={(route, name) => handleSaveTranslationName(selectedProfile, route, name)}
               onSaveRecognitionName={(name: string) => updateProfile(selectedProfile.id, undefined, { speechRecognitionName: name })}
@@ -754,7 +772,7 @@ export function ServiceProfiles({
           </ServiceEditorModule>
           </div>
         </div>
-      ) : (
+      ) : !showsProviderPicker && (
         <div className="services-home">
           <div className={`services-toolbar${settings.profiles.length === 0 ? " services-toolbar--empty" : ""}`}>
             {settings.profiles.length === 0 ? (
@@ -770,7 +788,7 @@ export function ServiceProfiles({
               className="settings-button settings-button--compact settings-button--quiet"
               disabled={mutationsDisabled || atProfileLimit}
               id="service-add-profile"
-              onClick={() => { dismissSettingsToast(); rememberListPosition("service-add-profile"); setFeedback(null); setShowsProviderPicker(true); }}
+              onClick={openProviderPicker}
             >
               <Icon name="plus" />
               {I18N.settings.addProfile}
@@ -799,14 +817,12 @@ export function ServiceProfiles({
                     <span className="service-row__copy">
                       <span className="service-row__heading">
                         <strong key={profile.name} title={profile.name}>{profileTitle(profile)}</strong>
-                        {!secondaryLabel && <ProfileTranslationRoute profile={profile} />}
+                        <ProfileTranslationRoute profile={profile} />
                         {isActive && selectionChanges && <span className="profile-active-badge">{I18N.settings.activeProfile}</span>}
+                        {credentialState !== "present" && <span className="service-row__state"><CredentialBadge state={credentialState} nativeSpeech={profile.provider === "appleSpeech"} /></span>}
                       </span>
                       {profile.languagePreset && <span className="service-row__provider">{SOURCE_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.sourceLanguage]} → {TARGET_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.targetLanguage]}</span>}
-                      {secondaryLabel && <span className="service-row__route"><span className="service-row__provider">{secondaryLabel}</span><ProfileTranslationRoute profile={profile} /></span>}
-                      {credentialState !== "present" && <span className="service-row__state">
-                        <CredentialBadge state={credentialState} nativeSpeech={profile.provider === "appleSpeech"} />
-                      </span>}
+                      {secondaryLabel && <span className="service-row__provider">{secondaryLabel}</span>}
                     </span>
                   </div>
                   <div className="service-row__actions" role="group" aria-label={profile.name}>
@@ -1109,9 +1125,10 @@ function ProfileTranslationRoute({ profile }: { profile: ServiceProfile }) {
 }
 
 function profileSecondaryLabel(profile: ServiceProfile): string | null {
-  const provider = speechRecognitionDisplayName(profile);
-  return profileTitle(profile).trim().toLowerCase() === provider.toLowerCase() ? null
-    : provider;
+  // The primary mark already identifies the provider. Only a user-defined
+  // recognizer alias adds information beyond the configuration name and mark.
+  const alias = profile.speechRecognitionName?.trim();
+  return isCustomSpeechProvider(profile.provider) && alias && alias.toLowerCase() !== profileTitle(profile).trim().toLowerCase() ? alias : null;
 }
 
 function credentialFieldCopy(field: CredentialFieldName, provider: ServiceProvider): {
