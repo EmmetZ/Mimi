@@ -43,7 +43,7 @@ export function AlibabaRealtimeSettings({ profile, disabled, onSave }: {
   };
   return <section className="service-stage alibaba-realtime-settings">
     <div className="settings-field service-stage__selector">
-      <span className="service-stage__field-label alibaba-setup-field-label">{strings.label}<SettingsHelp text={strings.help} label={I18N.settings.helpLabel} /><AlibabaSetupLink page="guide" disabled={disabled || busy} /></span>
+      <span className="service-stage__field-label alibaba-setup-field-label">{strings.label}<SettingsHelp text={strings.help} label={I18N.settings.helpLabel} /></span>
       <SettingsSelect label={strings.label} value={mode} disabled={disabled || busy}
         options={[{ value: "liveTranslate", label: `LiveTranslate (${strings.simultaneous})`, description: strings.liveTranslateDescription }, { value: "disabled", label: strings.chain, description: strings.chainDescription }]}
         onChange={value => { setMode(value as AlibabaRealtimeMode); if (value === "disabled") setWorkspace(savedWorkspace); setError(false); }} />

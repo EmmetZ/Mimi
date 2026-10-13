@@ -1946,8 +1946,6 @@ it("keeps Alibaba configuration links next to their controls without provider re
   expect(openAlibabaSetupPage).toHaveBeenLastCalledWith("workspace");
   await act(async () => host.querySelector<HTMLButtonElement>('.service-stage__heading .alibaba-setup-link')!.click());
   expect(openAlibabaSetupPage).toHaveBeenLastCalledWith("apiKey");
-  await act(async () => host.querySelector<HTMLButtonElement>('.alibaba-realtime-settings .service-stage__selector .alibaba-setup-link')!.click());
-  expect(openAlibabaSetupPage).toHaveBeenLastCalledWith("guide");
   expect(testProfileConnection).not.toHaveBeenCalled();
   expect(actions.updateProfile).not.toHaveBeenCalled();
   expect(actions.saveProfileCredentials).not.toHaveBeenCalled();

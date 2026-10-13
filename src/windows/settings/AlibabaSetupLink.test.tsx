@@ -92,16 +92,3 @@ it.each([undefined, "disabled"] as const)("lists LiveTranslate first while prese
   expect(options[1].getAttribute("aria-selected")).toBe("true");
   expect(onSave).not.toHaveBeenCalled();
 });
-
-it("opens the configuration guide from the mode label without saving a mode", async () => {
-  setStoredUiLanguage("zh");
-  const onSave = vi.fn();
-  await act(async () => root.render(<AlibabaRealtimeSettings
-    profile={{ id: "synthetic", name: "Alibaba", provider: "alibabaCloud", credentialState: "present" }}
-    disabled={false} onSave={onSave} />));
-  const guide = host.querySelector<HTMLButtonElement>('.service-stage__selector .alibaba-setup-link')!;
-  expect(guide.textContent).toBe("配置指南");
-  await act(async () => guide.click());
-  expect(openAlibabaSetupPage).toHaveBeenCalledExactlyOnceWith("guide");
-  expect(onSave).not.toHaveBeenCalled();
-});
