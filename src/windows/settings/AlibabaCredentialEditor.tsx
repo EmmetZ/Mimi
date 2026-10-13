@@ -194,7 +194,7 @@ export function AlibabaCredentialEditor({ profile, inputId, disabled, busy, visi
       </header>
       <div className="settings-field service-stage__selector">
         <span>{I18N.settings.serviceProvider}</span>
-        <span className="service-stage__provider"><ProviderIcon provider="alibabaCloud" size={32} />Alibaba Cloud</span>
+        <span className="service-stage__provider"><ProviderIcon provider="alibabaCloud" size={32} />{I18N.settings.providerAlibaba}</span>
       </div>
       {<div className="settings-field">
         <label htmlFor={`${inputId}-apiKey`}>{I18N.settings.apiKey}</label>

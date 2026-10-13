@@ -712,7 +712,7 @@ const SETTINGS_ZH = {
   deleteProfileConfirm: (name: string): string =>
     `确定删除“${name}”及其专属凭证吗？`,
   profileCount: (count: number): string => `${count} 个配置`,
-  providerAlibaba: "Alibaba Cloud",
+  providerAlibaba: "阿里云",
   providerOpenAI: "OpenAI Realtime",
   providerGoogleGemini: "Google Gemini",
   providerAzureOpenAI: "Azure OpenAI",
@@ -783,7 +783,7 @@ const SETTINGS_ZH = {
   voiceTranslation: "语音翻译",
   serviceProvider: "服务",
   helpLabel: "查看说明",
-  textTranslationFollow: "Alibaba Cloud",
+  textTranslationFollow: "阿里云",
   textTranslationCustom: "DeepLX",
   textTranslationDefault: "默认由当前服务完成识别和翻译，无需另外配置。",
   textTranslationUnsupported: "当前服务使用自己的识别和翻译链路，不支持单独替换文字翻译。",

@@ -474,7 +474,7 @@ export const SETTINGS = {
   deleteProfileConfirm: (name: string): string =>
     `確定刪除「${name}」及其專屬認證資訊嗎？`,
   profileCount: (count: number): string => `${count} 個設定`,
-  providerAlibaba: "Alibaba Cloud",
+  providerAlibaba: "阿里雲",
   providerOpenAI: "OpenAI Realtime",
   providerGoogleGemini: "Google Gemini",
   providerAzureOpenAI: "Azure OpenAI",
@@ -545,7 +545,7 @@ export const SETTINGS = {
   voiceTranslation: "語音翻譯",
   serviceProvider: "服務",
   helpLabel: "檢視說明",
-  textTranslationFollow: "Alibaba Cloud",
+  textTranslationFollow: "阿里雲",
   textTranslationCustom: "DeepLX",
   textTranslationDefault: "預設由目前服務完成辨識和翻譯，無需另外設定。",
   textTranslationUnsupported: "目前服務使用自己的辨識和翻譯流程，不支援個別替換文字翻譯。",
