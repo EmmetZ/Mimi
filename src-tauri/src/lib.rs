@@ -150,7 +150,8 @@ pub fn run() {
             development_debugger::initialize(&app_handle);
             if is_ui_test {
                 if let Some(window) = app.get_webview_window("settings") {
-                    let _ = window.set_title("Mimi UI test settings");
+                    // Stable automation title: Linux and Windows smoke tests match it exactly.
+                    let _ = window.set_title("mimi UI test settings");
                     if std::env::var("MIMI_UI_TEST_COMPACT_SETTINGS").as_deref() == Ok("1") {
                         window.set_size(tauri::LogicalSize::new(520.0, 560.0))?;
                     }

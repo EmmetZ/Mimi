@@ -442,6 +442,12 @@ samples and [the run ledger](integration-runs.md) for this check's exact scope.
 
 ## Before handing off
 
+Keep the internal `mimi UI test settings` window title stable when changing
+product capitalization. Windows smoke tests use case-sensitive matching; a
+frontend-ready marker alone does not prove native window activation checks pass.
+Run packaged smoke checks before a release, since ordinary main CI may only
+compile and test the Windows adapters without launching the application.
+
 Python source guards and their mutation fixtures must read and write repository
 text with explicit UTF-8. Windows Python can default to cp1252: the shared-runtime
 guard once failed on non-ASCII Kotlin before checking the architecture. Keep the
