@@ -15,7 +15,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
 /** A draft only. ServiceSettingsActivity commits this alongside the speech configuration. */
-internal class TextTranslationSettings(private val activity: AppCompatActivity) {
+internal class TextTranslationSettings(private val activity: AppCompatActivity, private val profileId: String? = null) {
     private class Draft(val saved: TranslationConfiguration) {
         var endpoint = saved.endpoint.ifBlank {
             if (saved.provider == TextTranslationProvider.CHAT_MOCK) "http://127.0.0.1:8000/v1" else ""
@@ -27,8 +27,8 @@ internal class TextTranslationSettings(private val activity: AppCompatActivity) 
     }
     private val providers = listOf(TextTranslationProvider.BUILTIN, TextTranslationProvider.DEEPL, TextTranslationProvider.DEEPLX,
         TextTranslationProvider.CHAT_MOCK, TextTranslationProvider.OPENAI_COMPATIBLE, TextTranslationProvider.NONE)
-    private val drafts = providers.associateWith { Draft(SettingsStore.translationConfiguration(activity, it)) }
-    private var selected = SettingsStore.textTranslationProvider(activity)
+    private val drafts = providers.associateWith { Draft(if (profileId == null) TranslationConfiguration(provider = it) else SettingsStore.profileTranslationConfiguration(activity, profileId, it)) }
+    private var selected = if (profileId == null) TextTranslationProvider.BUILTIN else SettingsStore.profileTextTranslationProvider(activity, profileId)
     private var rendering = false
     private val root = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL }
     private val fields = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL }
@@ -74,7 +74,7 @@ internal class TextTranslationSettings(private val activity: AppCompatActivity) 
         qwenModel.adapter = ArrayAdapter(activity, R.layout.mimi_spinner_item,
             listOf("Qwen-MT Lite", "Qwen-MT Flash", "Qwen-MT Plus")).apply { setDropDownViewResource(R.layout.mimi_spinner_dropdown) }
         qwenModel.contentDescription = activity.getString(R.string.translation_model)
-        qwenModel.setSelection(qwenModels.indexOf(SettingsStore.qwenMtModel(activity)))
+        qwenModel.setSelection(qwenModels.indexOf(if (profileId == null) "lite" else SettingsStore.profileQwenMtModel(activity, profileId)))
         qwenModelRow.addView(ServiceSettingsUi.label(activity, activity.getString(R.string.translation_model), 16f))
         qwenModelRow.addView(qwenModel, LinearLayout.LayoutParams(-1, dp(56)))
         root.addView(qwenModelRow, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(16) })
@@ -139,7 +139,7 @@ internal class TextTranslationSettings(private val activity: AppCompatActivity) 
         updateKeyLabel()
     }
 
-    fun draft(): TranslationConfiguration? {
+    fun draft(validate: Boolean = true): TranslationConfiguration? {
         rememberDraft()
         if (!hasNetworkProvider()) return TranslationConfiguration(provider = selected)
         val state = drafts.getValue(selected)
@@ -150,6 +150,7 @@ internal class TextTranslationSettings(private val activity: AppCompatActivity) 
             allowLocalHttp = selected != TextTranslationProvider.DEEPL && state.localHttp,
             provider = selected,
         )
+        if (!validate) return config
         if (selected == TextTranslationProvider.DEEPL && config.apiKey.isBlank()) {
             showError(R.string.translation_key_required); return null
         }
@@ -198,7 +199,7 @@ internal class TextTranslationSettings(private val activity: AppCompatActivity) 
                 TextTranslationProvider.CHAT_MOCK -> R.string.translation_help_chatmock
                 else -> R.string.translation_help
             }) + (if (selected == TextTranslationProvider.DEEPL) "" else "\n\n" + activity.getString(R.string.translation_help_network)) +
-                "\n\n" + activity.getString(R.string.translation_help_save)
+                "\n\n" + activity.getString(R.string.profiles_translation_help_save)
         }
         ServiceSettingsUi.showHelp(activity, activity.getString(translationProviderLabel(selected)), body)
     }
@@ -258,7 +259,10 @@ internal class TextTranslationSettings(private val activity: AppCompatActivity) 
         ++generation; request?.cancel(); request = null
         check.isEnabled = true; check.setText(R.string.translation_check); result.visibility = View.GONE
     }
-    fun dispose() { invalidateCheck() }
+    fun dispose() {
+        invalidateCheck()
+        key.transformationMethod = android.text.method.PasswordTransformationMethod.getInstance()
+    }
     fun setEditingEnabled(enabled: Boolean) {
         if (!enabled) invalidateCheck()
         listOf(mode, qwenModel, endpoint, model, key, localHttp, removeKey, check).forEach { it.isEnabled = enabled }

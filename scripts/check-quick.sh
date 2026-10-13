@@ -51,6 +51,8 @@ esac
 
 case "$scope" in
   frontend)
+    echo "==> shared provider copy"
+    python3 -B "$SCRIPT_DIR/sync-provider-copy.py" --check
     echo "==> frontend typecheck"
     npm run typecheck
     if [[ ${#typescript_files[@]} -gt 0 ]]; then

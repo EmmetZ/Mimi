@@ -48,10 +48,18 @@ These project rules apply to implementation and review.
   focus. Keep modal cancellation and ordinary data refreshes in place. Test
   from a scrolled viewport, including lower-list entries and native deep links;
   a successful click alone does not establish navigation acceptance.
-- A single configuration opens directly into its settings, with Add in the
+- On desktop, a single configuration opens directly into its settings, with Add in the
   header. Preserve unsaved drafts when adding is cancelled, restore the editor
   position and focus, and invalidate saved-secret reveals while it is hidden.
   Multiple configurations keep a list in saved order.
+- Android keeps its existing native list and editor navigation when adding profile
+  management. Reuse its row density, typography and touch targets; do not copy
+  desktop action strips into a second row or redesign unrelated app surfaces.
+  A single saved profile remains a list entry, avoiding a Back-to-auto-open loop.
+  Use native single-choice indicators for profile selection. Keep selection and
+  editing distinct: tapping an already selected row leaves it selected; Settings
+  opens the editor. Do not crowd the name with repeated check/status text. Expose
+  the checked state to accessibility, and keep saved order stable.
 - With no configurations, show the service picker directly after a successful
   settings load. Keep one short next-step instruction, omit an intermediate
   empty page and cancel-to-empty action, and create only after confirmation.

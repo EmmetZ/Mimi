@@ -17,7 +17,7 @@ use mimi_runtime::{
             live_translate::LiveTranslateServerEvent,
             volcano_engine::{VolcanoEngineEndpoint, VolcanoEngineServerEvent},
         },
-        provider::{ProviderKind, ProviderPreferences, TextTranslation},
+        provider::{AlibabaRealtimeMode, ProviderKind, ProviderPreferences, TextTranslation},
         recovery::{
             advance_lifecycle_sequence_if_current, provider_error_is_retryable,
             provider_recovery_minimum_delay, MTBudgetContinuity, MTBudgetScope, RecoverySchedule,
@@ -562,7 +562,24 @@ pub fn exchange(request: &str) -> Result<String, &'static str> {
                 }
                 Err(_) => return Err("invalid_configuration"),
             };
-            let capabilities = provider.capabilities_for_route(route, target);
+            let mode: AlibabaRealtimeMode = value
+                .get("alibabaRealtimeMode")
+                .cloned()
+                .map(serde_json::from_value)
+                .transpose()
+                .map_err(|_| "invalid_configuration")?
+                .unwrap_or_default();
+            if mode != AlibabaRealtimeMode::Disabled && provider != ProviderKind::AlibabaCloud {
+                return Err("invalid_configuration");
+            }
+            let capabilities_for_target = |target| {
+                if mode != AlibabaRealtimeMode::Disabled {
+                    mode.capabilities()
+                } else {
+                    provider.capabilities_for_route(route, target)
+                }
+            };
+            let capabilities = capabilities_for_target(target);
             if value["operation"] == "normalize" {
                 let source: SourceLanguage = match serde_json::from_value(value["source"].clone()) {
                     Ok(language) => language,
@@ -574,9 +591,7 @@ pub fn exchange(request: &str) -> Result<String, &'static str> {
                     target_language: target,
                     translation_mode: TranslationMode::Turbo,
                 });
-                let normalized = provider
-                    .capabilities_for_route(route, first.target_language)
-                    .normalize(first);
+                let normalized = capabilities_for_target(first.target_language).normalize(first);
                 json!({"sourceLanguage":normalized.source_language,"targetLanguage":normalized.target_language})
             } else {
                 let pairs: serde_json::Map<String, Value> = capabilities
@@ -887,6 +902,49 @@ mod tests {
             "native_runtime_stale_handle"
         );
     }
+    #[test]
+    fn alibaba_mode_capabilities_and_normalization_use_shared_catalog() {
+        let request = json!({"operation":"capabilities", "provider":"alibabaCloud",
+            "route":"deepL", "target":"fr", "alibabaRealtimeMode":"liveTranslate"});
+        let response: Value =
+            serde_json::from_str(&exchange(&request.to_string()).unwrap()).unwrap();
+        let shared = AlibabaRealtimeMode::LiveTranslate.capabilities();
+        assert_eq!(response["sourceLanguages"], json!(shared.source_languages));
+        assert_eq!(response["targetLanguages"], json!(shared.target_languages));
+        assert_eq!(response["sampleRateHz"], json!(shared.input_sample_rate_hz));
+        let mut normalize = request.clone();
+        normalize["operation"] = json!("normalize");
+        normalize["source"] = json!("en");
+        let normalized: Value =
+            serde_json::from_str(&exchange(&normalize.to_string()).unwrap()).unwrap();
+        assert_eq!(
+            normalized,
+            json!({"sourceLanguage":"auto", "targetLanguage":"fr"})
+        );
+        let mut legacy = request.clone();
+        legacy
+            .as_object_mut()
+            .unwrap()
+            .remove("alibabaRealtimeMode");
+        let response: Value =
+            serde_json::from_str(&exchange(&legacy.to_string()).unwrap()).unwrap();
+        assert!(response["sourceLanguages"].as_array().unwrap().len() > 1);
+        for invalid in ["unknown", "asrMt"] {
+            let mut request = request.clone();
+            request["alibabaRealtimeMode"] = json!(invalid);
+            assert_eq!(
+                exchange(&request.to_string()).unwrap_err(),
+                "invalid_configuration"
+            );
+        }
+        let mut wrong_provider = request;
+        wrong_provider["provider"] = json!("tencentCloud");
+        assert_eq!(
+            exchange(&wrong_provider.to_string()).unwrap_err(),
+            "invalid_configuration"
+        );
+    }
+
     #[tokio::test]
     async fn native_finish_drains_current_reliable_pairs_but_not_stale_content_or_drafts() {
         // Instantiate the real shared factory/pipeline without connecting it.

@@ -11,8 +11,8 @@
 | 你想怎么用 | 对应选择 |
 | --- | --- |
 | 用一家服务完成识别和翻译 | [火山引擎](#volcano-engine)、[Gemini](#google-gemini)、[腾讯云](#tencent-cloud)、[百度](#baidu-translate)、[OpenAI](#openai-realtime)；已有 Azure 部署可用 [Azure OpenAI](#azure-openai) |
-| 用阿里云同声传译 | [同声传译](#alibaba-livetranslate)由同一个服务输出原文和译文；当前为桌面实验模式 |
-| 需要搭配 DeepL 等文字翻译服务 | [阿里云的「先识别，再翻译」](#alibaba-cloud)可单独更换翻译服务 |
+| 用阿里云同声传译 | [同声传译](#alibaba-livetranslate)由同一个服务输出原文和译文；当前开发版的桌面与安卓均支持 |
+| 需要搭配 DeepL 等文字翻译服务 | [阿里云的「ASR + MT」](#alibaba-cloud)可单独更换翻译服务 |
 | 在 Mac 本地处理 | [Apple Speech](#apple-speech)识别人声，[Apple 翻译](#apple-translation)翻译文字；需 Apple 芯片、macOS 26+ 和对应语言包 |
 | 已有自己的识别接口 | [自定义识别](#custom-recognition)，文字翻译另选；必须支持相应的实时语音协议 |
 | 使用 xAI 账号 | [xAI Grok](#xai-grok)按讲话停顿分段翻译 |
@@ -25,7 +25,7 @@
 
 ## 在 Mimi 中完成配置
 
-1. 停止字幕，打开「**设置 → 模型与服务**」，添加对应服务的配置。
+1. 停止字幕，在桌面的「**设置 → 模型与服务**」或安卓的「**服务**」中添加配置。首次使用直接选择服务；已有配置时点击「添加配置」。
 2. 按下文获取凭证，在对应字段分别填写并保存。凭证不需要拼成 JSON，也不要把整段示例代码粘进去。
 3. 选择识别语言和翻译语言，运行配置旁的连接检查。使用独立文字翻译时，分别检查识别与翻译。
 4. 播放一小段包含人声的内容，再开启「实时字幕」确认实际出字。连接检查通过只说明该次检查成功，不代表所有语言或长时间使用都已验证。
@@ -63,29 +63,27 @@
 1. 登录阿里云，按控制台要求完成实名认证，在百炼中选择**华北 2（北京）**，按提示开通该地域的模型服务。
 2. 在北京地域进入 API Key 管理，使用要调用的业务空间下已有的可用 Key；不需要为每个模型单独创建 Key。
 3. 如果业务空间或 Key 限制了可调用模型，确认下表中的实际模型已获授权。
-4. 在 Mimi 添加 **阿里云**。使用同声模式时，按[下方步骤](#alibaba-livetranslate)填写业务空间 ID 和 Key；选择「先识别，再翻译」时，在「语音识别 → API Key」填入 Key。此模式的内置文字翻译使用同一百炼凭证。
+4. 在 Mimi 添加 **阿里云**。使用同声模式时，按[下方步骤](#alibaba-livetranslate)填写业务空间 ID 和 Key；选择「ASR + MT」时，在「语音识别 → API Key」填入 Key。此模式的内置文字翻译使用同一百炼凭证。
 
 | 使用方式 | 当前需要的模型权限 |
 | --- | --- |
-| 桌面端「先识别，再翻译」 | `qwen-audio-3.0-asr-flash-streaming` 和 `qwen-mt-lite` |
-| 桌面端使用独立文字翻译或跳过翻译 | 识别仍使用 `qwen-audio-3.0-asr-flash-streaming`；翻译按所选服务配置 |
-| 桌面端 LiveTranslate 同声 | 所选北京业务空间中的 `qwen3.8-livetranslate-flash-realtime` |
-| Android 默认识别 + 翻译 | `qwen-audio-3.0-asr-flash-streaming` 和 `qwen-mt-lite`（与桌面分步模式共享实现） |
-| Android 使用独立文字翻译或不翻译 | `qwen-audio-3.0-asr-flash-streaming`；翻译按所选服务配置 |
+| ASR + MT | `qwen-audio-3.0-asr-flash-streaming` 和 `qwen-mt-lite` |
+| ASR + MT 使用独立文字翻译或跳过翻译 | 识别仍使用 `qwen-audio-3.0-asr-flash-streaming`；翻译按所选服务配置 |
+| 同声传译 | 所选北京业务空间中的 `qwen3.8-livetranslate-flash-realtime` |
 
-这里需要的是**百炼 / DashScope API Key**，不要填阿里云 AccessKey ID / AccessKey Secret。「先识别，再翻译」使用 `dashscope.aliyuncs.com`，LiveTranslate 使用北京业务空间专属域名；两者均没有地域或端点输入框，其他地域的 Key 不能直接混用。地域对应关系见[官方地域说明](https://help.aliyun.com/zh/model-studio/regions)，平台差异见[平台差异（英文）](development/platform-parity.md)。
+这里需要的是**百炼 / DashScope API Key**，不要填阿里云 AccessKey ID / AccessKey Secret。「ASR + MT」使用 `dashscope.aliyuncs.com`，LiveTranslate 使用北京业务空间专属域名；两者均没有地域或端点输入框，其他地域的 Key 不能直接混用。地域对应关系见[官方地域说明](https://help.aliyun.com/zh/model-studio/regions)，平台差异见[平台差异（英文）](development/platform-parity.md)。
 
 计费：语音识别和翻译都可能产生费用。更换文字翻译服务后，云端识别仍会产生用量，是否扣费取决于识别模型的试用余量和计费状态。查看[百炼模型计费](https://help.aliyun.com/zh/model-studio/model-pricing)及所用模型的试用状态。
 
 <a id="alibaba-livetranslate"></a>
 
-### 在桌面端配置同声传译
+### 配置同声传译（桌面与安卓）
 
-当前源码中的「**同声传译**」是桌面实验模式，使用阿里云 LiveTranslate 模型 `qwen3.8-livetranslate-flash-realtime`，在同一音频会话中返回原文和译文，只显示文字，不播放译音。目前支持**北京地域、自动识别源语言、60 种文字翻译目标及只显示原文**。已有「先识别，再翻译」配置保持不变，Android 暂无选择入口。
+当前源码中的「**同声传译**」在桌面和安卓中使用共享实现，使用阿里云 LiveTranslate 模型 `qwen3.8-livetranslate-flash-realtime`，在同一音频会话中返回原文和译文，只显示文字，不播放译音。目前支持**北京地域、自动识别源语言、60 种文字翻译目标及只显示原文**。已有「ASR + MT」配置保持不变。
 
-1. 打开[北京业务空间管理](https://bailian.console.aliyun.com/cn-beijing/settings/workspace)和 [API Key 管理](https://bailian.console.aliyun.com/cn-beijing/model/settings/api-key)，也可以在 Mimi 的阿里设置中点击「**获取业务空间 ID**」「**获取 API Key**」。复制现有业务空间 ID 和同一空间的 Key。若看到 `llm-xxx.cn-beijing.maas.aliyuncs.com` 这样的 API Host，ID 只填 `llm-xxx`；已保存的匹配 Key 可以复用。
-2. 停止字幕，在「**设置 → 模型与服务 → 阿里云 → 识别与翻译**」选择「**同声传译**」，填入业务空间 ID、API Key，保存并选用该配置。
-3. 识别语言选「**自动识别**」，在界面可选项中选择所需翻译语言，播放一小段非敏感样本，再开启「**实时字幕**」，试完后停止。「先识别，再翻译」仍可选，切回后会恢复已保存的独立文字翻译服务。
+1. 打开[北京业务空间管理](https://bailian.console.aliyun.com/cn-beijing/settings/workspace)和 [API Key 管理](https://bailian.console.aliyun.com/cn-beijing/model/settings/api-key)，桌面也可以在阿里设置中点击「**获取业务空间 ID**」「**获取 API Key**」。复制现有业务空间 ID 和同一空间的 Key。若看到 `llm-xxx.cn-beijing.maas.aliyuncs.com` 这样的 API Host，ID 只填 `llm-xxx`；已保存的匹配 Key 可以复用。
+2. 停止字幕，桌面打开「**设置 → 模型与服务**」，安卓打开「**服务**」，添加或编辑阿里云配置，选择「**同声传译**」，填入业务空间 ID、API Key，保存并选用该配置。
+3. 识别语言选「**自动识别**」，在界面可选项中选择所需翻译语言，播放一小段非敏感样本，再开启「**实时字幕**」，试完后停止。「ASR + MT」仍可选，切回后会恢复已保存的独立文字翻译服务。
 
 若提示无权限，检查业务空间中该模型的「模型调用」权限，以及 Key 的自定义模型范围和 IP 限制。**API 调用可能收费**，开始前查看试用余量、有效期和付费状态。「原文」只隐藏译文，仍可能产生翻译用量。连接检查不代表字幕质量或长会话稳定性已经验证。
 
@@ -234,7 +232,7 @@ Apple Speech 只在**Apple 芯片、macOS 26 或更新版本、系统识别引�
 
 ## 独立文字翻译
 
-桌面端的 **阿里云的「先识别，再翻译」、Apple Speech、两种自定义识别**支持独立文字翻译。其他内置语音服务使用各自的翻译链路。Android 目前只在阿里云配置中提供独立文字翻译。
+桌面端的 **阿里云的「ASR + MT」、Apple Speech、两种自定义识别**支持独立文字翻译。其他内置语音服务使用各自的翻译链路。Android 目前只在阿里云配置中提供独立文字翻译。
 
 先在「语音识别」部分完成配置，再在「文字翻译」选择服务。选择 DeepL、DeepLX、ChatMock 或 OpenAI 兼容接口时，Mimi 不会拿识别 Key 代替翻译凭证。默认阿里云翻译已在[阿里云章节](#alibaba-cloud)说明。
 
@@ -356,7 +354,7 @@ Android 的八个内置云语音服务使用上文对应凭证，但没有 Apple
 | Apple Speech | macOS `SpeechTranscriber` 与已下载语言包；文字翻译单独配置 | 选择本机语言包；无云端模型 ID |
 | 自定义 DashScope / OpenAI Realtime 识别 | 识别使用用户填入的模型 ID；文字翻译单独配置 | 端点、模型与识别 Key 均由用户填写 |
 
-阿里云「先识别，再翻译」的内置文字翻译默认使用 `qwen-mt-lite`，不会因识别语言不同自动切换到 `qwen-mt-flash` 或 `qwen-mt-plus`。该模式的识别经 WebSocket 持续送入音频，远程独立文字翻译通过 HTTP 发送识别文字，Apple 翻译则在本地执行；更换文字翻译不会更换识别模型。
+阿里云「ASR + MT」的内置文字翻译默认使用 `qwen-mt-lite`，不会因识别语言不同自动切换到 `qwen-mt-flash` 或 `qwen-mt-plus`。该模式的识别经 WebSocket 持续送入音频，远程独立文字翻译通过 HTTP 发送识别文字，Apple 翻译则在本地执行；更换文字翻译不会更换识别模型。
 
 模型与路由依据：[桌面新建配置与旧配置](../src-tauri/src/settings_store.rs) · [共享服务选择](../shared/mimi-runtime/src/clients/translation_client.rs) · [当前翻译模式](../shared/mimi-runtime/src/core/configuration.rs) · [各家协议实现](../shared/mimi-runtime/src/core/protocols/) · [Qwen-MT 默认模型](../shared/mimi-runtime/src/core/protocols/qwen_mt.rs)
 

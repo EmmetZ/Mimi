@@ -53,9 +53,9 @@ Shared wire fixtures are consumed by desktop Rust and Android tests. The encodab
 
 ### Recheck — 2026-10-13
 
-The Android Alibaba row in the October 6 audit is historical. Current Android and desktop’s Recognize, then translate mode both use Audio3 + Qwen-MT through the shared factory; see [current models](provider-setup.md#current-models). Android has no LiveTranslate mode selector.
+The Android Alibaba row in the October 6 audit is historical. Current Android and desktop’s Recognize, then translate mode both use Audio3 + Qwen-MT through the shared factory; see [current models](provider-setup.md#current-models). Both platforms now expose the LiveTranslate mode and workspace editor.
 
-Desktop Alibaba LiveTranslate uses `qwen3.8-livetranslate-flash-realtime` with
+Desktop and Android Alibaba LiveTranslate use `qwen3.8-livetranslate-flash-realtime` with
 automatic source detection and **60 text translation targets plus Original**.
 The initial desktop experiment's Chinese/English-only gate was narrower than
 the [current official text-output catalog](https://help.aliyun.com/zh/model-studio/qwen3-5-livetranslate-flash-realtime#supported-languages).
@@ -113,9 +113,9 @@ No real/paid provider requests or audio capture were made for this recheck.
 
 ### 2026-10-13 复核
 
-10 月 6 日审计中的 Android 阿里模型描述属于历史状态。当前 Android 与桌面的「先识别，再翻译」模式均通过共享工厂使用 Audio3 + Qwen-MT，见[当前模型](provider-setup.zh-CN.md#current-models)；Android 暂无 LiveTranslate 模式入口。
+10 月 6 日审计中的 Android 阿里模型描述属于历史状态。当前 Android 与桌面的「先识别，再翻译」模式均通过共享工厂使用 Audio3 + Qwen-MT，见[当前模型](provider-setup.zh-CN.md#current-models)；两端现均提供 LiveTranslate 模式与业务空间设置。
 
-桌面阿里同声实际使用 `qwen3.8-livetranslate-flash-realtime`，输入自动识别，
+桌面与安卓阿里同声实际使用 `qwen3.8-livetranslate-flash-realtime`，输入自动识别，
 字幕翻译支持官方 60 种文本目标及「只显示原文」。原先仅中英的实验限制已移除；
 只请求文本，因此不受语音输出语种子集限制。挪威语 `no`、菲律宾语 `tl` 分别发送
 `nb`、`fil`。DeepLX 来源补齐此前遗漏的六个地区／繁体中文选项，共 38 个，

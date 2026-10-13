@@ -1,3 +1,4 @@
+import { PROVIDER_COPY } from "../../lib/generated/providerCopy";
 import { useRef, useState } from "react";
 import { effectiveUiLanguage, I18N } from "../../lib/i18n";
 import type { AlibabaRealtimeMode, ServiceProfile } from "../../lib/types";
@@ -8,14 +9,14 @@ import { SettingsHelp } from "./SettingsHelp";
 import { InlineFeedback, SettingsSelect } from "./SettingsPrimitives";
 
 const copy = {
-  zh: { chainDescription: "可更换翻译服务", liveTranslateDescription: "边听边译，同时输出原文和译文。", saved: "已保存测试模式。", save: "保存", label: "识别与翻译", chain: "先识别，再翻译", simultaneous: "同声传译", workspace: "百炼北京业务空间 ID", help: "测试功能，仅北京业务空间；自动识别，60 种翻译语言。停止字幕后切换。", workspaceHelp: "复制业务空间 ID；API Host 只填 llm-xxx 部分。", failed: "测试模式保存失败，请检查业务空间 ID 后重试。" },
-  "zh-TW": { chainDescription: "可更換翻譯服務", liveTranslateDescription: "邊聽邊譯，同時輸出原文和譯文。", saved: "已儲存測試模式。", save: "儲存", label: "辨識與翻譯", chain: "先辨識，再翻譯", simultaneous: "同聲傳譯", workspace: "百煉北京業務空間 ID", help: "測試功能，僅北京業務空間；自動辨識，60 種翻譯語言。停止字幕後切換。", workspaceHelp: "複製業務空間 ID；API Host 只填 llm-xxx 部分。", failed: "測試模式儲存失敗，請檢查業務空間 ID 後重試。" },
-  en: { chainDescription: "Choose a different translation service", liveTranslateDescription: "Translates incoming audio, returning original text and translation together.", saved: "Test mode saved.", save: "Save", label: "Recognition and translation", chain: "Recognize, then translate", simultaneous: "Simultaneous translation", workspace: "Model Studio Beijing workspace ID", help: "Experimental: Beijing workspace, automatic recognition, 60 text translation languages. Stop subtitles before switching.", workspaceHelp: "Copy the workspace ID; for API Host, use only llm-xxx.", failed: "Could not save the test mode. Check the workspace ID and retry." },
-  ja: { chainDescription: "翻訳サービスを変更可能", liveTranslateDescription: "聞きながら翻訳し、原文と訳文を同時に出力。", saved: "テストモードを保存しました。", save: "保存", label: "認識と翻訳", chain: "音声認識してから翻訳", simultaneous: "同時通訳", workspace: "Model Studio 北京ワークスペース ID", help: "テスト機能。北京ワークスペース、自動認識、60言語へのテキスト翻訳。字幕を停止してから切り替え。", workspaceHelp: "ワークスペース ID をコピー。API Host は llm-xxx の部分のみ。", failed: "保存できませんでした。ワークスペース ID を確認して再試行してください。" },
-  de: { chainDescription: "Übersetzungsdienst frei wählbar", liveTranslateDescription: "Übersetzt Audio laufend, mit Originaltext und Übersetzung zugleich.", saved: "Testmodus gespeichert.", save: "Speichern", label: "Erkennung und Übersetzung", chain: "Erst erkennen, dann übersetzen", simultaneous: "Simultanübersetzung", workspace: "Model Studio Beijing Workspace-ID", help: "Testfunktion: Beijing, automatische Erkennung, 60 Übersetzungssprachen. Untertitel vor dem Wechsel stoppen.", workspaceHelp: "Workspace-ID kopieren; bei API Host nur den Teil llm-xxx verwenden.", failed: "Testmodus konnte nicht gespeichert werden. Workspace-ID prüfen und erneut versuchen." },
-  ko: { chainDescription: "번역 서비스 변경 가능", liveTranslateDescription: "들으면서 번역하고 원문과 번역문을 함께 출력.", saved: "테스트 모드를 저장했습니다.", save: "저장", label: "인식 및 번역", chain: "음성 인식 후 번역", simultaneous: "동시통역", workspace: "Model Studio 베이징 워크스페이스 ID", help: "테스트 기능: 베이징, 자동 인식, 60개 텍스트 번역 언어. 변경 전 자막을 중지하세요.", workspaceHelp: "워크스페이스 ID를 복사하세요. API Host는 llm-xxx 부분만 입력하세요.", failed: "저장하지 못했습니다. 워크스페이스 ID를 확인한 후 다시 시도하세요." },
-  fr: { chainDescription: "Service de traduction modifiable", liveTranslateDescription: "Traduit l’audio en continu, avec original et traduction ensemble.", saved: "Mode de test enregistré.", save: "Enregistrer", label: "Reconnaissance et traduction", chain: "Reconnaissance puis traduction", simultaneous: "Traduction simultanée", workspace: "ID d’espace Model Studio Beijing", help: "Expérimental : Beijing, reconnaissance automatique, 60 langues de traduction. Arrêtez les sous-titres avant de changer.", workspaceHelp: "Copiez l’ID d’espace ; pour API Host, utilisez seulement llm-xxx.", failed: "Échec de l’enregistrement. Vérifiez l’ID d’espace et réessayez." },
-  th: { chainDescription: "เปลี่ยนบริการแปลได้", liveTranslateDescription: "ฟังและแปล พร้อมส่งต้นฉบับและคำแปล", saved: "บันทึกโหมดทดสอบแล้ว", save: "บันทึก", label: "การรู้จำและแปล", chain: "รู้จำเสียงก่อนแปล", simultaneous: "แปลพร้อมเสียง", workspace: "ID เวิร์กสเปซ Model Studio ปักกิ่ง", help: "ฟีเจอร์ทดสอบ: ปักกิ่ง รู้จำอัตโนมัติ แปลข้อความ 60 ภาษา หยุดคำบรรยายก่อนเปลี่ยน", workspaceHelp: "คัดลอก ID เวิร์กสเปซ หากเป็น API Host ให้ใช้เฉพาะส่วน llm-xxx", failed: "บันทึกไม่ได้ ตรวจสอบ ID เวิร์กสเปซแล้วลองอีกครั้ง" },
+  zh: { saved: "已保存。", save: "保存", failed: "保存失败，请检查业务空间 ID 后重试。" },
+  "zh-TW": { saved: "已儲存。", save: "儲存", failed: "儲存失敗，請檢查業務空間 ID 後重試。" },
+  en: { saved: "Saved.", save: "Save", failed: "Could not save. Check the workspace ID and retry." },
+  ja: { saved: "保存しました。", save: "保存", failed: "保存できませんでした。ワークスペース ID を確認して再試行してください。" },
+  de: { saved: "Gespeichert.", save: "Speichern", failed: "Speichern fehlgeschlagen. Workspace-ID prüfen und erneut versuchen." },
+  ko: { saved: "저장했습니다.", save: "저장", failed: "저장하지 못했습니다. 워크스페이스 ID를 확인한 후 다시 시도하세요." },
+  fr: { saved: "Enregistré.", save: "Enregistrer", failed: "Échec de l’enregistrement. Vérifiez l’ID d’espace et réessayez." },
+  th: { saved: "บันทึกแล้ว", save: "บันทึก", failed: "บันทึกไม่ได้ ตรวจสอบ ID เวิร์กสเปซแล้วลองอีกครั้ง" },
 };
 
 export function AlibabaRealtimeSettings({ profile, disabled, onSave }: {
@@ -23,7 +24,19 @@ export function AlibabaRealtimeSettings({ profile, disabled, onSave }: {
   disabled: boolean;
   onSave: (mode: AlibabaRealtimeMode, workspaceId: string, savedMessage: string) => Promise<unknown>;
 }) {
-  const strings = copy[effectiveUiLanguage()];
+  const language = effectiveUiLanguage();
+  const common = PROVIDER_COPY[language];
+  const strings = {
+    ...copy[language],
+    chainDescription: common.alibabaAsrMtDescription,
+    liveTranslateDescription: common.alibabaLiveDescription,
+    label: common.alibabaModeLabel,
+    chain: common.alibabaAsrMtLabel,
+    simultaneous: common.alibabaLiveLabel,
+    workspace: common.alibabaWorkspaceLabel,
+    help: common.alibabaModeHelp,
+    workspaceHelp: common.alibabaWorkspaceHelp,
+  };
   const savedMode: AlibabaRealtimeMode = profile.alibabaRealtimeMode === "liveTranslate" ? "liveTranslate" : "disabled";
   const savedWorkspace = profile.alibabaWorkspaceId ?? "";
   const [mode, setMode] = useState<AlibabaRealtimeMode>(savedMode);

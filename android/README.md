@@ -10,7 +10,7 @@ stream, or class with the original text, translation, or both on screen.
 ## Start here
 
 1. [Download the Android APK](https://github.com/yuxino/mimi/releases/latest) and install it on Android 10 or later.
-2. Open **Services**, choose a service, enter its credentials, and save. The [service setup guide](../docs/provider-setup.md#choose) explains where to get them; cloud usage may cost money.
+2. Open **Services → Add**, choose a service, enter its credentials, and save. The first configuration is selected automatically; tap a saved configuration to switch later. The [service setup guide](../docs/provider-setup.md#choose) explains where to get them; cloud usage may cost money.
 3. In **Captions**, choose the spoken and translation languages, then start. Allow display over other apps, audio recording, and the system capture prompt when asked.
 4. Switch to the app you want to hear and play speech. Subtitles appear over it; use Immersive Mode to keep just the text and pass touches through.
 
@@ -47,11 +47,11 @@ code does not prove availability on every device; see [verification status](#ver
   Azure OpenAI, Volcano Engine Doubao, Tencent Cloud, Baidu realtime translation and xAI Grok Voice.
   Their production clients are shared with desktop. Grok is turn-based voice translation;
   generated audio is discarded. Each service has its own encrypted credential fields and supported language choices.
-- **Configuration** — tap a configured service to switch, or open its settings to edit. Azure requires a
+- **Configuration** — save multiple named configurations, including more than one for the same service. Each keeps its own credentials and text translator. Tap a configuration to select it; Settings edits it without switching. Duplicate and Delete are in the editor’s More menu. Stop captions before changing configurations. Azure requires a
   resource endpoint and translation/transcription deployment names; Tencent requires AppID, SecretID and
   SecretKey; Baidu requires AppID and AppKey. Other services use an API key. Built-in service models,
   endpoints and language capabilities follow the shared factory. Stored secrets are not filled back into the editor;
-  leaving a secret field empty preserves its saved value. Changes are written only with Save and use.
+  leaving a secret field empty preserves its saved value. Changes are written only with Save; backing out of a new editor adds nothing. Existing service settings migrate automatically.
 - **Subtitle overlay** — one `TYPE_APPLICATION_OVERLAY` reading panel with
   current source and translation. Drag its top handle to move it and its corner
   to resize width and height. Confirmed lines appear only when bounded history
@@ -80,11 +80,10 @@ code does not prove availability on every device; see [verification status](#ver
   for Audio3 + text translation and sentence-identified realtime previews for
   integrated live clients. New sentence identities never borrow old final lines;
   the current complete pair remains available independently of saved history.
-- **Alibaba Cloud** — Audio3 recognition with Qwen-MT Lite/Flash/Plus or an
-  independent text translator; Lite is the default. Historical built-in custom
+- **Alibaba Cloud** — choose simultaneous translation or ASR + MT. New configurations start with simultaneous translation; existing ones keep ASR + MT. Both modes use the desktop runtime. Follow the shared [Alibaba setup guide](../docs/provider-setup.md#alibaba-livetranslate) for workspace and key requirements. ASR + MT uses Audio3 with Qwen-MT Lite/Flash/Plus or an independent text translator; Lite is the default. Historical built-in custom
   endpoint/model/hotword keys are retained without enabling unsupported overrides.
 - **Credentials** — EncryptedSharedPreferences (Android Keystore master key),
-  scoped by provider.
+  stored separately from profile metadata and isolated per configuration.
 - **History privacy** — disabled by default; opting into history retains only a bounded
   in-memory list. Disabling it or stopping the session clears retained subtitles.
 - **Interface language** — More offers Follow system and the same eight interface
@@ -180,8 +179,8 @@ The Android interface reuses Mimi's existing character artwork and neutral
 light/dark palette. Subtitle source and target languages can be changed directly on the home screen with Undo. Tapping the
 subtitle sample opens appearance settings, where changes are saved automatically
 and previewed without capture or a network session. The appearance screen also
-previews normal and immersive text. The service tab lists all eight integrations and opens a separate editor with only that service’s fields.
-Credentials require explicit Save and use; changing appearance never saves credentials. Your own service credentials are still required for real translation.
+previews normal and immersive text. The service tab lists saved configurations. Add opens the service picker; each configuration has a separate editor.
+Credentials require explicit Save; changing appearance never saves credentials. Your own service credentials are still required for real translation.
 
 The main page groups Captions, Services and More. Captions offers live
 original/translation/bilingual display, alignment, width, height, font, color and opacity controls.
@@ -231,7 +230,7 @@ changed preferences. Include narrow/large-font and wide native layouts.
 The checks exercise quick language selection/Undo, direct appearance access,
 auto-save with actual touch gestures, all eight service editors, write-only secret fields, rejected incomplete configurations, history clearing and the
 keyboard. Changed non-secret preferences are restored in a finally block; provider
-drafts are discarded without Save and use. No provider or audio capture session starts. Screenshots contain sample subtitles and empty key
+drafts are discarded without Save. No provider or audio capture session starts. Screenshots contain sample subtitles and empty key
 fields and are written to the app's external `files/ui-preview` directory. Pass
 `-e overlay_interaction true` on a blank idle device for actual two-dimensional
 resize/drag, live quick settings without a duplicate preview, all alignments,
@@ -258,7 +257,7 @@ In Services → Alibaba Cloud, **Text translation** offers the built-in translat
 **DeepL**, **DeepLX**, **ChatMock**, **OpenAI-compatible API**, and **No translation (original only)**.
 Independent modes use Alibaba Cloud's `qwen3-asr-flash-realtime` for recognition; the selected
 text service translates confirmed text. Original-only mode makes no text translation request.
-Enable that ASR model for your Alibaba key. Other speech providers keep their built-in translation. This is not an OpenAI Realtime endpoint override.
+Choose **ASR + MT** in the Alibaba configuration and enable that ASR model for its key. Other speech providers keep their built-in translation. This is not an OpenAI Realtime endpoint override.
 
 - **DeepL** needs a separate DeepL API key. Mimi chooses the official Free endpoint for
   keys ending in `:fx`, otherwise the Pro endpoint. No custom URL or model is needed.
@@ -292,7 +291,7 @@ tcp:8000 tcp:8000` can make the computer's local ChatMock service available at
 Mimi's API key; account login stays in your ChatMock installation.
 
 **Test translation** sends a fixed example through the same HTTP path as subtitles and
-shows elapsed milliseconds. It does not save the draft or send system audio. **Save and use**
+shows elapsed milliseconds. It does not save the draft or send system audio. **Save**
 commits both stages; back discards changes. Translation keys have independent encrypted
 storage and are not reused when the destination changes. Help icons open the requirements
 without persistent explanatory paragraphs in the editor.
