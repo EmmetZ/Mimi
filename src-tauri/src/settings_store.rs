@@ -6922,6 +6922,35 @@ mod tests {
     }
 
     #[test]
+    fn playback_stream_selection_persists_only_identity_and_revokes_recording_consent() {
+        use crate::core::system_audio_target::SystemAudioTarget;
+        for input in [AudioInput::System, AudioInput::Microphone, AudioInput::Both] {
+            let mut preferences = Preferences {
+                audio_input: input,
+                record_session_audio: true,
+                ..Default::default()
+            };
+            let target = SystemAudioTarget::Application {
+                id: "opaque-stream-lifetime".into(),
+                name: "App · stream".into(),
+            };
+            preferences.apply_system_audio_target(target.clone());
+            assert!(!preferences.record_session_audio);
+            assert_eq!(preferences.audio_input, input);
+            let value = serde_json::to_value(&preferences).unwrap();
+            assert_eq!(value["system_audio_target"]["kind"], "application");
+            let restored: Preferences = serde_json::from_value(value).unwrap();
+            assert_eq!(restored.system_audio_target, target);
+            preferences.record_session_audio = true;
+            preferences.apply_system_audio_target(target);
+            assert!(
+                preferences.record_session_audio,
+                "repeating an unchanged selection is a no-op"
+            );
+        }
+    }
+
+    #[test]
     fn audio_input_legacy_default_and_explicit_selection_round_trip() {
         let legacy: super::Preferences = serde_json::from_str("{}").unwrap();
         assert_eq!(legacy.audio_input, AudioInput::System);

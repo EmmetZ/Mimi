@@ -1163,12 +1163,21 @@ impl SessionManager {
 
     pub async fn audio_applications(
         &self,
+        cached_only: bool,
     ) -> Result<
         crate::audio::applications::ApplicationSnapshot,
         crate::audio::SystemAudioCaptureError,
     > {
         let capture = self.lane(AudioSource::System).audio.lock().unwrap().clone();
-        capture.audio_applications().await
+        capture
+            .audio_applications(
+                self.settings
+                    .preferences()
+                    .ui_language
+                    .unwrap_or_else(|| "system".into()),
+                cached_only,
+            )
+            .await
     }
 
     pub fn capture_status(&self) -> crate::audio::CaptureStatus {

@@ -16,6 +16,22 @@ regressions; production capture and the text connection-check button use Rust.
 `shared/translation-contracts.json` and `shared/realtime-display-contracts.json`
 provide common synthetic wire and display cases.
 
+## Native audio target differences
+
+| Platform | Selected system-audio target | Identity |
+| --- | --- | --- |
+| macOS | Application | Existing native application selection |
+| Windows | Application on supported process-loopback versions | Live PID and creation time |
+| Linux | One playback stream through PulseAudio / PipeWire-Pulse | Opaque connection/stream-lifetime token |
+| Android | Existing platform playback capture | No Linux stream picker or desktop application selection |
+
+Linux never groups streams by application or reroutes playback. Deleted streams,
+server disconnects and app restarts require explicit reselection. A live stream
+moving outputs uses desktop capture recovery. Desktop system/microphone lanes,
+pause, target switching, confirmed subtitles and recording consent retain their
+common implementation. Discovery and capture remain native adapters, separate
+from shared provider/translation rules.
+
 ## Preventing maintenance forks
 
 A desktop business fix belongs in the shared crates, so an Android build uses
