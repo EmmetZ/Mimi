@@ -4,6 +4,109 @@
 实测范围和未解决项；条目是历史证据，后续任务仍须核对当前源码与设备。
 不写密钥、音频、字幕正文或个人目录，不把临时日志当作已持久归档的案例。
 
+## 2026-10-13：Android 多配置与原文回露
+
+- 基于 `6df632d4` 的 1.6.0 候选工作区增量，Android debug 构建；API 35
+  模拟器的独立临时用户使用合成凭证，未启动采集或连接云服务。
+- 多配置覆盖零／一／多项、取消新建、同服务独立密钥和翻译草稿、模式切换、
+  编辑不切换、复制、删除确认与当前项回退、运行／停止期间禁用、损坏目录
+  显示错误及重试。切换后回字幕页同步配置名和模型摘要。初版整排操作被
+  用户否定，已恢复 Android 原有横向列表；不把功能通过当作视觉接受。
+- 后续用户否定名称旁叠加状态文字，改为原生单选圆点，选择与设置分开。
+  已选项再点保持选中；浅／深色中文、德语窄屏大字体复测通过，无障碍
+  暴露 checked 状态。前面的八语言检查针对列表恢复版，不代替最终视觉接受。
+- 截图须等待解锁和实际窗口焦点；删除后等待列表 Activity 恢复，避免把
+  锁屏图或生命周期尚未完成的断言当作产品结论。截图通过测试应用私有
+  文件导出，不需要模拟器 root。
+- `asr-mt-differential-v1` 原生十帧固定样例在修复前绘制 35 次：译文修短
+  后，未变原文的首个可见行从 2 回退到 1。修复后同样例与重置检查共
+  绘制 81 次，首行保持 2；原文预算变化从 3 次减为 1 次，译文底边
+  保持 225 px，无字形裁切。原文基线仍随译文高度移动，本轮仅修复旧行
+  回露，不声称解决所有跳动。文本、尺寸、字体、模式及手动历史重置通过。
+- Canonical 检查通过；随后 Android 渲染／导航细化通过 Debug 和 Release
+  各 230 项 JVM 测试（含实际 JNI）、两套 lint 和开发 APK 构建。原生
+  配置操作覆盖八种界面语言、深色及窄屏大字体；独立翻译的 15 张原生
+  表单／保存回归也通过。截图保留在本轮本机取证目录；生产配置未参与
+  破坏性用例。
+- 未覆盖真实阿里云音频链路、实体 Android 或升级安装验收；下一项是使用
+  用户指出的内置阿里 ASR + MT 配置，按同一有界样本核对实播阅读体验。
+  旧 macOS 候选包对应 `6df632d4`，不能作为这些新增改动的发布包。
+
+## 2026-10-13：服务说明语义与分行
+
+- 源为 `69284b75` 加本次说明调整。对照共享协议、服务能力与凭证字段，
+  补齐各服务的工作方式、Azure 部署要求及独立翻译边界；xAI 用说话停顿
+  后分段翻译解释回合式行为。八种语言按语义分行，Apple 本地识别含义保留。
+- 自定义识别初选说明用途，确认页和编辑页保留完整协议要求。签名开发版
+  热预览确认选择页说明、Azure 两行提示无裁切及 DashScope 确认页协议内容；
+  没有确认创建配置、切换服务、启动采集或发起连接检查。
+- 前端定向检查通过（107 个文件、1,839 项测试）；未新增服务质量、
+  Windows/Linux 原生或 Android 验收证据。
+
+## 2026-10-13：正常状态静默与当前配置置顶
+
+- 后续用户取消置顶：最终保持保存顺序，切换只更新当前状态。以
+  `e3e79384` 为源继续调整操作层级：当前状态替代同位置的灰色「使用」，
+  常用操作与复制／删除分组；有待恢复的语言预设仍保留有效的使用入口。
+  原生热预览确认使用中的火山引擎留在原位置、仅有一个当前标记、未配置
+  提示保留。233 项相关前端测试和 576 组几何检查通过；未操作真实切换。
+
+- 用户纠正：正常已保存状态不值得占用列表或问号；只提示需要处理的
+  未配置／异常状态。取代上一轮把正常凭证状态收进帮助的设计。
+- 测试源为 `8ff33101` 加本次修正：移除正常凭证帮助与重复状态朗读，
+  当前配置展示在首项，其他配置保持原始顺序，不写回排序；按已确认的
+  activeProfileId 更新，包括切换被拒绝及配置已保存但重连失败的路径。
+- 签名开发版热更新后确认真实当前配置置顶、正常问号消失、底部缺少凭证
+  提示仍可见。未切换真实服务或修改凭证。类型、lint 和 233 项相关前端
+  测试通过；未重跑跨层验收，没有新增 Windows/Linux 原生设备证据。
+
+## 2026-10-13：配置列表密度与身份层级
+
+- 测试源为预发布设置分支 `2158c2ea` 加本次配置列表改动。四项显式操作
+  保持单排，空间不足时整组换行；最窄列表省去操作图标并保留完整文字。
+  取消会撑高普通行的两列操作块；识别图标与名称对齐，绘图尺寸与图标槽
+  同为 24px。默认名称不再重复识别服务，独立翻译和自定义识别名称保留。
+- 正常凭证说明收进名称旁帮助，当前配置标记移到名称旁；缺少／不可用
+  凭证保持可见。未改变选择、复制、删除、会话保护或凭证读写行为。
+- 当前签名 `dev-app.sh --watch` 原生热预览检查了真实 11 项列表、进入
+  编辑再返回、键盘聚焦的凭证说明浮层。没有重启开发版、启动采集或发起
+  连接检查。主观视觉接受仍等待用户反馈。
+- 定向前端检查：类型、lint、232 项相关测试通过；最初扩展到共享图标
+  的测试中，其余 396 项亦通过，旧列表断言已在定向复测中修正。
+  最后的空行问题已修复并通过 `git diff --check`，未重复完整跨层检查。
+- 离线布局夹具：520／828／952／1600px、八种语言、两种主题、三种平台
+  控件与 idle／paused／确认弹窗共 576 组通过。补充目视检查英文深色最小
+  窗口、日文默认窗口、中文大窗口的混合服务、长名称、语言组合和缺少凭证。
+  图标不侵入名称、四个操作保持同排已纳入既有几何回归。
+- Windows/Linux 仅为浏览器夹具，不构成原生设备验收；没有 Android 或
+  新的识别／翻译质量验收。本改动仍依赖未并入 main 的预发布设置重构。
+
+## 2026-10-13：宽屏设置与选择器图标
+
+- 测试源为预发布设置重构 `f431df0d` 加本次未提交修复：共享设置框从
+  左对齐、最大 960px 改为居中、最大 1200px；声音与语言的配置选择器
+  补齐当前值和选项的服务图标，沿用浮窗的旧 DeepLX 配置识别图标映射。
+- macOS 应用图标从 32px 改为 64px PNG，覆盖 20 CSS px 的 Retina
+  显示；原有单图和总缓存上限保持不变。用户反馈第一版仅缩小喇叭仍不协调，
+  最终改为 18px 中性圆角底框内的 14px 细线单声波图标；未知应用也用
+  同尺寸底框，设置与浮窗共用。实际主观接受仍以用户后续反馈为准。
+  用户随后指出喇叭偏左：Volume1 绘制范围 x=2..17 与 24px 画布中心不同，
+  已把 viewBox 的水平中心对齐图形中心 9.5，保持原有尺寸和纵向位置。
+- 用户明确允许停止活动开发会话并重启。通过签名 `dev-app.sh --watch`
+  更新 canonical 开发版，启动器核对稳定 designated requirement 和实际
+  可执行文件。原生默认／放大窗口检查了配置菜单与真实本地应用图标；
+  最终喇叭通过热更新检查，不需要再次重启。没有重新启动采集或服务会话。
+- 浏览器离线夹具：520／760／952／1512／1920px、八种语言、深浅主题、
+  五个设置页共 400 组无横向溢出或选择器越界；配置列表／删除弹窗的
+  288 组既有几何检查通过；72 组声音页、服务详情、浮窗及 Windows 输出
+  选择器夹具通过。最终喇叭在深色菜单和当前值均测得 18px 外框／14px
+  内图，浅色在原生窗口观察。浏览器夹具不代表 Windows/Linux 原生验收。
+- 完整 `./scripts/check.sh` 通过：严格 Clippy、共享检查、桌面 574 项
+  测试（1 项既有忽略）、前端 2,083 项测试、类型／lint／生产构建；原生
+  图标回归验证 64px 解码尺寸、非透明像素、原有字节上限和绘图上下文恢复。
+- 未检查 Windows 原生图标清晰度、Linux 原生布局或 Android；未做新的
+  捕获／识别／翻译验收。本修复依赖尚未并入 main 的预发布设置布局。
+
 ## 2026-10-13：自定义文本翻译关闭思考与阿里延迟对比
 
 - 测试源为 main `41c323ad` 加本次共享协议改动；
@@ -2913,3 +3016,74 @@
   configuration edits still require an incremental signed rebuild. The user's
   durable instruction is preview first and proportional checks; pure copy/style
   edits do not require unrelated state matrices or repeated full local suites.
+
+## 2026-10-13 — Configuration list and subpage navigation
+
+- Source: `c0e2b85b` plus the frontend changes in this entry's commit. Signed
+  macOS development app in watch mode; no native rebuild, capture, provider
+  request, credential change or production-app replacement.
+- Native check: scroll to the last configuration, enter its editor, observe the
+  page top and focused heading, then return to the original list offset and
+  Edit action. Independently checked real browser geometry with a synthetic
+  14-profile list: 273.5 px offset restored; category/diagnostics navigation,
+  picker cancellation and confirmation cancellation retained the intended
+  scroll/focus. ArrowUp entered More at Delete; Escape restored its trigger.
+- Quick frontend typecheck, selected lint and 242 related tests passed. Shared
+  list geometry covered four widths, eight locales and both themes (64 cases).
+  Three initial resize/menu races were test sequencing failures: resize is
+  supposed to dismiss an open menu. After waiting for layout before opening,
+  those three cases and six paused/confirmation variants passed. The larger
+  repeated-platform sweep was stopped in favor of this shared-control scope;
+  it is retained as the verifier's default, not claimed as completed here.
+- Reviewed Chinese/default and Japanese/dark/minimum-width browser images and
+  the actual macOS list. Browser platform fixtures do not establish native
+  Windows/Linux acceptance. No full Rust/shared suite or new speech-quality
+  acceptance was performed for these frontend-only changes. Visual acceptance
+  remains with the user; keep fixed order and omit routine credential status.
+
+## 2026-10-13 — Sole configuration and redundant provider labels
+
+- Source: `b41f0093` plus the frontend changes in this entry's commit. The
+  existing signed macOS watch app received hot updates without a native rebuild
+  or session restart. Its 11 real profiles were preserved; no provider request,
+  capture, credential reveal or configuration mutation was used for acceptance.
+- One configuration now opens its editor directly. Related regressions cover
+  loading into one profile, reduction to one, draft preservation on Add/Cancel,
+  saved-secret reveal invalidation, copying to a second profile, and focus on
+  returning to the new list. Quick frontend typecheck, selected lint and all
+  242 related tests passed; no full Rust/shared suite was needed or run.
+- Browser fixtures checked 32 list and 32 sole-editor layouts: 520/952 px,
+  eight locales, light/dark. An initial sole-editor selector also matched the
+  hidden diagnostics Back control; after scoping it to the service editor,
+  all 32 cases passed. Add opens at zero and cancellation restored the tested
+  200 px position and Add focus. Reviewed Chinese screenshots of both states.
+- Native macOS screenshot confirmed the aliased Alibaba row has no repeated
+  brand subtitle, missing credentials remain inline, and row heights align.
+  Sole-profile evidence uses synthetic browser data, not deletion of the real
+  configurations. Windows/Linux native acceptance and visual user acceptance
+  remain separate. Browser test pages were closed after review.
+
+## 2026-10-13 — First configuration service picker
+
+- Source: `8f7e5f6b` plus this entry's frontend changes. Zero configurations now
+  enter provider selection directly after settings initialization. The shared
+  Add picker uses two flat columns where space permits, a single narrow column,
+  24 px marks and an actual heading; confirmation still gates profile creation.
+- Quick frontend typecheck, selected lint and 1,839 related tests across 107
+  files passed. Coverage includes empty/loading/error entry, no automatic secret
+  reads or connection checks, first creation, cancellation focus and failed
+  creation. All eight locales received the same revised next-step instruction.
+- Synthetic browser geometry passed 32 combinations (520/1000 px, eight locales,
+  light/dark), including all 11 available options and icon/text/help spacing.
+  Confirmed that cancellation creates nothing and restores option focus; first
+  confirmed creation makes exactly one profile, enters its editor at scroll zero
+  and focuses its heading. No credential or provider operation accompanied it.
+- The actual signed macOS watch app exposed an intermediate-width issue: its
+  content was just below the initial two-column breakpoint. Lowered that
+  breakpoint from 600 to 560 px and visually verified two columns and wrapping
+  there. Native Add/Cancel restored the list and Add focus, preserving all 11
+  real configurations. Reviewed Chinese wide and Japanese dark narrow fixtures.
+- No capture, provider requests, real configuration writes, native rebuild or
+  production replacement. Browser fixture pages were closed. Zero-profile
+  screenshots are synthetic; native Windows/Linux and visual user acceptance
+  remain separate. No full Rust/shared acceptance run for this frontend change.

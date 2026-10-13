@@ -665,7 +665,7 @@ impl OverlayWindowManager {
         };
         let builder =
             WebviewWindowBuilder::new(app, "overlay", WebviewUrl::App("index.html".into()))
-                .title(dev_title("mimi Subtitles"))
+                .title(dev_title("Mimi Subtitles"))
                 .inner_size(frame.width, frame.height)
                 .min_inner_size(SubtitleOverlayMetrics::MINIMUM_WIDTH, minimum_height)
                 .max_inner_size(
@@ -2570,7 +2570,7 @@ impl OverlayControlWindowManager {
         };
         let builder =
             WebviewWindowBuilder::new(app, "overlay-control", WebviewUrl::App("index.html".into()))
-                .title(dev_title("mimi"))
+                .title(dev_title("Mimi"))
                 .inner_size(Self::DEFAULT_ISLAND_WIDTH, Self::ISLAND_HEIGHT)
                 .resizable(false)
                 .transparent(true)
@@ -3044,7 +3044,7 @@ pub fn ensure_settings_window(app: &AppHandle) {
     let Some(window) = app.get_webview_window("settings") else {
         let builder =
             WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("index.html".into()))
-                .title(dev_title("mimi"))
+                .title(dev_title("Mimi"))
                 .inner_size(760.0, 720.0)
                 .min_inner_size(520.0, 560.0)
                 .resizable(true)

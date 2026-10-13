@@ -75,6 +75,101 @@ class NativeRuntimeJniTest {
         }
     }
 
+    @Test fun everyLiveTranslateTextTargetCrossesActualJniWithoutConnecting() {
+        val contract = JSONObject(requireNotNull(javaClass.getResourceAsStream("/translation-contracts.json"))
+            .bufferedReader().use { it.readText() })
+        val languages = contract.getJSONObject("alibabaRealtimeLanguages").getJSONArray("languages")
+        assertEquals(60, languages.length())
+        for (index in 0 until languages.length()) {
+            val target = languages.getJSONObject(index).getString("code")
+            val config = configuration().put("alibabaRealtimeMode", "liveTranslate")
+                .put("alibabaWorkspaceId", "synthetic-workspace").put("sourceLanguage", "auto").put("targetLanguage", target)
+            val handle = create(config)
+            try {
+                assertEquals("connecting", NativeRuntimeConfiguration.command("poll", handle).getString("connectionStatus"))
+                val endpoints = NativeRuntimeConfiguration.exchange(JSONObject().put("operation", "endpoints").put("configuration", config))
+                assertTrue(endpoints.getJSONArray("modelNames").toString().contains("qwen3.8-livetranslate-flash-realtime"))
+            } finally { NativeRuntimeConfiguration.command("stop", handle) }
+        }
+        for (target in listOf("zh_tw", "ta")) {
+            val config = configuration().put("alibabaRealtimeMode", "liveTranslate")
+                .put("alibabaWorkspaceId", "synthetic-workspace").put("sourceLanguage", "auto").put("targetLanguage", target)
+            assertEquals("invalid_configuration", assertThrows(IllegalArgumentException::class.java) { create(config) }.message)
+        }
+    }
+
+    @Test fun savedLiveTranslateModeUsesSharedCapabilitiesAndIgnoresRetainedTextSettings() {
+        val speech = ServiceConfiguration(ServiceProvider.DASHSCOPE, mapOf("apiKey" to "synthetic-speech-key"),
+            alibabaRealtimeMode = "liveTranslate", alibabaWorkspaceId = "synthetic-workspace")
+        // An incomplete saved independent route must not block simultaneous translation.
+        val text = TranslationConfiguration(provider = TextTranslationProvider.DEEPLX, endpoint = "")
+        val config = buildRuntimeConfiguration(speech, text, "auto", "fr", "plus")
+        assertEquals("alibabaCloud", config.getString("provider"))
+        assertEquals("apiKey", config.getJSONObject("credentials").getString("kind"))
+        assertEquals("liveTranslate", config.getString("alibabaRealtimeMode"))
+        assertTrue(config.isNull("textCredentials"))
+        assertTrue(NativeRuntimeConfiguration.endpoints(config).isNull("textEndpoint"))
+        assertEquals(listOf("qwen3.8-livetranslate-flash-realtime"), app.yuxino.mimi.android.runtimeModelNames(config))
+        val handle = create(config)
+        try { assertEquals("connecting", NativeRuntimeConfiguration.command("poll", handle).getString("connectionStatus")) }
+        finally { NativeRuntimeConfiguration.command("stop", handle) }
+
+        val provider = ServiceProvider.DASHSCOPE
+        assertEquals(listOf("auto"), provider.sourcesForTranslation(text.provider, speech.alibabaRealtimeMode))
+        val contract = JSONObject(requireNotNull(javaClass.getResourceAsStream("/translation-contracts.json"))
+            .bufferedReader().use { it.readText() }).getJSONObject("alibabaRealtimeLanguages").getJSONArray("languages")
+        val targets = (0 until contract.length()).map { contract.getJSONObject(it).getString("code") }.toSet() + "original"
+        assertEquals(targets, provider.targetsForTranslation(text.provider, speech.alibabaRealtimeMode).toSet())
+        assertEquals("auto" to "fr", provider.normalize("en", "fr", text.provider, speech.alibabaRealtimeMode))
+        assertFalse(provider.supportsPair("en", "fr", text.provider, speech.alibabaRealtimeMode))
+        assertTrue(provider.supportsPair("auto", "fr", text.provider, speech.alibabaRealtimeMode))
+        // A retained ASR-only preference cannot silently disable integrated translation.
+        val originalPreference = buildRuntimeConfiguration(speech,
+            TranslationConfiguration(provider = TextTranslationProvider.NONE), "auto", "fr", "lite")
+        assertEquals("fr", originalPreference.getString("targetLanguage"))
+        assertEquals("auto" to "fr", provider.normalize("en", "fr", TextTranslationProvider.NONE, "liveTranslate"))
+
+        for (workspace in listOf("", "bad/workspace", "a".repeat(64))) {
+            val invalid = JSONObject(config.toString()).put("alibabaWorkspaceId", workspace)
+            assertEquals("invalid_configuration", assertThrows(IllegalArgumentException::class.java) { create(invalid) }.message)
+        }
+        assertEquals(TextTranslationProvider.DEEPLX, text.provider)
+        assertEquals("", text.endpoint)
+    }
+
+    @Test fun legacyModeAndReturningToAsrMtKeepIndependentTranslationRouting() {
+        val legacy = ServiceConfiguration(ServiceProvider.DASHSCOPE, mapOf("apiKey" to "synthetic-speech-key"))
+        assertEquals("asrMt", legacy.alibabaRealtimeMode)
+        assertTrue(legacy.usesIndependentTextTranslation)
+        val text = TranslationConfiguration(provider = TextTranslationProvider.DEEPLX,
+            endpoint = "https://synthetic.example.invalid/translate", apiKey = "synthetic-text-key")
+        val config = buildRuntimeConfiguration(legacy, text, "auto", "zh", "lite")
+        assertEquals("disabled", config.getString("alibabaRealtimeMode"))
+        assertEquals("deepLX", config.getString("provider"))
+        assertEquals("deepLX", config.getJSONObject("textCredentials").getString("kind"))
+        val handle = create(config)
+        try { assertTrue(NativeRuntimeConfiguration.command("poll", handle).has("snapshot")) }
+        finally { NativeRuntimeConfiguration.command("stop", handle) }
+        assertTrue(ServiceProvider.DASHSCOPE.sourcesForTranslation(TextTranslationProvider.BUILTIN).size > 1)
+    }
+
+    @Test fun selectedQwenModelsCrossActualJniWithoutConnecting() {
+        val targets = JSONObject(requireNotNull(NativeRuntimeJniTest::class.java.getResource("/provider-language-catalogs.json")).readText())
+            .getJSONObject("qwenMtFlash").getJSONArray("targetLanguages")
+        assertEquals(80, targets.length())
+        for (model in listOf("flash", "plus")) {
+            for (index in 0 until targets.length()) {
+                val config = configuration().put("qwenMtModel", model).put("sourceLanguage", "no")
+                    .put("targetLanguage", targets.getString(index))
+                val handle = create(config)
+                try { assertEquals("connecting", NativeRuntimeConfiguration.command("poll", handle).getString("connectionStatus")) }
+                finally { NativeRuntimeConfiguration.command("stop", handle) }
+            }
+        }
+        val lite = configuration().put("qwenMtModel", "lite").put("targetLanguage", "no")
+        assertEquals("invalid_configuration", assertThrows(IllegalArgumentException::class.java) { create(lite) }.message)
+    }
+
     @Test fun handlesAreDistinctBoundedAndRejectLatePollsAfterStop() {
         val first = create(configuration())
         var second: Long? = null

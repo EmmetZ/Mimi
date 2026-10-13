@@ -432,3 +432,71 @@ fn shared_text_language_catalogs_cover_every_supported_wire_code() {
         );
     }
 }
+
+#[test]
+fn livetranslate_catalog_and_wire_languages_follow_the_same_contract() {
+    use super::live_translate::{LiveTranslateProtocolError, LiveTranslateRequestEncoder};
+    use crate::core::provider::AlibabaRealtimeMode;
+    use std::collections::{BTreeMap, BTreeSet};
+    let fixture = contract();
+    let languages = fixture["alibabaRealtimeLanguages"]["languages"]
+        .as_array()
+        .unwrap();
+    assert_eq!(languages.len(), 60);
+    let caps = AlibabaRealtimeMode::LiveTranslate.capabilities();
+    assert_eq!(caps.source_languages, vec![SourceLanguage::Automatic]);
+    let expected: BTreeSet<_> = languages
+        .iter()
+        .map(|language| language["code"].as_str().unwrap())
+        .chain(["original"])
+        .collect();
+    assert_eq!(
+        caps.target_languages
+            .iter()
+            .map(|target| target.raw_value())
+            .collect::<BTreeSet<_>>(),
+        expected
+    );
+    let frontend: Value = serde_json::from_str(include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../provider-language-catalogs.json"
+    )))
+    .unwrap();
+    assert_eq!(
+        serde_json::to_value(&caps.target_languages[1..]).unwrap(),
+        frontend["alibabaRealtime"]["targetLanguages"]
+    );
+    for language in languages {
+        let target = serde_json::from_value(language["code"].clone()).unwrap();
+        let frame = LiveTranslateRequestEncoder::session_update_for_mode(
+            AlibabaRealtimeMode::LiveTranslate,
+            SourceLanguage::Automatic,
+            target,
+            &BTreeMap::new(),
+            Some("language-contract"),
+        )
+        .unwrap();
+        assert_eq!(
+            frame["session"]["translation"]["language"],
+            language["wire"]
+        );
+        assert_eq!(
+            frame["session"]["output_modalities"],
+            serde_json::json!(["text"])
+        );
+        assert!(frame["session"].get("input_audio_transcription").is_none());
+    }
+    for target in [TargetLanguage::TraditionalChinese, TargetLanguage::Tamil] {
+        assert_eq!(
+            LiveTranslateRequestEncoder::session_update_for_mode(
+                AlibabaRealtimeMode::LiveTranslate,
+                SourceLanguage::Automatic,
+                target,
+                &BTreeMap::new(),
+                None
+            )
+            .unwrap_err(),
+            LiveTranslateProtocolError::UnsupportedLanguage
+        );
+    }
+}
