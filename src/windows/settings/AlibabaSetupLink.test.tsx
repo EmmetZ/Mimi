@@ -85,7 +85,7 @@ it.each([undefined, "disabled"] as const)("lists LiveTranslate first while prese
     profile={{ id: "synthetic", name: "Alibaba", provider: "alibabaCloud", credentialState: "present", alibabaRealtimeMode: mode }}
     disabled={false} onSave={onSave} />));
   const selector = host.querySelector<HTMLButtonElement>('[role="combobox"]')!;
-  expect(selector.textContent).toBe("Current ASR + MT");
+  expect(selector.textContent).toBe("ASR + MT");
   await act(async () => selector.click());
   const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')];
   expect(options[0].getAttribute("aria-selected")).toBe("false");
