@@ -31,7 +31,7 @@ These project rules apply to implementation and review.
   strip below the identity when needed instead of using a two-row action block
   that inflates short rows. Keep action wording at minimum width, omit redundant
   icons if necessary, and check artwork bounds as well as its outer icon slot.
-  Show the active configuration first without reordering saved profiles. Omit
+  Keep configuration order stable when selection changes; mark the active row. Omit
   routine saved/ready credential state from the list, including redundant help
   icons; show missing or unavailable state when the user needs to act.
 - An empty configuration list needs a short, readable next-step instruction

@@ -112,9 +112,6 @@ export function ServiceProfiles({
   const activeProfile =
     settings.profiles.find((profile) => profile.id === settings.activeProfileId) ??
     settings.profiles[0];
-  const orderedProfiles = [...settings.profiles].sort((a, b) =>
-    Number(b.id === settings.activeProfileId) - Number(a.id === settings.activeProfileId),
-  );
   const [selectedProfileId, setSelectedProfileId] = useState(
     activeProfile?.id ?? settings.activeProfileId,
   );
@@ -769,7 +766,10 @@ export function ServiceProfiles({
             </button>
           </div>
           {settings.profiles.length > 0 && <div className="service-rows" aria-label={I18N.settings.serviceProfilesTitle}>
-            {orderedProfiles.map((profile) => {
+            {settings.profiles.map((profile) => {
+              const isActive = profile.id === settings.activeProfileId;
+              const selectionChanges = profileSelectionChangesSettings(profile, settings);
+              const showsCurrentState = isActive && !selectionChanges;
               const credentialState = credentialStateForTarget(profile, profile.languagePreset?.targetLanguage ?? settings.targetLanguage);
               const credentialLabel = credentialStateText(credentialState, profile.provider === "appleSpeech");
               return (
@@ -787,7 +787,7 @@ export function ServiceProfiles({
                     <span className="service-row__copy">
                       <span className="service-row__heading">
                         <strong key={profile.name} title={profile.name}>{profileTitle(profile)}</strong>
-                        {profile.id === settings.activeProfileId && <span className="profile-active-badge">{I18N.settings.activeProfile}</span>}
+                        {isActive && selectionChanges && <span className="profile-active-badge">{I18N.settings.activeProfile}</span>}
                       </span>
                       {profile.languagePreset && <span className="service-row__provider">{SOURCE_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.sourceLanguage]} → {TARGET_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.targetLanguage]}</span>}
                       {profileSecondaryLabel(profile) && <span className="service-row__provider">{profileSecondaryLabel(profile)}</span>}
@@ -801,11 +801,12 @@ export function ServiceProfiles({
                     <button
                       type="button"
                       className="service-row__action service-row__use"
-                      disabled={selectionDisabled || !canUseProfile(profile) || !profileSelectionChangesSettings(profile, settings)}
-                      aria-label={`${I18N.settings.useProfile}: ${profile.name}`}
+                      data-current={showsCurrentState}
+                      disabled={selectionDisabled || !canUseProfile(profile) || !selectionChanges}
+                      aria-label={`${showsCurrentState ? I18N.settings.activeProfile : I18N.settings.useProfile}: ${profile.name}`}
                       onClick={() => void handleSelect(profile.id)}
                     >
-                      <Icon name="checkmark" />{I18N.settings.profileActionUse}
+                      <Icon name="checkmark" />{showsCurrentState ? <span className="profile-active-badge">{I18N.settings.activeProfile}</span> : I18N.settings.profileActionUse}
                     </button>
                     <button
                       type="button"
@@ -816,25 +817,27 @@ export function ServiceProfiles({
                     >
                       <Icon name="gear" />{I18N.settings.profileActionEdit}
                     </button>
-                    <button
-                      type="button"
-                      className="service-row__action service-row__duplicate"
-                      disabled={mutationsDisabled || atProfileLimit}
-                      aria-label={`${I18N.settings.duplicateProfile}: ${profile.name}`}
-                      aria-busy={pendingAction === "duplicate" || undefined}
-                      onClick={() => void handleDuplicate(profile)}
-                    >
-                      <Icon name="copy" />{I18N.settings.profileActionCopy}
-                    </button>
-                    <button
-                      type="button"
-                      className="service-row__action service-row__delete"
-                      disabled={mutationsDisabled || settings.profiles.length <= 1}
-                      aria-label={`${I18N.settings.deleteProfile}: ${profile.name}`}
-                      onClick={() => requestProfileDelete(profile)}
-                    >
-                      <Icon name="trash" />{I18N.settings.profileActionDelete}
-                    </button>
+                    <div className="service-row__management">
+                      <button
+                        type="button"
+                        className="service-row__action service-row__duplicate"
+                        disabled={mutationsDisabled || atProfileLimit}
+                        aria-label={`${I18N.settings.duplicateProfile}: ${profile.name}`}
+                        aria-busy={pendingAction === "duplicate" || undefined}
+                        onClick={() => void handleDuplicate(profile)}
+                      >
+                        <Icon name="copy" />{I18N.settings.profileActionCopy}
+                      </button>
+                      <button
+                        type="button"
+                        className="service-row__action service-row__delete"
+                        disabled={mutationsDisabled || settings.profiles.length <= 1}
+                        aria-label={`${I18N.settings.deleteProfile}: ${profile.name}`}
+                        onClick={() => requestProfileDelete(profile)}
+                      >
+                        <Icon name="trash" />{I18N.settings.profileActionDelete}
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

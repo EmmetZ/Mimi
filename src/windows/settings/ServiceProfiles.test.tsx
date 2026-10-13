@@ -116,8 +116,9 @@ it("shows four explicit list actions and copies the requested row without using 
     expect(row.querySelector(".service-row__main")?.tagName).toBe("DIV");
   }
   expect(rows[0].querySelector<HTMLButtonElement>(".service-row__use")!.disabled).toBe(true);
-  expect(rows[0].querySelector(".service-row__use")!.textContent).toContain(I18N.settings.profileActionUse);
-  expect(rows[0].querySelector(".service-row__heading")!.textContent).toContain(I18N.settings.activeProfile);
+  expect(rows[0].querySelector(".service-row__use")!.textContent).toContain(I18N.settings.activeProfile);
+  expect(rows[0].querySelectorAll(".profile-active-badge")).toHaveLength(1);
+  expect(rows[0].querySelector(".service-row__heading")!.textContent).not.toContain(I18N.settings.activeProfile);
   await act(async () => rows[1].querySelector<HTMLButtonElement>(".service-row__duplicate")!.click());
   expect(actions.duplicateProfile).toHaveBeenCalledExactlyOnceWith(other.id, copy.name);
   expect(actions.selectProfile).not.toHaveBeenCalled();
@@ -192,14 +193,15 @@ it("keeps row copy limits and the last-profile deletion guard", async () => {
   expect([...host.querySelectorAll<HTMLButtonElement>(".service-row__duplicate")].every(button => button.disabled)).toBe(true);
 });
 
-it("pins the active profile without mutating saved order and follows confirmed selection changes", async () => {
+it("keeps profile order stable when the active profile changes", async () => {
   const profiles = ["First", "Second", "Third"].map((name, index) => ({ ...profile, id: `ordered-${index}`, name, credentialState: "present" as const }));
   const order = () => [...host.querySelectorAll(".service-row__heading strong")].map(node => node.textContent);
   await render({ ...settings, profiles, activeProfileId: profiles[2].id });
-  expect(order()).toEqual(["Third", "First", "Second"]);
-  expect(host.querySelector(".service-row")?.getAttribute("data-active")).toBe("true");
+  expect(order()).toEqual(["First", "Second", "Third"]);
+  expect(host.querySelector('.service-row[data-active="true"] strong')?.textContent).toBe("Third");
   await render({ ...settings, profiles, activeProfileId: profiles[1].id });
-  expect(order()).toEqual(["Second", "First", "Third"]);
+  expect(order()).toEqual(["First", "Second", "Third"]);
+  expect(host.querySelector('.service-row[data-active="true"] strong')?.textContent).toBe("Second");
   expect(profiles.map(item => item.name)).toEqual(["First", "Second", "Third"]);
   expect(actions.updateProfile).not.toHaveBeenCalled();
   expect(actions.selectProfile).not.toHaveBeenCalled();
@@ -553,7 +555,7 @@ it.each(["zh", "en", "ja"] as const)("omits normal credential status and keeps a
       expect(badge.getAttribute("aria-label")).toBe(label);
       expect(badge.tabIndex).toBe(-1);
     }
-    expect(host.querySelector(".service-row__heading .profile-active-badge")?.textContent).toBe(I18N.settings.activeProfile);
+    expect(host.querySelector(".service-row .profile-active-badge")?.textContent).toBe(I18N.settings.activeProfile);
     expect(actions.selectProfile).not.toHaveBeenCalled();
     expect(actions.updateProfile).not.toHaveBeenCalled();
     expect(actions.saveProfileCredentials).not.toHaveBeenCalled();
@@ -1699,7 +1701,7 @@ it("reports reconnect failure after the selected profile is already saved withou
   await act(async () => host.querySelectorAll<HTMLButtonElement>(".service-row__use")[1].click());
   await render(saved, "error");
   await act(async () => reject(error));
-  expect(host.querySelector('.service-row[data-active="true"]')).toBe(host.querySelector(".service-row"));
+  expect(host.querySelector('.service-row[data-active="true"]')).toBe(host.querySelectorAll(".service-row")[1]);
   expect(host.querySelector('.settings-toast[data-tone="error"]')?.textContent).toContain(profileErrorMessage(error));
   expect(host.querySelector('.settings-toast[data-tone="success"]')).toBeNull();
   expect(host.textContent).not.toContain(error);

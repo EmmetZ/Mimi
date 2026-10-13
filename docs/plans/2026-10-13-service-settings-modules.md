@@ -55,8 +55,10 @@ signing requirements, binary/update filenames and canonical installation paths.
 
 ## Configuration list density
 
-Keep the four explicit Use / Edit / Copy / Delete actions in one horizontal
-strip aligned with the profile heading. Let the whole strip move below the
+Keep Use / Edit and Copy / Delete in two compact groups within one horizontal
+strip aligned with the profile heading. Give Use a restrained button boundary,
+and let the current-state label occupy that same slot when no selection change
+is needed; do not repeat it beside the name and in a disabled Use label. Let the whole strip move below the
 identity when the available width is insufficient; at minimum width, omit
 redundant action icons while keeping their text and accessible names. Do not
 force a two-by-two action grid that determines the height of otherwise short
@@ -66,9 +68,10 @@ Align the recognition mark with the title, including mixed-provider profiles.
 Avoid repeating a recognition provider already used as the profile title;
 retain distinct custom recognizer names and the independent translation route.
 Omit normal credential status from list text and help controls. Missing/unavailable
-credentials remain visible, and the active marker belongs beside the title. Pin
-the active profile first for display without changing the saved order of other
-profiles; update this only when the confirmed active profile changes.
+credentials remain visible. When the active profile can restore a different saved
+language pair, retain its Use action and show its current marker beside the name
+so this operation stays available. Keep the list in saved order when the active
+profile changes; do not move the selected row to the top.
 Use the same artwork dimensions as its icon slot to prevent marks crowding text.
 
 ## Verification

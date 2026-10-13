@@ -1948,10 +1948,38 @@
   color: var(--settings-text-muted);
   cursor: pointer;
 }
+.service-row__use {
+  min-width: 76px;
+  padding-block: 5px;
+  border: 1px solid var(--settings-border);
+}
+.service-row .service-row__use[data-current="true"] {
+  border-color: transparent;
+  opacity: 1;
+  color: var(--settings-text-muted);
+}
+.service-row__use .profile-active-badge {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.service-row__management {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  padding-left: 8px;
+  border-left: 1px solid var(--settings-border);
+}
 /* Keep visible action names even when the minimum window cannot fit icons too. */
 @container (max-width: 400px) {
   .service-row__actions { gap: 2px; }
   .service-row__action { padding-inline: 6px; }
+  .service-row__use { min-width: 0; }
+  .service-row__management { gap: 2px; margin-left: 0; padding-left: 2px; }
   .service-row__action > svg { display: none; }
 }
 .service-row__action:hover:not(:disabled) {
