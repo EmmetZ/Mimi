@@ -204,6 +204,7 @@ export const SETTINGS = {
   profileActionUse: "使用",
   profileActionEdit: "編輯",
   profileActionCopy: "複製",
+  profileActionMore: "更多",
   profileActionDelete: "刪除",
   pasteFromClipboard: "貼上",
   expandField: "展開編輯器",

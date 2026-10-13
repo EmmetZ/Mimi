@@ -31,13 +31,14 @@ import type {
   TextTranslationNameDraft,
 } from "../../lib/types";
 import { InlineFeedback, SettingsSection } from "./SettingsPrimitives";
-import { useSettingsToast } from "./useSettingsToast";
+import { dismissSettingsToast, useSettingsToast } from "./useSettingsToast";
 
 import { DestructiveConfirmation, SettingsConfirmation } from "./DestructiveConfirmation";
 import { AlibabaCredentialEditor } from "./AlibabaCredentialEditor";
 import { CustomSpeechCredentialEditor } from "./CustomSpeechCredentialEditor";
 
 import { ConfigInput, type ConfigInputElement } from "./ConfigInput";
+import { SettingsActionMenu } from "./SettingsActionMenu";
 import { SettingsHelp } from "./SettingsHelp";
 import { CredentialStorageHelp } from "./CredentialStorageHelp";
 import { DraftConnectionCheck } from "./ConnectionCheck";
@@ -60,6 +61,7 @@ import { profileCopyName } from "../../lib/profileCopyName";
 import { AlibabaRealtimeSettings } from "./AlibabaRealtimeSettings";
 import { QwenMTModelSettings } from "./QwenMTModelSettings";
 import { ServiceEditorModule } from "./ServiceEditorModule";
+import { useServicePageNavigation } from "./useServicePageNavigation";
 
 const CONNECTION_CHECK_TIMEOUT_MS = 30_000;
 
@@ -158,6 +160,10 @@ export function ServiceProfiles({
     () => settings.profiles.find((profile) => profile.id === selectedProfileId) ?? activeProfile,
     [activeProfile, selectedProfileId, settings.profiles],
   );
+
+  const navigationRoot = useRef<HTMLDivElement>(null);
+  const pageKey = showsProviderPicker ? "picker" : showsEditor && selectedProfile ? `editor:${selectedProfile.id}` : "list";
+  const rememberListPosition = useServicePageNavigation(navigationRoot, pageKey, visible, openedProfileEditorRequest);
 
   const invalidateProfileCheck = useCallback((profileId: string, stage?: ConnectionCheckStage) => {
     const epochs = profileCheckEpochs.current;
@@ -341,6 +347,7 @@ export function ServiceProfiles({
 
   const handleDuplicate = async (profile: ServiceProfile) => {
     if (mutationsDisabled || atProfileLimit) return;
+    rememberListPosition(`profile-more-${profile.id}`);
     const previousIds = new Set(settings.profiles.map(profile => profile.id));
     const name = profileCopyName(profile.name, I18N.settings.profileCopySuffix, settings.profiles);
     const snapshot = await perform("duplicate", () => duplicateProfile(profile.id, name), I18N.settings.profileDuplicated);
@@ -495,6 +502,8 @@ export function ServiceProfiles({
   };
 
   const openEditor = (profileId: string) => {
+    dismissSettingsToast();
+    rememberListPosition(`profile-edit-${profileId}`);
     setSelectedProfileId(profileId);
     setPendingConfirmation(null);
     setFeedback(null);
@@ -562,7 +571,7 @@ export function ServiceProfiles({
   }
 
   return (
-    <>
+    <div ref={navigationRoot}>
     {!showsEditor && !showsProviderPicker && overview}
     <SettingsSection id="service-profiles" title={I18N.settings.serviceProfilesTitle} hideHeading>
       {showsProviderPicker ? (
@@ -573,7 +582,7 @@ export function ServiceProfiles({
           requiresStop={requiresStop}
           feedback={feedback}
           onChoose={(provider) => void handleCreate(provider)}
-          onCancel={() => setShowsProviderPicker(false)}
+          onCancel={() => { dismissSettingsToast(); setShowsProviderPicker(false); }}
         />
       ) : showsEditor && selectedProfile ? (
         <div className="service-detail">
@@ -583,6 +592,7 @@ export function ServiceProfiles({
               className="settings-button settings-button--quiet service-back"
               disabled={pendingAction !== null}
               onClick={() => {
+                dismissSettingsToast();
                 setShowsEditor(false);
                 setPendingConfirmation(null);
                 setFeedback(null);
@@ -759,7 +769,8 @@ export function ServiceProfiles({
               type="button"
               className="settings-button settings-button--compact settings-button--quiet"
               disabled={mutationsDisabled || atProfileLimit}
-              onClick={() => { setFeedback(null); setShowsProviderPicker(true); }}
+              id="service-add-profile"
+              onClick={() => { dismissSettingsToast(); rememberListPosition("service-add-profile"); setFeedback(null); setShowsProviderPicker(true); }}
             >
               <Icon name="plus" />
               {I18N.settings.addProfile}
@@ -767,6 +778,7 @@ export function ServiceProfiles({
           </div>
           {settings.profiles.length > 0 && <div className="service-rows" aria-label={I18N.settings.serviceProfilesTitle}>
             {settings.profiles.map((profile) => {
+              const secondaryLabel = profileSecondaryLabel(profile);
               const isActive = profile.id === settings.activeProfileId;
               const selectionChanges = profileSelectionChangesSettings(profile, settings);
               const showsCurrentState = isActive && !selectionChanges;
@@ -787,11 +799,11 @@ export function ServiceProfiles({
                     <span className="service-row__copy">
                       <span className="service-row__heading">
                         <strong key={profile.name} title={profile.name}>{profileTitle(profile)}</strong>
+                        {!secondaryLabel && <ProfileTranslationRoute profile={profile} />}
                         {isActive && selectionChanges && <span className="profile-active-badge">{I18N.settings.activeProfile}</span>}
                       </span>
                       {profile.languagePreset && <span className="service-row__provider">{SOURCE_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.sourceLanguage]} → {TARGET_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.targetLanguage]}</span>}
-                      {profileSecondaryLabel(profile) && <span className="service-row__provider">{profileSecondaryLabel(profile)}</span>}
-                      {textTranslationForProfile(profile) !== "followService" && <span className="service-row__translation"><ProviderIcon provider={textTranslationForProfile(profile) as "deepL" | "deepLX" | "openAICompatible" | "chatMock" | "apple"} size={32} /><span>{I18N.settings.textTranslationLabel} · {textTranslationDisplayName(profile)}</span></span>}
+                      {secondaryLabel && <span className="service-row__route"><span className="service-row__provider">{secondaryLabel}</span><ProfileTranslationRoute profile={profile} /></span>}
                       {credentialState !== "present" && <span className="service-row__state">
                         <CredentialBadge state={credentialState} nativeSpeech={profile.provider === "appleSpeech"} />
                       </span>}
@@ -806,38 +818,23 @@ export function ServiceProfiles({
                       aria-label={`${showsCurrentState ? I18N.settings.activeProfile : I18N.settings.useProfile}: ${profile.name}`}
                       onClick={() => void handleSelect(profile.id)}
                     >
-                      <Icon name="checkmark" />{showsCurrentState ? <span className="profile-active-badge">{I18N.settings.activeProfile}</span> : I18N.settings.profileActionUse}
+                      {showsCurrentState && <Icon name="checkmark" />}{showsCurrentState ? <span className="profile-active-badge">{I18N.settings.activeProfile}</span> : I18N.settings.profileActionUse}
                     </button>
                     <button
                       type="button"
+                      id={`profile-edit-${profile.id}`}
                       className="service-row__action service-row__edit"
                       disabled={pendingAction !== null}
                       aria-label={`${I18N.settings.editProfile}: ${profile.name}`}
                       onClick={() => openEditor(profile.id)}
                     >
-                      <Icon name="gear" />{I18N.settings.profileActionEdit}
+                      {I18N.settings.profileActionEdit}
                     </button>
-                    <div className="service-row__management">
-                      <button
-                        type="button"
-                        className="service-row__action service-row__duplicate"
-                        disabled={mutationsDisabled || atProfileLimit}
-                        aria-label={`${I18N.settings.duplicateProfile}: ${profile.name}`}
-                        aria-busy={pendingAction === "duplicate" || undefined}
-                        onClick={() => void handleDuplicate(profile)}
-                      >
-                        <Icon name="copy" />{I18N.settings.profileActionCopy}
-                      </button>
-                      <button
-                        type="button"
-                        className="service-row__action service-row__delete"
-                        disabled={mutationsDisabled || settings.profiles.length <= 1}
-                        aria-label={`${I18N.settings.deleteProfile}: ${profile.name}`}
-                        onClick={() => requestProfileDelete(profile)}
-                      >
-                        <Icon name="trash" />{I18N.settings.profileActionDelete}
-                      </button>
-                    </div>
+                    <SettingsActionMenu id={`profile-more-${profile.id}`} label={I18N.settings.profileActionMore} name={profile.name}
+                      disabled={!visible || pendingAction !== null} actions={[
+                        { id: "duplicate", label: I18N.settings.profileActionCopy, icon: "copy", disabled: mutationsDisabled || atProfileLimit, onSelect: () => { void handleDuplicate(profile); } },
+                        { id: "delete", label: I18N.settings.profileActionDelete, icon: "trash", destructive: true, disabled: mutationsDisabled || settings.profiles.length <= 1, onSelect: () => requestProfileDelete(profile) },
+                      ]} />
                   </div>
                 </div>
               );
@@ -858,7 +855,7 @@ export function ServiceProfiles({
         onConfirm={() => void confirmProfileDelete()}
       />
     )}
-    </>
+    </div>
   );
 }
 
@@ -1104,10 +1101,17 @@ function profileDescription(profile: ServiceProfile): string {
   return translation === "deepL" ? I18N.settings.deepLChain : translation === "deepLX" ? I18N.settings.deepLXChain : (translation === "openAICompatible" || translation === "chatMock") ? I18N.settings.openAICompatibleChain : providerDescription(profile.provider);
 }
 
+function ProfileTranslationRoute({ profile }: { profile: ServiceProfile }) {
+  if (textTranslationForProfile(profile) === "followService") return null;
+  return <span className="service-row__translation" aria-label={`${I18N.settings.textTranslationLabel}: ${textTranslationDisplayName(profile)}`}>
+    <span aria-hidden="true">→</span><span>{textTranslationDisplayName(profile)}</span>
+  </span>;
+}
+
 function profileSecondaryLabel(profile: ServiceProfile): string | null {
   const provider = speechRecognitionDisplayName(profile);
   return profileTitle(profile).trim().toLowerCase() === provider.toLowerCase() ? null
-    : textTranslationForProfile(profile) !== "followService" ? `${I18N.settings.speechRecognition} · ${provider}` : provider;
+    : provider;
 }
 
 function credentialFieldCopy(field: CredentialFieldName, provider: ServiceProvider): {
@@ -1195,7 +1199,7 @@ function ProviderPicker({
     <div className="provider-picker settings-panel">
       <div className="provider-picker__heading">
         <span>
-          <strong>{I18N.settings.chooseProvider}</strong>
+          <strong tabIndex={-1} data-service-page-heading>{I18N.settings.chooseProvider}</strong>
           <SettingsHelp text={I18N.settings.chooseProviderDescription} label={I18N.settings.helpLabel} />
         </span>
         <button type="button" className="settings-link" disabled={cancelDisabled} onClick={onCancel}>{I18N.settings.cancel}</button>

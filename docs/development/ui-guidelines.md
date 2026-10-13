@@ -34,6 +34,12 @@ These project rules apply to implementation and review.
   Keep configuration order stable when selection changes; mark the active row. Omit
   routine saved/ready credential state from the list, including redundant help
   icons; show missing or unavailable state when the user needs to act.
+- Navigation must define scroll and focus together. Enter settings subpages at
+  the top after content replacement; return to a list at its saved position and
+  entry control. Category switches start at the top without stealing sidebar
+  focus. Keep modal cancellation and ordinary data refreshes in place. Test
+  from a scrolled viewport, including lower-list entries and native deep links;
+  a successful click alone does not establish navigation acceptance.
 - An empty configuration list needs a short, readable next-step instruction
   beside its add action. Show it only after a successful settings load; a zero
   count alone is not sufficient guidance for a fresh install.

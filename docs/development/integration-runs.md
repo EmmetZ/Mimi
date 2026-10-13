@@ -2977,3 +2977,27 @@
   configuration edits still require an incremental signed rebuild. The user's
   durable instruction is preview first and proportional checks; pure copy/style
   edits do not require unrelated state matrices or repeated full local suites.
+
+## 2026-10-13 — Configuration list and subpage navigation
+
+- Source: `c0e2b85b` plus the frontend changes in this entry's commit. Signed
+  macOS development app in watch mode; no native rebuild, capture, provider
+  request, credential change or production-app replacement.
+- Native check: scroll to the last configuration, enter its editor, observe the
+  page top and focused heading, then return to the original list offset and
+  Edit action. Independently checked real browser geometry with a synthetic
+  14-profile list: 273.5 px offset restored; category/diagnostics navigation,
+  picker cancellation and confirmation cancellation retained the intended
+  scroll/focus. ArrowUp entered More at Delete; Escape restored its trigger.
+- Quick frontend typecheck, selected lint and 242 related tests passed. Shared
+  list geometry covered four widths, eight locales and both themes (64 cases).
+  Three initial resize/menu races were test sequencing failures: resize is
+  supposed to dismiss an open menu. After waiting for layout before opening,
+  those three cases and six paused/confirmation variants passed. The larger
+  repeated-platform sweep was stopped in favor of this shared-control scope;
+  it is retained as the verifier's default, not claimed as completed here.
+- Reviewed Chinese/default and Japanese/dark/minimum-width browser images and
+  the actual macOS list. Browser platform fixtures do not establish native
+  Windows/Linux acceptance. No full Rust/shared suite or new speech-quality
+  acceptance was performed for these frontend-only changes. Visual acceptance
+  remains with the user; keep fixed order and omit routine credential status.

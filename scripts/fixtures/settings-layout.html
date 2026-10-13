@@ -202,9 +202,9 @@ window.applyLayoutCase = async next => {
     initializationStatus: "ready",
     settings: { ...initial.settings, uiLanguage: next.language, microphoneInputAvailable: next.platform === "macos", windowsAudioSource: next.state === "missing" ? "removed-output" : "fixture-output",
       sourceLanguage, targetLanguage,
-      ...(next.editor || next.surface || next.listProfiles || next.provider ? { profiles: next.listProfiles
+      ...(next.editor || next.surface || next.listProfiles || next.provider ? { profiles: next.profiles ?? (next.listProfiles
         ? [profile, { ...profile, id: "layout-other", name: next.profileName ?? "Other configuration" }]
-        : [profile], activeProfileId: profile.id } : {}),
+        : [profile]), activeProfileId: next.activeProfileId ?? profile.id } : {}),
       ...(next.emptyProfiles ? { profiles: [], activeProfileId: "" } : {}),
       ...(appleProfile || next.textTranslation === "apple" ? { languageCapabilities: { profileId: profile.id, provider: profile.provider, textTranslation: profile.textTranslation, targetLanguage,
         sourceLanguages: next.sourceLanguages ?? next.appleSupport?.languages.filter(language => language.installed).map(language => language.sourceLanguage) ?? next.appleTranslationSupport?.sourceLanguages ?? [],
@@ -216,7 +216,9 @@ window.applyLayoutCase = async next => {
   flushSync(() => root.render(React.createElement(next.surface === "overlay" ? FixtureOverlayControl : SettingsView, { key: ++generation })));
   await settle();
   if (next.profileDeleteConfirmation) {
-    document.querySelectorAll(".service-row__delete")[1].click();
+    document.querySelectorAll(".service-row__more")[1].click();
+    await settle();
+    document.querySelector(".settings-action-menu .service-row__delete").click();
     await settle();
   }
   if (next.editor && !next.surface) {

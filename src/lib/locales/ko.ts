@@ -204,6 +204,7 @@ export const SETTINGS = {
   profileActionUse: "사용",
   profileActionEdit: "편집",
   profileActionCopy: "복제",
+  profileActionMore: "더 보기",
   profileActionDelete: "삭제",
   pasteFromClipboard: "붙여넣기",
   expandField: "편집기 펼치기",

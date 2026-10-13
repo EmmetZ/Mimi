@@ -204,6 +204,7 @@ export const SETTINGS = {
   profileActionUse: "Verwenden",
   profileActionEdit: "Bearbeiten",
   profileActionCopy: "Kopieren",
+  profileActionMore: "Mehr",
   profileActionDelete: "Löschen",
   pasteFromClipboard: "Einfügen",
   expandField: "Editor vergrößern",

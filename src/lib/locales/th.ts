@@ -204,6 +204,7 @@ export const SETTINGS = {
   profileActionUse: "ใช้",
   profileActionEdit: "แก้ไข",
   profileActionCopy: "คัดลอก",
+  profileActionMore: "เพิ่มเติม",
   profileActionDelete: "ลบ",
   pasteFromClipboard: "วาง",
   expandField: "ขยายตัวแก้ไข",
