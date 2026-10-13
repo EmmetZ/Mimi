@@ -136,6 +136,8 @@ impl ServiceProfilePayload {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanguageCapabilitiesPayload {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub qwen_mt_model: Option<crate::core::protocols::qwen_mt::QwenMTModel>,
     pub profile_id: String,
     pub provider: ProviderKind,
     pub text_translation: TextTranslation,
@@ -190,6 +192,8 @@ impl LanguageCapabilitiesPayload {
             }
         }
         Self {
+            qwen_mt_model: (profile.provider == ProviderKind::AlibabaCloud)
+                .then_some(profile.qwen_mt_model),
             profile_id: profile.id.clone(),
             provider: profile.provider,
             text_translation: profile.text_translation(),
@@ -484,6 +488,7 @@ mod tests {
         assert_eq!(caps["profileId"], value["activeProfileId"]);
         assert_eq!(caps["targetLanguage"], value["targetLanguage"]);
         assert_eq!(caps["provider"], "alibabaCloud");
+        assert_eq!(caps["qwenMtModel"], "lite");
         assert!(caps.get("appleSpeechSupportRevision").is_none());
         assert_eq!(caps["textTranslation"], "followService");
         assert_eq!(caps["sourceLanguages"].as_array().unwrap().len(), 25);

@@ -98,6 +98,23 @@ class NativeRuntimeJniTest {
         }
     }
 
+    @Test fun selectedQwenModelsCrossActualJniWithoutConnecting() {
+        val targets = JSONObject(requireNotNull(NativeRuntimeJniTest::class.java.getResource("/provider-language-catalogs.json")).readText())
+            .getJSONObject("qwenMtFlash").getJSONArray("targetLanguages")
+        assertEquals(80, targets.length())
+        for (model in listOf("flash", "plus")) {
+            for (index in 0 until targets.length()) {
+                val config = configuration().put("qwenMtModel", model).put("sourceLanguage", "no")
+                    .put("targetLanguage", targets.getString(index))
+                val handle = create(config)
+                try { assertEquals("connecting", NativeRuntimeConfiguration.command("poll", handle).getString("connectionStatus")) }
+                finally { NativeRuntimeConfiguration.command("stop", handle) }
+            }
+        }
+        val lite = configuration().put("qwenMtModel", "lite").put("targetLanguage", "no")
+        assertEquals("invalid_configuration", assertThrows(IllegalArgumentException::class.java) { create(lite) }.message)
+    }
+
     @Test fun handlesAreDistinctBoundedAndRejectLatePollsAfterStop() {
         val first = create(configuration())
         var second: Long? = null

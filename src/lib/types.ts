@@ -316,6 +316,8 @@ export interface AppleTranslationSupport {
 export type AppleTranslationStatus = "installed" | "supported" | "unsupported" | "unavailable";
 
 export interface LanguageCapabilitiesSnapshot {
+  /** Selected model used to derive this native catalog. */
+  qwenMtModel?: QwenMTModel;
   profileId: string;
   provider: ServiceProvider;
   textTranslation: TextTranslation;

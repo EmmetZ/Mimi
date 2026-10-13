@@ -117,3 +117,18 @@ No real/paid provider requests or audio capture were made for this recheck.
 范围仍取决于部署，Apple 仍读取系统实际目录。火山、百度当前页面未能通过文档抓取取得语种表，保留其现有共享矩阵并重跑合成用例，不声称已重新取得远端目录；Azure
 完整目录仍为上方所述模型身份推导。新语种和别名均有 Rust 请求用例及实际 JVM
 JNI 的不连接验证。本次没有进行真实／付费接口调用或音频采集。
+
+
+The ASR + MT language picker follows the selected Qwen model: Lite keeps its
+31 targets; Flash/Plus expose the 80 targets currently representable by Mimi,
+out of their documented 92. The remaining 12 dialect/language codes need a
+separate canonical-language expansion and are not shown as supported. Flash/Plus
+allow all 30 Audio3 recognition hints plus automatic input. Norwegian uses Mimi's
+canonical `no` while the model registry uses `nb`; request options identify
+Norwegian Bokmål. Native capability snapshots include the selected model so a
+previous catalog cannot survive switching models.
+
+ASR + MT 的语言选项随 Qwen 模型切换：Lite 保留 31 个目标；Flash/Plus 显示
+Mimi 目前能表示的 80 个目标，官方模型支持 92 个，其余 12 个方言／语种代码
+需要另行补齐通用语言定义，当前不显示为已支持。Flash/Plus 可使用 Audio3
+的全部 30 个识别提示及自动识别；挪威语的 `no`／`nb` 映射也已修正。
