@@ -26,7 +26,7 @@
 ## 边听边看字幕
 
 - **看懂正在播放的内容**：电影、直播、网课中的人声，显示为悬浮字幕。可看双语、只看译文或只看原文。
-- **选择听什么**：默认听电脑声音，也可主动开启麦克风，或同时使用两路。macOS / Windows 11 可指定应用。
+- **选择听什么**：默认听电脑声音，也可主动开启麦克风，或同时使用两路。macOS / Windows 11 可指定应用。 Linux 可选择单独的播放音频流。
 - **让字幕适合你**：调整位置、字号和颜色；沉浸模式只留字幕，点击穿透让你继续操作下方应用。
 - **需要时再保存**：桌面端可保存字幕或录制所选音源，导出 TXT / WAV。默认不保存、不录音。
 
@@ -52,7 +52,7 @@ Mimi 免费，云服务可能收费。云端识别会接收音频，远程文字
 
 也感谢 [@Chtholly000](https://github.com/Chtholly000) 改进 [Gemini 连续字幕和连接轮换](https://github.com/yuxino/Mimi/pull/176)。
 
-感谢 [@EmmetZ](https://github.com/EmmetZ) 修复 [Wayland 下字幕浮窗与控制组件不同步移动的问题](https://github.com/yuxino/Mimi/pull/242)。
+感谢 [@EmmetZ](https://github.com/EmmetZ) 修复 [Wayland 浮窗与控制组件不同步的问题](https://github.com/yuxino/Mimi/pull/242)，并新增 [Linux 单独播放流采集](https://github.com/yuxino/Mimi/pull/275)。
 
 感谢 [@wangmian0](https://github.com/wangmian0) 为 [DeepSeek 实时字幕翻译关闭思考模式](https://github.com/yuxino/Mimi/pull/270)。
 

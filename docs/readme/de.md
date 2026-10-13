@@ -26,7 +26,7 @@ Oberflächenillustration mit Beispieldialog. [Untertitel und immersiven Modus an
 ## Beim Hören mitlesen
 
 - **Verstehen, was läuft**: schwebende Untertitel für Sprache in Filmen, Streams und Unterricht. Zeige beide Sprachen, nur die Übersetzung oder nur das Original.
-- **Audio auswählen**: standardmäßig den Computerton; Mikrofon oder beide Quellen aktivierst du selbst. Unter macOS / Windows 11 kannst du eine einzelne App wählen.
+- **Audio auswählen**: standardmäßig den Computerton; Mikrofon oder beide Quellen aktivierst du selbst. Unter macOS / Windows 11 kannst du eine einzelne App wählen. Unter Linux kannst du einen einzelnen Wiedergabestream auswählen.
 - **Lesbarkeit anpassen**: ändere Position, Schriftgröße und Farbe. Im immersiven Modus bleibt nur der Text; mit Klickdurchleitung bedienst du die App darunter.
 - **Bei Bedarf speichern**: speichere am Desktop Untertitel oder das gewählte Audio und exportiere TXT / WAV. Speichern und Aufnehmen sind standardmäßig aus.
 
@@ -52,7 +52,7 @@ Besonderer Dank gilt [@yebuwudong](https://github.com/yebuwudong) für die [Andr
 
 Danke auch an [@Chtholly000](https://github.com/Chtholly000) für die Verbesserungen an [Geminis fortlaufenden Untertiteln und dem geplanten Verbindungswechsel](https://github.com/yuxino/Mimi/pull/176).
 
-Danke an [@EmmetZ](https://github.com/EmmetZ) für die [Korrektur der Untertitelsteuerung, die unter Wayland dem Untertitelfenster nicht folgte](https://github.com/yuxino/Mimi/pull/242).
+Danke an [@EmmetZ](https://github.com/EmmetZ) für die [Korrektur der Wayland-Untertitelsteuerung](https://github.com/yuxino/Mimi/pull/242) und die [Aufnahme einzelner Wiedergabestreams unter Linux](https://github.com/yuxino/Mimi/pull/275).
 
 Danke an [@wangmian0](https://github.com/wangmian0) für die [Deaktivierung des Denkmodus von DeepSeek bei der Live-Untertitelübersetzung](https://github.com/yuxino/Mimi/pull/270).
 

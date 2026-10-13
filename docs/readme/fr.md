@@ -26,7 +26,7 @@ Illustration de l’interface avec un dialogue d’exemple. [Voir les sous-titre
 ## Lire tout en écoutant
 
 - **Comprendre ce qui passe** : des sous-titres flottants pour les voix des films, diffusions et cours. Affichez les deux langues, la traduction seule ou l’original seul.
-- **Choisir la source** : le son de l’ordinateur par défaut ; activez vous-même le microphone ou les deux sources. Sélectionnez une application sous macOS / Windows 11.
+- **Choisir la source** : le son de l’ordinateur par défaut ; activez vous-même le microphone ou les deux sources. Sélectionnez une application sous macOS / Windows 11. Sous Linux, choisissez un flux de lecture individuel.
 - **Adapter l’affichage** : réglez la position, la taille et la couleur. Le mode immersif ne garde que le texte ; la transparence aux clics permet d’utiliser l’application dessous.
 - **Enregistrer au besoin** : sur ordinateur, conservez les sous-titres ou le son sélectionné et exportez en TXT / WAV. La sauvegarde et l’enregistrement sont désactivés par défaut.
 
@@ -52,7 +52,7 @@ Un grand merci à [@yebuwudong](https://github.com/yebuwudong) pour l’[applica
 
 Merci aussi à [@Chtholly000](https://github.com/Chtholly000) pour les améliorations des [sous-titres continus de Gemini et du renouvellement planifié des connexions](https://github.com/yuxino/Mimi/pull/176).
 
-Merci à [@EmmetZ](https://github.com/EmmetZ) d’avoir corrigé [les commandes qui ne suivaient pas la fenêtre de sous-titres sous Wayland](https://github.com/yuxino/Mimi/pull/242).
+Merci à [@EmmetZ](https://github.com/EmmetZ) pour la [correction des commandes sous Wayland](https://github.com/yuxino/Mimi/pull/242) et la [capture de flux de lecture individuels sous Linux](https://github.com/yuxino/Mimi/pull/275).
 
 Merci à [@wangmian0](https://github.com/wangmian0) d’avoir [désactivé le mode de raisonnement de DeepSeek pour la traduction des sous-titres en direct](https://github.com/yuxino/Mimi/pull/270).
 

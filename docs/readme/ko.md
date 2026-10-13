@@ -26,7 +26,7 @@
 ## 들으면서 자막으로 읽기
 
 - **재생 중인 내용 이해하기**: 영화, 방송, 수업의 음성을 플로팅 자막으로 표시합니다. 두 언어, 번역문만, 원문만 볼 수 있습니다.
-- **들을 소리 선택하기**: 기본값은 컴퓨터 소리입니다. 마이크나 두 입력을 직접 켤 수 있으며, macOS / Windows 11에서는 앱을 지정할 수 있습니다.
+- **들을 소리 선택하기**: 기본값은 컴퓨터 소리입니다. 마이크나 두 입력을 직접 켤 수 있으며, macOS / Windows 11에서는 앱을 지정할 수 있습니다. Linux에서는 개별 재생 스트림을 선택할 수 있습니다.
 - **읽기 편하게 조정하기**: 위치, 글자 크기, 색상을 바꿉니다. 몰입 모드는 자막만 남기고, 클릭 통과로 뒤에 있는 앱을 조작할 수 있습니다.
 - **필요할 때만 저장하기**: 데스크톱에서 자막이나 선택한 오디오를 저장하고 TXT / WAV로 내보낼 수 있습니다. 저장과 녹음은 기본적으로 꺼져 있습니다.
 
@@ -52,7 +52,7 @@ Mimi는 무료지만 클라우드 서비스는 요금이 발생할 수 있습니
 
 [Gemini 연속 자막과 계획된 연결 교체](https://github.com/yuxino/Mimi/pull/176)를 개선해 주신 [@Chtholly000](https://github.com/Chtholly000)께도 감사드립니다.
 
-[Wayland에서 자막 창을 이동할 때 컨트롤이 따라오지 않는 문제](https://github.com/yuxino/Mimi/pull/242)를 수정해 주신 [@EmmetZ](https://github.com/EmmetZ)께 감사드립니다.
+[Wayland 자막 컨트롤 수정](https://github.com/yuxino/Mimi/pull/242)과 [Linux 개별 재생 스트림 캡처](https://github.com/yuxino/Mimi/pull/275)를 기여해 주신 [@EmmetZ](https://github.com/EmmetZ)께 감사드립니다.
 
 [DeepSeek 실시간 자막 번역의 사고 모드를 비활성화](https://github.com/yuxino/Mimi/pull/270)해 주신 [@wangmian0](https://github.com/wangmian0)께 감사드립니다.
 

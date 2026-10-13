@@ -26,7 +26,7 @@
 ## 聞きながら字幕で読む
 
 - **再生中の内容を理解する**：映画、配信、授業の音声をフローティング字幕に。二言語、訳文のみ、原文のみを選べます。
-- **音源を選ぶ**：初期設定はパソコンの音声。マイクや両方の音源も自分で有効にできます。macOS / Windows 11 ではアプリを指定できます。
+- **音源を選ぶ**：初期設定はパソコンの音声。マイクや両方の音源も自分で有効にできます。macOS / Windows 11 ではアプリを指定できます。 Linux では個別の再生ストリームを選べます。
 - **読みやすく調整する**：位置、文字サイズ、色を変更。イマーシブモードは字幕だけを表示し、クリック透過で背後のアプリを操作できます。
 - **必要なときだけ保存する**：デスクトップ版では字幕や選択した音源を保存し、TXT / WAV で書き出せます。保存・録音は初期設定でオフです。
 
@@ -52,7 +52,7 @@ Mimi は無料ですが、クラウドサービスは有料の場合がありま
 
 [@Chtholly000](https://github.com/Chtholly000) さんによる [Gemini の連続字幕と計画的な接続切り替えの改善](https://github.com/yuxino/Mimi/pull/176)にも感謝します。
 
-[@EmmetZ](https://github.com/EmmetZ) さんは、[Wayland で字幕ウィンドウの移動に操作パネルが追従しない問題](https://github.com/yuxino/Mimi/pull/242)を修正してくださいました。
+[@EmmetZ](https://github.com/EmmetZ) さんによる [Wayland の字幕操作パネルの修正](https://github.com/yuxino/Mimi/pull/242)と [Linux での個別再生ストリームの音声取得](https://github.com/yuxino/Mimi/pull/275)に感謝します。
 
 [@wangmian0](https://github.com/wangmian0) さんは、[DeepSeek によるリアルタイム字幕翻訳の思考モードを無効化](https://github.com/yuxino/Mimi/pull/270)してくださいました。
 

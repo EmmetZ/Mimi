@@ -26,7 +26,7 @@ Interface illustration with sample dialogue. [Watch subtitles and Immersive Mode
 ## Follow along with live subtitles
 
 - **Understand what’s playing**: floating subtitles for speech in films, streams, and classes. Show both languages, translations only, or originals only.
-- **Choose what to hear**: computer audio by default; enable your microphone or both sources yourself. Pick an individual app on macOS / Windows 11.
+- **Choose what to hear**: computer audio by default; enable your microphone or both sources yourself. Pick an individual app on macOS / Windows 11. Linux lets you select an individual playback stream.
 - **Make subtitles fit**: adjust position, size, and color. Immersive Mode leaves only the text; click-through lets you use the app underneath.
 - **Save when you need to**: on desktop, save subtitles or record selected audio and export TXT / WAV. Saving and recording are off by default.
 
@@ -52,7 +52,7 @@ Special thanks to [@yebuwudong](https://github.com/yebuwudong) for the [Android 
 
 Thanks also to [@Chtholly000](https://github.com/Chtholly000) for improving [Gemini's continuous captions and planned connection rotation](https://github.com/yuxino/Mimi/pull/176).
 
-Thanks to [@EmmetZ](https://github.com/EmmetZ) for fixing [overlay controls not following the subtitle window on Wayland](https://github.com/yuxino/Mimi/pull/242).
+Thanks to [@EmmetZ](https://github.com/EmmetZ) for fixing [Wayland overlay controls](https://github.com/yuxino/Mimi/pull/242) and adding [individual playback stream capture on Linux](https://github.com/yuxino/Mimi/pull/275).
 
 Thanks to [@wangmian0](https://github.com/wangmian0) for [disabling thinking mode in DeepSeek live subtitle translation](https://github.com/yuxino/Mimi/pull/270).
 
