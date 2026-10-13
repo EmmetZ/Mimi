@@ -519,7 +519,7 @@ export const SETTINGS = {
   textTranslationName: "ชื่อบริการ",
   speechRecognitionName: "ชื่อการรู้จำเสียง",
   speechRecognition: "การรู้จำเสียง",
-  customDashScopeASR: "การรู้จำเสียงที่กำหนดเอง (รองรับ DashScope)",
+  customDashScopeASR: "การรู้จำเสียงที่กำหนดเอง (โปรโตคอล DashScope)",
   customOpenAIASR: "การรู้จำเสียงที่กำหนดเอง (รองรับ OpenAI Realtime)",
   customSpeechDescription: "รู้จำเสียงสด · กำหนดที่อยู่และโมเดลเอง",
   customSpeechEndpoint: "WebSocket URL",

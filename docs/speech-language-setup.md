@@ -8,7 +8,7 @@ A third-party service can use a language selected in Mimi **only if its endpoint
 
 ### Configure a custom recognition service
 
-1. Open **Settings → Models & Services**, add **Custom Recognition (DashScope Compatible)** or **Custom Recognition (OpenAI Realtime Compatible)** according to the service's documented protocol.
+1. Open **Settings → Models & Services**, add **Custom Recognition (DashScope Protocol)** or **Custom Recognition (OpenAI Realtime Compatible)** according to the service's documented protocol.
 2. Enter its **full WebSocket URL**, deployed **recognition model ID**, and API key. A website, HTTP file-transcription endpoint, or Chat Completions endpoint cannot be used as live recognition.
 3. Save recognition settings and select the profile. Optionally declare the recognition languages documented by that deployment; leave the range undeclared if unknown. The declaration is saved with this profile and filters the language picker, but does not query or change the model. An empty declaration leaves only Service default. Select **Translate to → Original only** in **Audio & Languages** to test recognition alone. Choose its current recognition and translation languages in **Audio & Languages**.
 4. Choose **Service default** to omit language parameters. Use a specific language only when the service documents that code and parameter. Saving only stores the configuration. A successful recognition check confirms the setup exchange, not recognition quality or support for every displayed language.
@@ -80,7 +80,7 @@ No real/paid provider requests or audio capture were made for this recheck.
 
 ### 怎么接入
 
-1. 打开「设置 → 模型与服务」，按服务文档选择「自定义识别（阿里云兼容）」或「自定义识别（OpenAI 实时兼容）」。
+1. 打开「设置 → 模型与服务」，按服务文档选择「自定义识别（DashScope 协议）」或「自定义识别（OpenAI 实时兼容）」。
 2. 填入完整 WebSocket 地址、实际部署的识别模型 ID 和密钥，点击「保存识别配置」。不能填网页地址、HTTP 文件转写接口或 Chat Completions 地址。上方表格给出了官方地址与模型示例；不要把翻译模型填进识别模型。
 3. 可按该部署的文档声明它支持的识别语言；不确定时保持未声明。声明只保存在这项配置中并筛选语言选项，不会查询或改变模型；声明为空时只保留「服务默认」。使用这项服务配置，先在「声音与语言 → 翻译成」选择「只显示原文」，只测试语音转文字，再到「声音与语言」选择当前「识别语言」。
 4. 「服务默认」代表不发送语言参数，是否自动检测取决于对端。选择英语等具体语言会发送对应参数；请先确认该模型接受这个代码。保存只写入配置；识别检查成功仅说明本次建立会话成功，不证明识别质量或所有候选语言均可用。

@@ -519,7 +519,7 @@ export const SETTINGS = {
   textTranslationName: "Nom du service",
   speechRecognitionName: "Nom de la reconnaissance",
   speechRecognition: "Reconnaissance vocale",
-  customDashScopeASR: "Reconnaissance personnalisée (compatible DashScope)",
+  customDashScopeASR: "Reconnaissance personnalisée (protocole DashScope)",
   customOpenAIASR: "Reconnaissance personnalisée (compatible OpenAI Realtime)",
   customSpeechDescription: "Reconnaissance vocale en direct · Adresse et modèle personnalisés",
   customSpeechEndpoint: "URL WebSocket",

@@ -523,7 +523,7 @@ export const SETTINGS = {
   textTranslationName: "服務名稱",
   speechRecognitionName: "辨識名稱",
   speechRecognition: "語音辨識",
-  customDashScopeASR: "自訂辨識（相容 DashScope）",
+  customDashScopeASR: "自訂辨識（DashScope 協定）",
   customOpenAIASR: "自訂辨識（相容 OpenAI Realtime）",
   customSpeechDescription: "即時語音辨識 · 自訂位址與模型",
   customSpeechEndpoint: "WebSocket 位址",

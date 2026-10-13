@@ -19,7 +19,7 @@ Alibaba LiveTranslate setup checked: **2026-10-13**; other service instructions 
 | [Azure OpenAI](#azure-openai) | [Azure Portal](https://portal.azure.com/) / [Microsoft Foundry](https://ai.azure.com/) | Resource endpoint, translation deployment name, transcription deployment name, and API key |
 | [xAI Grok](#xai-grok) | [xAI Console](https://console.x.ai/) | An xAI API key for the selected team |
 | [Apple Speech](#apple-speech) | Choose and download a language inside Mimi | A supported Mac; no key is needed for recognition |
-| [Custom Recognition (DashScope Compatible)](#custom-recognition) | Your DashScope-compatible service | Full WebSocket URL, recognition model, and API key |
+| [Custom Recognition (DashScope Protocol)](#custom-recognition) | Your DashScope-compatible service | Full WebSocket URL, recognition model, and API key |
 | [Custom Recognition (OpenAI Realtime Compatible)](#custom-recognition) | Your Realtime-compatible service | Full WebSocket URL, recognition model, and API key |
 
 Only setting up text translation? Go to [Apple Translation](#apple-translation), [DeepL](#deepl), [DeepLX](#deeplx), [ChatMock](#chatmock), [OpenAI-compatible API / Index-Translate](#openai-compatible), or [Original text only](#original-only). To check which models Mimi calls, see [Current models and request paths](#current-models).
@@ -249,7 +249,7 @@ Automatic language detection is not supported. The settings list shows this Macâ
 
 These two options are for users who already have a compatible speech service. They do not share a single service activation website.
 
-1. Based on your service's official protocol, add **Custom Recognition (DashScope Compatible)** for the DashScope protocol or **Custom Recognition (OpenAI Realtime Compatible)**.
+1. Based on your service's official protocol, add **Custom Recognition (DashScope Protocol)** or **Custom Recognition (OpenAI Realtime Compatible)**.
 2. Obtain the **full WebSocket URL, deployed recognition model ID, and API key** from the service provider. All three fields are required in the current Mimi app; the optional-key rule for text translation does not apply here.
 3. Use `wss://` for remote addresses; `ws://` is allowed only for loopback addresses on the same device. Do not include a username, password, query parameters, or fragment in the URL. Mimi adds the connection parameters required for OpenAI transcription.
 4. Enable **Skip translation** first, check recognition, and test a short speech sample. Once recognition works, configure independent text translation.

@@ -19,7 +19,7 @@
 | [Azure OpenAI](#azure-openai) | [Azure Portal](https://portal.azure.com/) / [Microsoft Foundry](https://ai.azure.com/) | 资源端点、翻译部署名、转写部署名、API Key |
 | [xAI Grok](#xai-grok) | [xAI Console](https://console.x.ai/) | 所选团队的 xAI API Key |
 | [Apple Speech](#apple-speech) | 在 Mimi 内选择语言并下载 | 符合条件的 Mac；识别无需 Key |
-| [自定义识别（阿里云兼容）](#custom-recognition) | 你使用的 DashScope 兼容服务 | 完整 WebSocket URL、识别模型、API Key |
+| [自定义识别（DashScope 协议）](#custom-recognition) | 你使用的 DashScope 兼容服务 | 完整 WebSocket URL、识别模型、API Key |
 | [自定义识别（OpenAI 实时兼容）](#custom-recognition) | 你使用的 Realtime 兼容服务 | 完整 WebSocket URL、识别模型、API Key |
 
 只想配置文字翻译？跳到 [Apple 翻译](#apple-translation)、[DeepL](#deepl)、[DeepLX](#deeplx)、[ChatMock](#chatmock)、[OpenAI 兼容接口 / Index-Translate](#openai-compatible)，或[仅显示原文](#original-only)。想确认具体调用哪个模型，见[当前模型与调用方式](#current-models)。
@@ -249,7 +249,7 @@ Apple Speech 只在**Apple 芯片、macOS 26 或更新版本、系统识别引�
 
 这两项供已经有兼容语音服务的用户使用，不对应另一个统一的开通网站。
 
-1. 根据服务的官方协议，添加「**自定义识别（阿里云兼容）**」（DashScope 协议）或「**自定义识别（OpenAI 实时兼容）**」。
+1. 根据服务的官方协议，添加「**自定义识别（DashScope 协议）**」或「**自定义识别（OpenAI 实时兼容）**」。
 2. 从服务提供方获取**完整 WebSocket URL、已部署的识别模型 ID、API Key**。这三个字段在当前 Mimi 中都需要填写；文字翻译可免 Key 的规则不适用于此处。
 3. 远程地址使用 `wss://`；只有本机回环地址允许 `ws://`。地址不附带用户名、密码、查询参数或片段。OpenAI 转写所需连接参数由 Mimi 添加。
 4. 先开启「跳过翻译」，检查识别并试听一小段；确认能识别后，再配置独立文字翻译。

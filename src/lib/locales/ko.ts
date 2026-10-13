@@ -519,7 +519,7 @@ export const SETTINGS = {
   textTranslationName: "서비스 이름",
   speechRecognitionName: "인식 이름",
   speechRecognition: "음성 인식",
-  customDashScopeASR: "사용자 지정 인식 (DashScope 호환)",
+  customDashScopeASR: "사용자 지정 인식 (DashScope 프로토콜)",
   customOpenAIASR: "사용자 지정 인식 (OpenAI Realtime 호환)",
   customSpeechDescription: "실시간 음성 인식 · 사용자 지정 주소 및 모델",
   customSpeechEndpoint: "WebSocket URL",
