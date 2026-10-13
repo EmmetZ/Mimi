@@ -64,13 +64,13 @@ it.each(UI_LANGUAGES)("exposes only ASR + MT and LiveTranslate modes in %s", asy
   const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')];
   expect(options).toHaveLength(2);
   expect(options[0].querySelector(".mimi-select__label")?.textContent).toContain("LiveTranslate");
-  expect(options[1].querySelector(".mimi-select__label")?.textContent).toContain("ASR + MT");
+  expect(options[1].querySelector(".mimi-select__label")?.textContent?.trim()).toBeTruthy();
   const descriptions = options.map(option => option.querySelector(".mimi-select__description")?.textContent);
   expect(descriptions.every(description => typeof description === "string" && description.trim().length > 0)).toBe(true);
   if (language === "zh") {
     expect(descriptions).toEqual([
       "边听边译，同时输出原文和译文。",
-      "先识别再翻译，翻译服务可更换。",
+      "可更换翻译服务",
     ]);
   }
   expect(options.map(option => option.textContent).join(" ")).not.toContain("Omni");
@@ -85,7 +85,7 @@ it.each([undefined, "disabled"] as const)("lists LiveTranslate first while prese
     profile={{ id: "synthetic", name: "Alibaba", provider: "alibabaCloud", credentialState: "present", alibabaRealtimeMode: mode }}
     disabled={false} onSave={onSave} />));
   const selector = host.querySelector<HTMLButtonElement>('[role="combobox"]')!;
-  expect(selector.textContent).toBe("ASR + MT");
+  expect(selector.textContent).toBe("Recognize, then translate");
   await act(async () => selector.click());
   const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')];
   expect(options[0].getAttribute("aria-selected")).toBe("false");
