@@ -40,6 +40,8 @@ mod settings_store;
 mod windows;
 #[cfg(target_os = "windows")]
 mod windows_startup;
+#[cfg(any(target_os = "windows", test))]
+mod windows_updater_cleanup;
 
 use commands::AppState;
 use core::models::SubtitleDisplayMode;
@@ -130,6 +132,20 @@ pub fn run() {
                 return Err("development builds require the isolated Tauri identifier".into());
             }
             let is_ui_test = std::env::var("MIMI_UI_TEST").as_deref() == Ok("1");
+            #[cfg(target_os = "windows")]
+            if !is_ui_test && !windows::is_dev_build() {
+                let version = app.package_info().version.to_string();
+                tauri::async_runtime::spawn_blocking(move || {
+                    let result = windows_updater_cleanup::cleanup(&std::env::temp_dir(), &version);
+                    if result.removed > 0 || result.failed > 0 {
+                        tracing::info!(
+                            removed = result.removed,
+                            failed = result.failed,
+                            "updater staging cleanup"
+                        );
+                    }
+                });
+            }
             #[cfg(any(test, feature = "development-debugger"))]
             development_debugger::initialize(&app_handle);
             if is_ui_test {
