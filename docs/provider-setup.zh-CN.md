@@ -11,7 +11,7 @@
 | 你想怎么用 | 对应选择 |
 | --- | --- |
 | 用一家服务完成识别和翻译 | [火山引擎](#volcano-engine)、[Gemini](#google-gemini)、[腾讯云](#tencent-cloud)、[百度](#baidu-translate)、[OpenAI](#openai-realtime)；已有 Azure 部署可用 [Azure OpenAI](#azure-openai) |
-| 用阿里云同声传译 | [LiveTranslate](#alibaba-livetranslate)由同一个服务输出原文和译文；当前为桌面实验模式 |
+| 用阿里云同声传译 | [同声传译](#alibaba-livetranslate)由同一个服务输出原文和译文；当前为桌面实验模式 |
 | 需要搭配 DeepL 等文字翻译服务 | [阿里云的「先识别，再翻译」](#alibaba-cloud)可单独更换翻译服务 |
 | 在 Mac 本地处理 | [Apple Speech](#apple-speech)识别人声，[Apple 翻译](#apple-translation)翻译文字；需 Apple 芯片、macOS 26+ 和对应语言包 |
 | 已有自己的识别接口 | [自定义识别](#custom-recognition)，文字翻译另选；必须支持相应的实时语音协议 |
@@ -38,7 +38,7 @@
 
 | Mimi 中的服务 | 开通 / 管理入口 | 需要准备 |
 | --- | --- | --- |
-| [Alibaba Cloud / 阿里云](#alibaba-cloud) | [北京 API Key](https://bailian.console.aliyun.com/cn-beijing/model/settings/api-key) · [业务空间管理](https://bailian.console.aliyun.com/cn-beijing/settings/workspace) | 北京地域的百炼 API Key；[LiveTranslate 同声](#alibaba-livetranslate)另需对应业务空间 ID |
+| [Alibaba Cloud / 阿里云](#alibaba-cloud) | [北京 API Key](https://bailian.console.aliyun.com/cn-beijing/model/settings/api-key) · [业务空间管理](https://bailian.console.aliyun.com/cn-beijing/settings/workspace) | 北京地域的百炼 API Key；[同声传译](#alibaba-livetranslate)另需对应业务空间 ID |
 | [Volcano Engine / 火山引擎](#volcano-engine) | [豆包语音 API Key 管理](https://console.volcengine.com/speech/new/setting/apikeys?projectName=default) | 已开通同声传译 2.0 的同一项目内的 API Key |
 | [Google Gemini](#google-gemini) | [Google AI Studio](https://aistudio.google.com/api-keys) | 可调用 Gemini Live 翻译模型的 API Key |
 | [Tencent Cloud / 腾讯云](#tencent-cloud) | [ASR 控制台](https://console.cloud.tencent.com/asr) | AppID、SecretID、SecretKey |
@@ -79,12 +79,12 @@
 
 <a id="alibaba-livetranslate"></a>
 
-### 在桌面端配置 LiveTranslate 同声传译
+### 在桌面端配置同声传译
 
-当前源码中的「**LiveTranslate（同声传译）**」是桌面实验模式，使用 `qwen3.8-livetranslate-flash-realtime`，在同一音频会话中返回原文和译文，只显示文字，不播放译音。目前支持**北京地域、自动识别源语言、60 种文字翻译目标及只显示原文**。已有「先识别，再翻译」配置保持不变，Android 暂无选择入口。
+当前源码中的「**同声传译**」是桌面实验模式，使用阿里云 LiveTranslate 模型 `qwen3.8-livetranslate-flash-realtime`，在同一音频会话中返回原文和译文，只显示文字，不播放译音。目前支持**北京地域、自动识别源语言、60 种文字翻译目标及只显示原文**。已有「先识别，再翻译」配置保持不变，Android 暂无选择入口。
 
 1. 打开[北京业务空间管理](https://bailian.console.aliyun.com/cn-beijing/settings/workspace)和 [API Key 管理](https://bailian.console.aliyun.com/cn-beijing/model/settings/api-key)，也可以在 Mimi 的阿里设置中点击「**获取业务空间 ID**」「**获取 API Key**」。复制现有业务空间 ID 和同一空间的 Key。若看到 `llm-xxx.cn-beijing.maas.aliyuncs.com` 这样的 API Host，ID 只填 `llm-xxx`；已保存的匹配 Key 可以复用。
-2. 停止字幕，在「**设置 → 模型与服务 → 阿里云 → 识别与翻译**」选择「**LiveTranslate（同声传译）**」，填入业务空间 ID、API Key，保存并选用该配置。
+2. 停止字幕，在「**设置 → 模型与服务 → 阿里云 → 识别与翻译**」选择「**同声传译**」，填入业务空间 ID、API Key，保存并选用该配置。
 3. 识别语言选「**自动识别**」，在界面可选项中选择所需翻译语言，播放一小段非敏感样本，再开启「**实时字幕**」，试完后停止。「先识别，再翻译」仍可选，切回后会恢复已保存的独立文字翻译服务。
 
 若提示无权限，检查业务空间中该模型的「模型调用」权限，以及 Key 的自定义模型范围和 IP 限制。**API 调用可能收费**，开始前查看试用余量、有效期和付费状态。「原文」只隐藏译文，仍可能产生翻译用量。连接检查不代表字幕质量或长会话稳定性已经验证。
@@ -345,7 +345,7 @@ Android 的八个内置云语音服务使用上文对应凭证，但没有 Apple
 | 桌面服务 | 识别 / 原文与翻译所用模型或接口 | 在 Mimi 中如何选择 |
 | --- | --- | --- |
 | 阿里云 — 先识别，再翻译 | 识别：`qwen-audio-3.0-asr-flash-streaming`；默认文字翻译：`qwen-mt-lite` | 内置固定；可单独更换文字翻译服务 |
-| 阿里云 — LiveTranslate 同声 | `qwen3.8-livetranslate-flash-realtime`；原文和译文来自同一实时会话 | 在「识别与翻译」中选择「LiveTranslate（同声传译）」；见[配置步骤](#alibaba-livetranslate) |
+| 阿里云 — LiveTranslate 同声 | `qwen3.8-livetranslate-flash-realtime`；原文和译文来自同一实时会话 | 在「识别与翻译」中选择「同声传译」；见[配置步骤](#alibaba-livetranslate) |
 | Google Gemini | `gemini-3.5-live-translate-preview`；原文和译文来自同一 Live 会话，没有另填 ASR 模型 | 内置固定 |
 | Volcano Engine | 豆包同声传译 2.0，资源 ID `volc.service_type.10053`；`/api/v4/ast/v2/translate` | 内置服务接口；请求未指定公开模型 ID |
 | Tencent Cloud | ASR 实时语音翻译；翻译模型 `hunyuan-translation-lite` | 内置固定；识别由该服务提供，未单独指定 ASR 模型 ID |

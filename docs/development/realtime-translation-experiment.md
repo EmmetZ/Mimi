@@ -1,7 +1,7 @@
 # Try Alibaba LiveTranslate simultaneous interpretation
 
 The current development build starts new Alibaba configurations in
-**LiveTranslate (simultaneous)** under
+**Simultaneous translation** under
 **Settings → Models & Services → Alibaba Cloud → Recognition and
 translation**. Existing profiles keep **Recognize, then translate** until explicitly
 changed; a workspace ID is required before LiveTranslate can be saved.

@@ -1904,7 +1904,7 @@ it("shows LiveTranslate as the single integrated opt-in mode and hides independe
   const realtime: ServiceProfile = { ...profile, credentialState: "present", speechCredentialState: "present", alibabaRealtimeMode: mode, alibabaWorkspaceId: "test-workspace", textTranslation: "deepLX" };
   await render({ ...settings, profiles: [realtime] });
   await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")?.click());
-  expect(host.querySelector(".alibaba-realtime-settings")?.textContent).toContain("LiveTranslate");
+  expect(host.querySelector(".alibaba-realtime-settings")?.textContent).toContain("Simultaneous translation");
   expect(host.querySelector(".service-stage--translation")).toBeNull();
   expect(host.querySelector(".service-proxies")?.textContent).not.toContain(I18N.settings.textTranslationLabel);
   expect(host.querySelector<HTMLInputElement>(`#profile-workspace-${profile.id}`)?.value).toBe("test-workspace");
@@ -1917,7 +1917,7 @@ it("requires an explicit workspace before saving an experimental mode", async ()
   await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")?.click());
   const select = host.querySelector<HTMLButtonElement>('.alibaba-realtime-settings [role="combobox"]')!;
   await act(async () => select.click());
-  const live = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(node => node.querySelector(".mimi-select__label")?.textContent === "LiveTranslate (simultaneous)")!;
+  const live = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(node => node.querySelector(".mimi-select__label")?.textContent === "Simultaneous translation")!;
   await act(async () => live.click());
   const save = [...host.querySelectorAll<HTMLButtonElement>('.alibaba-realtime-settings button')].find(node => node.textContent === "Save")!;
   expect(save.disabled).toBe(true);

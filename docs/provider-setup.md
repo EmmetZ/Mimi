@@ -81,10 +81,10 @@ Billing: speech recognition and translation can both incur charges. Changing the
 
 ### Configure LiveTranslate simultaneous interpretation on desktop
 
-**LiveTranslate (simultaneous)** is a desktop experiment in the current source. It uses `qwen3.8-livetranslate-flash-realtime` to return original and translated text from one audio session, with no translated speech playback. It currently supports **Beijing**, **automatic source recognition**, and **60 text translation targets plus Original**. Existing Recognize, then translate configurations stay unchanged; Android has no selector yet.
+**Simultaneous translation** is a desktop experiment in the current source. It uses `qwen3.8-livetranslate-flash-realtime` to return original and translated text from one audio session, with no translated speech playback. It currently supports **Beijing**, **automatic source recognition**, and **60 text translation targets plus Original**. Existing Recognize, then translate configurations stay unchanged; Android has no selector yet.
 
 1. Open [Beijing workspace management](https://bailian.console.aliyun.com/cn-beijing/settings/workspace) and [API Key management](https://bailian.console.aliyun.com/cn-beijing/model/settings/api-key), or click **Get workspace ID** and **Get API key** in Mimi's Alibaba settings. Copy an existing workspace ID and a key belonging to that workspace. For an API Host such as `llm-xxx.cn-beijing.maas.aliyuncs.com`, the ID is just `llm-xxx`; a saved matching key can be reused.
-2. Stop subtitles. In **Settings → Models & Services → Alibaba Cloud → Recognition and translation**, choose **LiveTranslate (simultaneous)**, enter the workspace ID and API key, save, and select the configuration.
+2. Stop subtitles. In **Settings → Models & Services → Alibaba Cloud → Recognition and translation**, choose **Simultaneous translation**, enter the workspace ID and API key, save, and select the configuration.
 3. Choose **Automatic** recognition and the desired translation language from the available options, play a short non-sensitive sample, and turn on **Live Subtitles**. Stop afterward. **Recognize, then translate** remains available and restores the saved independent text translator.
 
 If access is denied, check the workspace's model-call permission for `qwen3.8-livetranslate-flash-realtime` and any custom key model/IP restrictions. **API usage can be charged**; check trial allowance, expiry, and billing before starting. **Original** hides the translation but may still incur translation usage. A connection check does not verify subtitle quality or long-session stability.
@@ -345,7 +345,7 @@ This table describes the desktop app's default and optional request paths. Model
 | Desktop service | Models or APIs used for recognition / original text and translation | How to select them in Mimi |
 | --- | --- | --- |
 | Alibaba Cloud — Recognize, then translate | Recognition: `qwen-audio-3.0-asr-flash-streaming`; default text translation: `qwen-mt-lite` | Fixed built-in models; the text translation service can be changed independently |
-| Alibaba Cloud — LiveTranslate | `qwen3.8-livetranslate-flash-realtime`; original and translated text come from one realtime session | Select **LiveTranslate (simultaneous)** under **Recognition and translation**; [setup](#alibaba-livetranslate) |
+| Alibaba Cloud — LiveTranslate | `qwen3.8-livetranslate-flash-realtime`; original and translated text come from one realtime session | Select **Simultaneous translation** under **Recognition and translation**; [setup](#alibaba-livetranslate) |
 | Google Gemini | `gemini-3.5-live-translate-preview`; original and translated text come from the same Live session, with no separate ASR model to enter | Fixed built-in model |
 | Volcano Engine | Doubao Simultaneous Interpretation 2.0, resource ID `volc.service_type.10053`; `/api/v4/ast/v2/translate` | Built-in service endpoint; the request does not specify a public model ID |
 | Tencent Cloud | ASR realtime speech translation; translation model: `hunyuan-translation-lite` | Fixed built-in configuration; the service provides recognition without a separate ASR model ID in the request |

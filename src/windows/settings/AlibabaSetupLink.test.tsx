@@ -53,17 +53,19 @@ it("keeps a disabled setup control inactive", async () => {
 });
 
 
-it.each(UI_LANGUAGES)("exposes only ASR + MT and LiveTranslate modes in %s", async language => {
+it.each(UI_LANGUAGES)("labels both translation modes in the interface language in %s", async language => {
   setStoredUiLanguage(language);
   await act(async () => root.render(<AlibabaRealtimeSettings
     profile={{ id: "synthetic", name: "Alibaba", provider: "alibabaCloud", credentialState: "present", alibabaRealtimeMode: "liveTranslate", alibabaWorkspaceId: "llm-test-workspace" }}
     disabled={false} onSave={vi.fn()} />));
   const selector = host.querySelector<HTMLButtonElement>('[role="combobox"]')!;
-  expect(selector.textContent).toContain("LiveTranslate");
+  expect(selector.textContent?.trim()).toBeTruthy();
+  expect(selector.textContent).not.toMatch(/LiveTranslate|ASR \+ MT/);
   await act(async () => selector.click());
   const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')];
   expect(options).toHaveLength(2);
-  expect(options[0].querySelector(".mimi-select__label")?.textContent).toContain("LiveTranslate");
+  expect(options[0].querySelector(".mimi-select__label")?.textContent).toBe(selector.textContent);
+  expect(options[0].getAttribute("aria-selected")).toBe("true");
   expect(options[1].querySelector(".mimi-select__label")?.textContent?.trim()).toBeTruthy();
   const descriptions = options.map(option => option.querySelector(".mimi-select__description")?.textContent);
   expect(descriptions.every(description => typeof description === "string" && description.trim().length > 0)).toBe(true);
