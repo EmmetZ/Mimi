@@ -28,15 +28,19 @@ Oberflächenillustration mit Beispieldialog. [Untertitel und immersiven Modus an
 - **Verstehen, was läuft**: schwebende Untertitel für Sprache in Filmen, Streams und Unterricht. Zeige beide Sprachen, nur die Übersetzung oder nur das Original.
 - **Audio auswählen**: standardmäßig den Computerton; Mikrofon oder beide Quellen aktivierst du selbst. Unter macOS / Windows 11 kannst du eine einzelne App wählen. Unter Linux kannst du einen einzelnen Wiedergabestream auswählen.
 - **Lesbarkeit anpassen**: ändere Position, Schriftgröße und Farbe. Im immersiven Modus bleibt nur der Text; mit Klickdurchleitung bedienst du die App darunter.
-- **Bei Bedarf speichern**: speichere am Desktop Untertitel oder das gewählte Audio und exportiere TXT / WAV. Speichern und Aufnehmen sind standardmäßig aus.
+- **Untertitel und Audio speichern**: Speichere am Desktop Untertitel als TXT oder nimm die gewählte Audioquelle als WAV auf. Beide Funktionen sind zunächst ausgeschaltet.
 
 ## Erste Schritte
 
-1. **[Mimi herunterladen](https://github.com/yuxino/mimi/releases/latest)** für macOS 13+ (Apple-Chip / Intel), Windows x64 oder Linux x86_64. Für Smartphones gibt es die [Android-Anleitung (Englisch)](../../android/README.md#start).
-2. **Einen Dienst einrichten** unter Einstellungen → Modelle & Dienste (in älteren Versionen Sprache & Übersetzung). Wähle einen Dienst und speichere die Zugangsdaten. Die [Einrichtungsanleitung (Englisch)](../provider-setup.md#choose) erklärt die Auswahl und wo du einen Schlüssel bekommst.
-3. **Untertitel starten**. Wähle Audioquelle, gesprochene Sprache und Zielsprache. Spiele etwas ab, aktiviere Live-Untertitel auf der Untertitelseite und erteile die angefragten Audioberechtigungen.
+[Desktop-Version herunterladen](https://github.com/yuxino/mimi/releases/latest) · [Android einrichten (Englisch)](../../android/README.md#start)
 
-Mimi ist kostenlos; Cloud-Dienste können Gebühren erheben. Cloud-Erkennung erhält Audio, externe Textübersetzung den erkannten Text. Lokale Verarbeitung erfordert unterstützte Apple-Dienste; Voraussetzungen stehen in der Einrichtungsanleitung.
+Die Desktop-Version unterstützt macOS 13+ (Apple-Chip und Intel), Windows x64 und Linux x86_64.
+
+1. **Dienst einrichten**: Füge unter Einstellungen → Modelle & Dienste einen Sprachdienst hinzu. Die [Einrichtungsanleitung (Englisch)](../provider-setup.md#choose) erklärt die Auswahl und den Erhalt der Zugangsdaten.
+2. **Audio und Sprachen wählen**: Wähle in den Audio- und Spracheinstellungen die Audioquelle, die gesprochene Sprache und die Zielsprache.
+3. **Untertitel starten**: Aktiviere Live-Untertitel auf der Untertitelseite, erteile die angefragten Berechtigungen und spiele deinen Inhalt ab.
+
+Mimi ist kostenlos; Cloud-Dienste können Gebühren erheben. Bei Erkennung oder Übersetzung in der Cloud werden Audio oder erkannter Text an den gewählten Dienst gesendet. Die Voraussetzungen für lokale Apple-Dienste stehen in der [Einrichtungsanleitung (Englisch)](../provider-setup.md#apple-speech).
 
 ## Hilfe benötigt?
 

@@ -28,15 +28,19 @@ Illustration de l’interface avec un dialogue d’exemple. [Voir les sous-titre
 - **Comprendre ce qui passe** : des sous-titres flottants pour les voix des films, diffusions et cours. Affichez les deux langues, la traduction seule ou l’original seul.
 - **Choisir la source** : le son de l’ordinateur par défaut ; activez vous-même le microphone ou les deux sources. Sélectionnez une application sous macOS / Windows 11. Sous Linux, choisissez un flux de lecture individuel.
 - **Adapter l’affichage** : réglez la position, la taille et la couleur. Le mode immersif ne garde que le texte ; la transparence aux clics permet d’utiliser l’application dessous.
-- **Enregistrer au besoin** : sur ordinateur, conservez les sous-titres ou le son sélectionné et exportez en TXT / WAV. La sauvegarde et l’enregistrement sont désactivés par défaut.
+- **Enregistrer les sous-titres et le son** : sur ordinateur, sauvegardez les sous-titres en TXT ou enregistrez la source audio choisie en WAV. Ces deux options doivent être activées manuellement.
 
 ## Premiers pas
 
-1. **[Téléchargez Mimi](https://github.com/yuxino/mimi/releases/latest)** pour macOS 13+ (puce Apple / Intel), Windows x64 ou Linux x86_64. Sur téléphone, suivez le [guide Android (anglais)](../../android/README.md#start).
-2. **Configurez un service** dans Réglages → Modèles et services (Parole et traduction dans les anciennes versions). Choisissez le service et enregistrez ses identifiants. Le [guide de configuration (anglais)](../provider-setup.md#choose) explique les choix et l’obtention d’une clé.
-3. **Lancez les sous-titres**. Choisissez la source audio, la langue parlée et la langue cible. Lancez un contenu, activez les sous-titres en direct sur la page Sous-titres et accordez les autorisations audio demandées.
+[Télécharger pour ordinateur](https://github.com/yuxino/mimi/releases/latest) · [Installation sur Android (anglais)](../../android/README.md#start)
 
-Mimi est gratuit ; les services cloud peuvent être payants. La reconnaissance cloud reçoit l’audio, la traduction distante reçoit le texte reconnu. Le traitement local nécessite des services Apple compatibles ; consultez les conditions dans le guide de configuration.
+La version pour ordinateur prend en charge macOS 13+ (puce Apple et Intel), Windows x64 et Linux x86_64.
+
+1. **Configurez un service** dans Réglages → Modèles et services. Le [guide de configuration (anglais)](../provider-setup.md#choose) explique comment choisir un service et obtenir ses identifiants.
+2. **Choisissez le son et les langues** dans les réglages audio : source à capturer, langue parlée et langue de traduction.
+3. **Lancez les sous-titres** depuis la page Sous-titres. Activez les sous-titres en direct, accordez les autorisations demandées, puis lancez votre contenu.
+
+Mimi est gratuit ; les services cloud peuvent être payants. La reconnaissance ou la traduction dans le cloud transmet l’audio ou le texte reconnu au service choisi. Les conditions des services locaux Apple figurent dans le [guide de configuration (anglais)](../provider-setup.md#apple-speech).
 
 ## Besoin d’aide ?
 

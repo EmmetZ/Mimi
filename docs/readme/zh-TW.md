@@ -12,7 +12,7 @@
     <a href="https://github.com/yuxino/mimi/releases/latest"><img src="https://img.shields.io/badge/macOS-13%2B-555?style=flat&amp;logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
     <a href="https://github.com/yuxino/mimi/releases/latest"><img src="https://img.shields.io/badge/Windows-x64-0078D4?style=flat&amp;logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTF2MTFIMHptMTMgMGgxMXYxMUgxM3pNMCAxM2gxMXYxMUgwem0xMyAwaDExdjExSDEzeiIvPjwvc3ZnPg%3D%3D&amp;logoColor=white" alt="Windows x64"></a>
     <a href="https://github.com/yuxino/mimi/releases/latest"><img src="https://img.shields.io/badge/Linux-x86__64-FCC624?style=flat&amp;logo=linux&amp;logoColor=white" alt="Linux"></a>
-    <a href="../../android/README.md"><img src="https://img.shields.io/badge/Android-app-3DDC84?style=flat&amp;logo=android&amp;logoColor=white" alt="Android"></a>
+    <a href="../../android/README.zh-CN.md"><img src="https://img.shields.io/badge/Android-app-3DDC84?style=flat&amp;logo=android&amp;logoColor=white" alt="Android"></a>
   </p>
   <p>
     <a href="../../README_EN.md">English</a> · <a href="../../README.md">简体中文</a> · <a href="zh-TW.md">繁體中文</a> · <a href="ja.md">日本語</a> · <a href="th.md">ภาษาไทย</a> · <a href="ko.md">한국어</a> · <a href="fr.md">Français</a> · <a href="de.md">Deutsch</a>
@@ -23,20 +23,24 @@
 
 字幕顯示示意，使用範例對白。[觀看字幕與沉浸模式示範（舊版介面）](../demos/README.md)。
 
-## 邊聽邊看字幕
+## 即時字幕與翻譯
 
-- **看懂正在播放的內容**：電影、直播、線上課程中的人聲，顯示為懸浮字幕。可看雙語、只看譯文或只看原文。
-- **選擇聽什麼**：預設使用電腦聲音，也可主動開啟麥克風，或同時使用兩路。macOS / Windows 11 可指定應用程式。 Linux 可選擇個別播放音訊串流。
-- **讓字幕適合你**：調整位置、字級和顏色；沉浸模式只留字幕，點擊穿透讓你繼續操作下方應用程式。
-- **需要時再儲存**：桌面版可儲存字幕或錄製所選音源，匯出 TXT / WAV。預設不儲存、不錄音。
+- **懸浮字幕**：為電影、直播、線上課程即時顯示字幕，支援雙語、僅譯文或僅原文。
+- **選擇音源**：擷取電腦聲音、麥克風，或同時擷取兩路。macOS / Windows 11 支援指定應用程式，Linux 支援選擇個別播放串流。
+- **調整顯示**：自由調整字幕位置、字級和顏色；沉浸模式只顯示文字，點擊穿透可讓你繼續操作下方應用程式。
+- **儲存字幕和錄音**：桌面版可將字幕存成 TXT，也可將所選音源錄製為 WAV。兩項功能皆需手動開啟。
 
 ## 開始使用
 
-1. **[下載 Mimi](https://github.com/yuxino/mimi/releases/latest)**。支援 macOS 13+（Apple 晶片 / Intel）、Windows x64、Linux x86_64；手機請看 [Android 安裝與使用（英文）](../../android/README.md#start)。
-2. **新增服務設定**。開啟「設定 → 模型與服務」（舊版為「語音與翻譯」），選擇服務並儲存認證資訊。不知道選哪家、Key 去哪拿？請看[服務設定指南（簡體中文）](../provider-setup.zh-CN.md#choose)。
-3. **開啟字幕**。選擇音源、辨識語言和翻譯語言，播放內容，在「字幕」頁開啟「即時字幕」，依系統提示授予錄音權限。
+[下載桌面版](https://github.com/yuxino/mimi/releases/latest) · [Android 安裝與使用（簡體中文）](../../android/README.zh-CN.md#start)
 
-Mimi 免費，雲端服務可能收費。雲端辨識會接收音訊，遠端文字翻譯會接收辨識文字；本機處理需選擇支援的 Apple 服務。需求詳見設定指南。
+桌面版支援 macOS 13+（Apple 晶片和 Intel）、Windows x64、Linux x86_64。
+
+1. **設定服務**：在「設定 → 模型與服務」中新增語音服務。服務選擇與金鑰取得方式見[設定指南（簡體中文）](../provider-setup.zh-CN.md#choose)。
+2. **選擇聲音和語言**：在「聲音與語言」中選擇要擷取的音源、辨識語言和翻譯語言。
+3. **開啟字幕**：在「字幕」頁開啟「即時字幕」，依提示授予所需權限，再播放想看的內容。
+
+Mimi 本身免費，雲端服務可能收費。使用雲端辨識或翻譯時，音訊或辨識文字會傳送給相應服務。Apple 本機服務的適用條件見[設定指南（簡體中文）](../provider-setup.zh-CN.md#apple-speech)。
 
 ## 使用中遇到問題？
 

@@ -12,7 +12,7 @@
     <a href="https://github.com/yuxino/mimi/releases/latest"><img src="https://img.shields.io/badge/macOS-13%2B-555?style=flat&amp;logo=apple&amp;logoColor=white" alt="macOS 13+"></a>
     <a href="https://github.com/yuxino/mimi/releases/latest"><img src="https://img.shields.io/badge/Windows-x64-0078D4?style=flat&amp;logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0wIDBoMTF2MTFIMHptMTMgMGgxMXYxMUgxM3pNMCAxM2gxMXYxMUgwem0xMyAwaDExdjExSDEzeiIvPjwvc3ZnPg%3D%3D&amp;logoColor=white" alt="Windows x64"></a>
     <a href="https://github.com/yuxino/mimi/releases/latest"><img src="https://img.shields.io/badge/Linux-x86__64-FCC624?style=flat&amp;logo=linux&amp;logoColor=white" alt="Linux"></a>
-    <a href="android/README.md"><img src="https://img.shields.io/badge/Android-app-3DDC84?style=flat&amp;logo=android&amp;logoColor=white" alt="Android"></a>
+    <a href="android/README.zh-CN.md"><img src="https://img.shields.io/badge/Android-app-3DDC84?style=flat&amp;logo=android&amp;logoColor=white" alt="Android"></a>
   </p>
   <p>
     <a href="README_EN.md"><strong>English</strong></a> · <a href="docs/readme/zh-CN.md">简体中文</a> · <a href="docs/readme/zh-TW.md">繁體中文</a> · <a href="docs/readme/ja.md">日本語</a> · <a href="docs/readme/th.md">ภาษาไทย</a> · <a href="docs/readme/ko.md">한국어</a> · <a href="docs/readme/fr.md">Français</a> · <a href="docs/readme/de.md">Deutsch</a>
@@ -23,20 +23,24 @@
 
 字幕显示示意，使用示例对白。[看字幕与沉浸模式演示（旧版界面）](docs/demos/README.md)。
 
-## 边听边看字幕
+## 实时字幕与翻译
 
-- **看懂正在播放的内容**：电影、直播、网课中的人声，显示为悬浮字幕。可看双语、只看译文或只看原文。
-- **选择听什么**：默认听电脑声音，也可主动开启麦克风，或同时使用两路。macOS / Windows 11 可指定应用。 Linux 可选择单独的播放音频流。
-- **让字幕适合你**：调整位置、字号和颜色；沉浸模式只留字幕，点击穿透让你继续操作下方应用。
-- **需要时再保存**：桌面端可保存字幕或录制所选音源，导出 TXT / WAV。默认不保存、不录音。
+- **悬浮字幕**：为电影、直播、网课实时显示字幕，支持双语、仅译文或仅原文。
+- **选择音源**：采集电脑声音、麦克风，或同时采集两路。macOS / Windows 11 支持指定应用，Linux 支持选择单独的播放流。
+- **调整显示**：自由调整字幕位置、字号和颜色；沉浸模式只显示文字，点击穿透可让你继续操作下方应用。
+- **保存字幕和录音**：桌面端可将字幕保存为 TXT，也可将所选音源录制为 WAV。两项功能均需手动开启。
 
 ## 开始使用
 
-1. **[下载 Mimi](https://github.com/yuxino/mimi/releases/latest)**。支持 macOS 13+（Apple 芯片 / Intel）、Windows x64、Linux x86_64；手机请看 [Android 安装与使用（英文）](android/README.md#start)。
-2. **添加服务配置**。打开「设置 → 模型与服务」（旧版为「语音与翻译」），选择服务并保存凭证。不知道选哪家、Key 去哪拿？按[服务配置指南](docs/provider-setup.zh-CN.md#choose)操作。
-3. **开启字幕**。选择音源、识别语言和翻译语言，播放内容，在「字幕」页开启「实时字幕」，按系统提示授予录音权限。
+[下载桌面版](https://github.com/yuxino/mimi/releases/latest) · [Android 安装与使用](android/README.zh-CN.md#start)
 
-Mimi 免费，云服务可能收费。云端识别会接收音频，远程文字翻译会接收识别文字；本地处理需选择支持的 Apple 服务。具体要求见配置指南。
+桌面版支持 macOS 13+（Apple 芯片和 Intel）、Windows x64、Linux x86_64。
+
+1. **配置服务**：在「设置 → 模型与服务」中添加语音服务。服务选择和密钥获取方法见[配置指南](docs/provider-setup.zh-CN.md#choose)。
+2. **选择声音和语言**：在「声音与语言」中选择要采集的音源、识别语言和翻译语言。
+3. **开启字幕**：在「字幕」页打开「实时字幕」，按提示授予所需权限，再播放想看的内容。
+
+Mimi 本身免费，云服务可能收费。使用云端识别或翻译时，音频或识别文字会发送给相应服务。Apple 本地服务的适用条件见[配置指南](docs/provider-setup.zh-CN.md#apple-speech)。
 
 ## 使用中遇到问题？
 

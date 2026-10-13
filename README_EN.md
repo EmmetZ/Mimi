@@ -23,20 +23,24 @@
 
 Interface illustration with sample dialogue. [Watch subtitles and Immersive Mode (older UI)](docs/demos/README.md).
 
-## Follow along with live subtitles
+## Live subtitles and translation
 
-- **Understand what’s playing**: floating subtitles for speech in films, streams, and classes. Show both languages, translations only, or originals only.
-- **Choose what to hear**: computer audio by default; enable your microphone or both sources yourself. Pick an individual app on macOS / Windows 11. Linux lets you select an individual playback stream.
-- **Make subtitles fit**: adjust position, size, and color. Immersive Mode leaves only the text; click-through lets you use the app underneath.
-- **Save when you need to**: on desktop, save subtitles or record selected audio and export TXT / WAV. Saving and recording are off by default.
+- **Floating subtitles** for films, streams, and classes. Show both languages, translations only, or originals only.
+- **Choose your audio**: computer audio, microphone, or both. Select an app on macOS / Windows 11, or an individual playback stream on Linux.
+- **Adjust the display**: change position, font size, and color. Immersive Mode shows only text; click-through lets you use the app underneath.
+- **Save subtitles and audio**: on desktop, save subtitles as TXT or record selected audio as WAV. Both options are off until you enable them.
 
 ## Get started
 
-1. **[Download Mimi](https://github.com/yuxino/mimi/releases/latest)** for macOS 13+ (Apple silicon / Intel), Windows x64, or Linux x86_64. For phones, follow [Android setup](android/README.md#start).
-2. **Add a service configuration** in Settings → Models & Services (Speech & Translation in older versions). Choose a service and save its credentials. The [service setup guide](docs/provider-setup.md#choose) explains the choices and where to get a key.
-3. **Start subtitles**. Choose your audio source, spoken language, and translation language. Play something, turn on Live Subtitles on the Subtitles page, and grant audio permissions when prompted.
+[Download for desktop](https://github.com/yuxino/mimi/releases/latest) · [Android setup](android/README.md#start)
 
-Mimi is free; cloud services may charge. Cloud recognition receives audio, and remote text translation receives recognized text. Local processing requires supported Apple services; see the setup guide for requirements.
+Desktop supports macOS 13+ (Apple silicon and Intel), Windows x64, and Linux x86_64.
+
+1. **Set up a service** in Settings → Models & Services. The [setup guide](docs/provider-setup.md#choose) explains how to choose a service and get its credentials.
+2. **Choose audio and languages** in Audio & Languages: select your audio source, spoken language, and translation language.
+3. **Start subtitles** on the Subtitles page. Turn on Live Subtitles, grant the requested permissions, and play your content.
+
+Mimi is free; cloud services may charge. Cloud recognition or translation sends audio or recognized text to the selected service. See the [setup guide](docs/provider-setup.md#apple-speech) for Apple local service requirements.
 
 ## Need help?
 

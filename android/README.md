@@ -3,7 +3,7 @@
 Floating translated subtitles for audio playing on your phone. Watch a video,
 stream, or class with the original text, translation, or both on screen.
 
-[Desktop home](../README_EN.md) · [中文首页](../README.md)
+[English](README.md) · [简体中文](README.zh-CN.md) · [Desktop home](../README_EN.md)
 
 <a id="start"></a>
 
@@ -17,7 +17,9 @@ stream, or class with the original text, translation, or both on screen.
 Android captures app playback, **not the microphone**. Android still requires the
 audio-recording permission for playback capture. Some apps block capture, so protected
 content may produce no subtitles. Cloud recognition receives the captured audio;
-remote text translation receives recognized text. History is off by default.
+remote text translation receives recognized text. New installs retain the three most recent
+confirmed captions in memory; existing installations keep their previous setting.
+Stopping clears these captions without saving a transcript.
 
 Need to change the text translator? See [independent text translation](#independent-text-translation).
 Android has no Apple Speech or custom recognition setup. See [known limits](#known-limits)
