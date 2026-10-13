@@ -117,7 +117,7 @@ it("shows four explicit list actions and copies the requested row without using 
   }
   expect(rows[0].querySelector<HTMLButtonElement>(".service-row__use")!.disabled).toBe(true);
   expect(rows[0].querySelector(".service-row__use")!.textContent).toContain(I18N.settings.profileActionUse);
-  expect(rows[0].querySelector(".service-row__state")!.textContent).toContain(I18N.settings.activeProfile);
+  expect(rows[0].querySelector(".service-row__heading")!.textContent).toContain(I18N.settings.activeProfile);
   await act(async () => rows[1].querySelector<HTMLButtonElement>(".service-row__duplicate")!.click());
   expect(actions.duplicateProfile).toHaveBeenCalledExactlyOnceWith(other.id, copy.name);
   expect(actions.selectProfile).not.toHaveBeenCalled();
@@ -199,7 +199,7 @@ it("marks the current row while allowing its saved language combination to be ap
   await render(initial);
   const use = host.querySelector<HTMLButtonElement>(".service-row__use")!;
   expect(use.disabled).toBe(false);
-  expect(host.querySelector(".service-row__state")!.textContent).toContain(I18N.settings.activeProfile);
+  expect(host.querySelector(".service-row__heading")!.textContent).toContain(I18N.settings.activeProfile);
   await act(async () => use.click());
   expect(actions.selectProfile).toHaveBeenCalledExactlyOnceWith(profile.id);
 });
@@ -458,7 +458,8 @@ it("discards late Apple support failures after leaving the service surface", asy
 it("shows a custom speech profile as ready for Original even when its independent translation key is missing", async () => {
   const custom: ServiceProfile = { ...profile, provider: "customDashScopeASR", credentialState: "missing", speechCredentialState: "present", textCredentialState: "missing", textTranslation: "deepL" };
   await render({ ...settings, targetLanguage: "original", profiles: [custom] });
-  expect(host.querySelector(".credential-badge")?.getAttribute("aria-label")).toBe(I18N.settings.credentialPresent);
+  expect(host.querySelector(".service-row__heading .settings-help-control__description")?.textContent).toBe(I18N.settings.credentialPresent);
+  expect(host.querySelector(".service-row__state")).toBeNull();
   await act(async () => host.querySelector<HTMLButtonElement>(".service-row__edit")!.click());
   expect(host.querySelector(".service-detail__title .credential-badge")?.getAttribute("aria-label")).toBe(I18N.settings.credentialPresent);
   expect(host.querySelector(".service-stage--translation")?.textContent).toContain("DeepL");
@@ -525,15 +526,20 @@ async function submit() {
   await act(async () => host.querySelector(".credential-form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
 }
 
-it.each(["zh", "en", "ja"] as const)("shows readable credential states without an isolated icon or extra focus stop in %s", async language => {
+it.each(["zh", "en", "ja"] as const)("keeps normal credentials in help and actionable credential problems visible in %s", async language => {
   setStoredUiLanguage(language);
   for (const [credentialState, label] of [["present", I18N.settings.credentialPresent], ["missing", I18N.settings.credentialMissing], ["unavailable", I18N.settings.credentialUnavailable]] as const) {
     await render({ ...settings, profiles: [{ ...profile, credentialState }] });
     const badge = host.querySelector<HTMLElement>(".credential-badge")!;
-    expect(badge.textContent).toBe(label);
-    expect(badge.getAttribute("aria-label")).toBe(label);
-    expect(badge.tabIndex).toBe(-1);
-    expect(badge.querySelector("svg")).toBeNull();
+    if (credentialState === "present") {
+      expect(badge).toBeNull();
+      expect(host.querySelector(".service-row__heading .settings-help-control__description")?.textContent).toBe(label);
+    } else {
+      expect(badge.textContent).toBe(label);
+      expect(badge.getAttribute("aria-label")).toBe(label);
+      expect(badge.tabIndex).toBe(-1);
+    }
+    expect(host.querySelector(".service-row__heading .profile-active-badge")?.textContent).toBe(I18N.settings.activeProfile);
     expect(actions.selectProfile).not.toHaveBeenCalled();
     expect(actions.updateProfile).not.toHaveBeenCalled();
     expect(actions.saveProfileCredentials).not.toHaveBeenCalled();
@@ -913,12 +919,15 @@ it.each(["zh", "en", "ja"] as const)("shows a default provider name once and kee
   const providerName = providerDisplayName("alibabaCloud");
   await render({ ...settings, profiles: [{ ...profile, name: providerName }, { ...profile, id: "custom", name: "Custom configuration" }] });
   const rows = [...host.querySelectorAll(".service-row")];
-  expect(rows[0].querySelector(".service-row__copy")?.textContent).toBe(providerName);
+  expect(rows[0].querySelector(".service-row__copy strong")?.textContent).toBe(providerName);
   expect(rows[0].querySelector(".service-row__provider")).toBeNull();
   expect(rows[1].querySelector(".service-row__copy strong")?.textContent).toBe("Custom configuration");
   expect(rows[1].querySelector(".service-row__provider")?.textContent).toBe(providerName);
   expect(rows.some(row => !!row.querySelector(".service-row__copy small"))).toBe(false);
   expect(rows.every((row) => !!row.querySelector(".service-row__main") && !!row.querySelector(".service-row__edit"))).toBe(true);
+  await render({ ...settings, profiles: [{ ...profile, name: providerName, textTranslation: "deepL" }] });
+  expect(host.querySelector(".service-row__provider")).toBeNull();
+  expect(host.querySelector(".service-row__translation")?.textContent).toContain("DeepL");
 });
 
 it("autosaves a name without a save button, stealing focus or touching a credential draft", async () => {

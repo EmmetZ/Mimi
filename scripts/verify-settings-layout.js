@@ -8,7 +8,7 @@ export async function verifyProfileActionsLayout(page, baseUrl = "http://127.0.0
   await page.cdp("Emulation.setFocusEmulationEnabled", { enabled: true });
   const failures = [];
   let checked = 0;
-  for (const width of [520, 952]) for (const language of ["en", "zh", "zh-TW", "ja", "de", "fr", "ko", "th"]) for (const theme of ["light", "dark"]) {
+  for (const width of [520, 828, 952, 1600]) for (const language of ["en", "zh", "zh-TW", "ja", "de", "fr", "ko", "th"]) for (const theme of ["light", "dark"]) {
     await page.cdp("Emulation.setDeviceMetricsOverride", { width, height: 1000, deviceScaleFactor: 1, mobile: false });
     await page.cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: theme }] });
     for (const platform of ["macos", "windows", "linux"]) for (const state of ["idle", "paused", "confirmation"]) {
@@ -24,6 +24,12 @@ export async function verifyProfileActionsLayout(page, baseUrl = "http://127.0.0
           if (row.scrollWidth > row.clientWidth + 1 || overlaps(rect(identity), rect(actions))) issues.push("row identity/actions overflow or overlap");
           const buttons = [...actions.querySelectorAll("button")];
           if (buttons.length !== 4 || identity.tagName !== "DIV") issues.push("four explicit actions missing");
+          if (buttons.some(button => Math.abs(rect(button).top - rect(buttons[0]).top) > 1)) issues.push("row actions split into multiple lines");
+          const icon = identity.querySelector(":scope > .provider-icon");
+          const copy = identity.querySelector(".service-row__copy");
+          for (const artwork of icon.querySelectorAll("img, svg")) {
+            if (rect(artwork).width > 0 && (rect(artwork).right > rect(copy).left - 4 || rect(artwork).width > rect(icon).width + 1)) issues.push("provider artwork crowds the profile name");
+          }
           if (Boolean(row.querySelector(".profile-active-badge")) !== (row.dataset.active === "true")) issues.push("current configuration marker missing");
           for (let index = 0; index < buttons.length; index++) {
             const button = buttons[index], bounds = rect(button);

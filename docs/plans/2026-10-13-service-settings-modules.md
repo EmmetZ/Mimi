@@ -53,6 +53,22 @@ Product-facing settings, overlay/tray labels, native window/display names and
 Android strings use Mimi. Preserve application identifiers, storage keys,
 signing requirements, binary/update filenames and canonical installation paths.
 
+## Configuration list density
+
+Keep the four explicit Use / Edit / Copy / Delete actions in one horizontal
+strip aligned with the profile heading. Let the whole strip move below the
+identity when the available width is insufficient; at minimum width, omit
+redundant action icons while keeping their text and accessible names. Do not
+force a two-by-two action grid that determines the height of otherwise short
+rows. Keep the destructive action visually distinct.
+
+Align the recognition mark with the title, including mixed-provider profiles.
+Avoid repeating a recognition provider already used as the profile title;
+retain distinct custom recognizer names and the independent translation route.
+Normal credential information belongs in adjacent help. Missing/unavailable
+credentials remain visible, and the active marker belongs beside the title.
+Use the same artwork dimensions as its icon slot to prevent marks crowding text.
+
 ## Verification
 
 Use synthetic browser fixtures for clicks, responsive geometry and review

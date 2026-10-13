@@ -766,70 +766,77 @@ export function ServiceProfiles({
             </button>
           </div>
           {settings.profiles.length > 0 && <div className="service-rows" aria-label={I18N.settings.serviceProfilesTitle}>
-            {settings.profiles.map((profile) => (
-              <div
-                className="service-row"
-                key={profile.id}
-                data-active={profile.id === settings.activeProfileId}
-              >
+            {settings.profiles.map((profile) => {
+              const credentialState = credentialStateForTarget(profile, profile.languagePreset?.targetLanguage ?? settings.targetLanguage);
+              const credentialLabel = credentialStateText(credentialState, profile.provider === "appleSpeech");
+              return (
                 <div
-                  className="service-row__main"
-                  role="group"
-                  aria-label={`${profile.name}${isCustomSpeechProvider(profile.provider) && profile.speechRecognitionName?.trim() ? `, ${I18N.settings.speechRecognition}: ${speechRecognitionDisplayName(profile)}` : ""}, ${credentialStateText(credentialStateForTarget(profile, profile.languagePreset?.targetLanguage ?? settings.targetLanguage), profile.provider === "appleSpeech")}${textTranslationForProfile(profile) !== "followService" ? `, ${I18N.settings.textTranslationLabel}: ${textTranslationDisplayName(profile)}` : ""}`}
+                  className="service-row"
+                  key={profile.id}
+                  data-active={profile.id === settings.activeProfileId}
                 >
-                  <ProviderIcon provider={profile.provider === "deepLX" ? "alibabaCloud" : profile.provider} />
-                  <span className="service-row__copy">
-                    <strong key={profile.name} title={profile.name}>{profileTitle(profile)}</strong>
-                    {profile.languagePreset && <span className="service-row__provider">{SOURCE_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.sourceLanguage]} → {TARGET_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.targetLanguage]}</span>}
-                    {profileSecondaryLabel(profile) && <span className="service-row__provider">{profileSecondaryLabel(profile)}</span>}
-                    {textTranslationForProfile(profile) !== "followService" && <span className="service-row__translation"><ProviderIcon provider={textTranslationForProfile(profile) as "deepL" | "deepLX" | "openAICompatible" | "chatMock" | "apple"} size={32} /><span>{I18N.settings.textTranslationLabel} · {textTranslationDisplayName(profile)}</span></span>}
-                  </span>
-                  <span className="service-row__state">
-                    <CredentialBadge state={credentialStateForTarget(profile, profile.languagePreset?.targetLanguage ?? settings.targetLanguage)} nativeSpeech={profile.provider === "appleSpeech"} />
-                    {profile.id === settings.activeProfileId && <span className="profile-active-badge">{I18N.settings.activeProfile}</span>}
-                  </span>
+                  <div
+                    className="service-row__main"
+                    role="group"
+                    aria-label={`${profile.name}${isCustomSpeechProvider(profile.provider) && profile.speechRecognitionName?.trim() ? `, ${I18N.settings.speechRecognition}: ${speechRecognitionDisplayName(profile)}` : ""}, ${credentialLabel}${textTranslationForProfile(profile) !== "followService" ? `, ${I18N.settings.textTranslationLabel}: ${textTranslationDisplayName(profile)}` : ""}`}
+                  >
+                    <ProviderIcon provider={profile.provider === "deepLX" ? "alibabaCloud" : profile.provider} size={24} />
+                    <span className="service-row__copy">
+                      <span className="service-row__heading">
+                        <strong key={profile.name} title={profile.name}>{profileTitle(profile)}</strong>
+                        {credentialState === "present" && <SettingsHelp text={credentialLabel} label={`${profileTitle(profile)} · ${I18N.settings.helpLabel}`} />}
+                        {profile.id === settings.activeProfileId && <span className="profile-active-badge">{I18N.settings.activeProfile}</span>}
+                      </span>
+                      {profile.languagePreset && <span className="service-row__provider">{SOURCE_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.sourceLanguage]} → {TARGET_LANGUAGE_DISPLAY_NAMES[profile.languagePreset.targetLanguage]}</span>}
+                      {profileSecondaryLabel(profile) && <span className="service-row__provider">{profileSecondaryLabel(profile)}</span>}
+                      {textTranslationForProfile(profile) !== "followService" && <span className="service-row__translation"><ProviderIcon provider={textTranslationForProfile(profile) as "deepL" | "deepLX" | "openAICompatible" | "chatMock" | "apple"} size={32} /><span>{I18N.settings.textTranslationLabel} · {textTranslationDisplayName(profile)}</span></span>}
+                      {credentialState !== "present" && <span className="service-row__state">
+                        <CredentialBadge state={credentialState} nativeSpeech={profile.provider === "appleSpeech"} />
+                      </span>}
+                    </span>
+                  </div>
+                  <div className="service-row__actions" role="group" aria-label={profile.name}>
+                    <button
+                      type="button"
+                      className="service-row__action service-row__use"
+                      disabled={selectionDisabled || !canUseProfile(profile) || !profileSelectionChangesSettings(profile, settings)}
+                      aria-label={`${I18N.settings.useProfile}: ${profile.name}`}
+                      onClick={() => void handleSelect(profile.id)}
+                    >
+                      <Icon name="checkmark" />{I18N.settings.profileActionUse}
+                    </button>
+                    <button
+                      type="button"
+                      className="service-row__action service-row__edit"
+                      disabled={pendingAction !== null}
+                      aria-label={`${I18N.settings.editProfile}: ${profile.name}`}
+                      onClick={() => openEditor(profile.id)}
+                    >
+                      <Icon name="gear" />{I18N.settings.profileActionEdit}
+                    </button>
+                    <button
+                      type="button"
+                      className="service-row__action service-row__duplicate"
+                      disabled={mutationsDisabled || atProfileLimit}
+                      aria-label={`${I18N.settings.duplicateProfile}: ${profile.name}`}
+                      aria-busy={pendingAction === "duplicate" || undefined}
+                      onClick={() => void handleDuplicate(profile)}
+                    >
+                      <Icon name="copy" />{I18N.settings.profileActionCopy}
+                    </button>
+                    <button
+                      type="button"
+                      className="service-row__action service-row__delete"
+                      disabled={mutationsDisabled || settings.profiles.length <= 1}
+                      aria-label={`${I18N.settings.deleteProfile}: ${profile.name}`}
+                      onClick={() => requestProfileDelete(profile)}
+                    >
+                      <Icon name="trash" />{I18N.settings.profileActionDelete}
+                    </button>
+                  </div>
                 </div>
-                <div className="service-row__actions" role="group" aria-label={profile.name}>
-                  <button
-                    type="button"
-                    className="service-row__action service-row__use"
-                    disabled={selectionDisabled || !canUseProfile(profile) || !profileSelectionChangesSettings(profile, settings)}
-                    aria-label={`${I18N.settings.useProfile}: ${profile.name}`}
-                    onClick={() => void handleSelect(profile.id)}
-                  >
-                    <Icon name="checkmark" />{I18N.settings.profileActionUse}
-                  </button>
-                  <button
-                    type="button"
-                    className="service-row__action service-row__edit"
-                    disabled={pendingAction !== null}
-                    aria-label={`${I18N.settings.editProfile}: ${profile.name}`}
-                    onClick={() => openEditor(profile.id)}
-                  >
-                    <Icon name="gear" />{I18N.settings.profileActionEdit}
-                  </button>
-                  <button
-                    type="button"
-                    className="service-row__action service-row__duplicate"
-                    disabled={mutationsDisabled || atProfileLimit}
-                    aria-label={`${I18N.settings.duplicateProfile}: ${profile.name}`}
-                    aria-busy={pendingAction === "duplicate" || undefined}
-                    onClick={() => void handleDuplicate(profile)}
-                  >
-                    <Icon name="copy" />{I18N.settings.profileActionCopy}
-                  </button>
-                  <button
-                    type="button"
-                    className="service-row__action service-row__delete"
-                    disabled={mutationsDisabled || settings.profiles.length <= 1}
-                    aria-label={`${I18N.settings.deleteProfile}: ${profile.name}`}
-                    onClick={() => requestProfileDelete(profile)}
-                  >
-                    <Icon name="trash" />{I18N.settings.profileActionDelete}
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>}
           {atProfileLimit && (
             <InlineFeedback tone="info">{I18N.settings.profileLimitReached}</InlineFeedback>
@@ -1093,9 +1100,9 @@ function profileDescription(profile: ServiceProfile): string {
 }
 
 function profileSecondaryLabel(profile: ServiceProfile): string | null {
-  if (textTranslationForProfile(profile) !== "followService") return `${I18N.settings.speechRecognition} · ${speechRecognitionDisplayName(profile)}`;
   const provider = speechRecognitionDisplayName(profile);
-  return profileTitle(profile).trim().toLowerCase() === provider.toLowerCase() ? null : provider;
+  return profileTitle(profile).trim().toLowerCase() === provider.toLowerCase() ? null
+    : textTranslationForProfile(profile) !== "followService" ? `${I18N.settings.speechRecognition} · ${provider}` : provider;
 }
 
 function credentialFieldCopy(field: CredentialFieldName, provider: ServiceProvider): {

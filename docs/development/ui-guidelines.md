@@ -27,6 +27,10 @@ These project rules apply to implementation and review.
 - Make the title, current state, main action and detail areas easy to distinguish.
   Group related controls, use consistent button sizes and align actions right.
   Do not scatter buttons across large blank areas or add cards to every row.
+  In configuration lists, keep actions in one compact strip; move the whole
+  strip below the identity when needed instead of using a two-row action block
+  that inflates short rows. Keep action wording at minimum width, omit redundant
+  icons if necessary, and check artwork bounds as well as its outer icon slot.
 - An empty configuration list needs a short, readable next-step instruction
   beside its add action. Show it only after a successful settings load; a zero
   count alone is not sufficient guidance for a fresh install.
